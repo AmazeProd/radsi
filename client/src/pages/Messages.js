@@ -68,7 +68,7 @@ const Messages = () => {
   const [isTabVisible, setIsTabVisible] = useState(true);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef(null);
-  const pollIntervalRef = useRef(null);
+  // const pollIntervalRef = useRef(null);
 
   // Common emojis for quick access
   const commonEmojis = ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🎉', '🔥', '✨', '💯', '🙌', '👏', '🎊', '💪', '🌟', '😊', '🤗', '😅', '😢', '😭', '😡', '🤣', '😜', '😇', '🥳', '😴', '🤩', '😱'];

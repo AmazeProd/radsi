@@ -23,7 +23,7 @@ const getAvatarColor = (str) => {
 };
 
 const Feed = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [postContent, setPostContent] = useState('');
