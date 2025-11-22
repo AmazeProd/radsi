@@ -27,9 +27,11 @@ app.set('trust proxy', 1);
 // Initialize Socket.io
 const io = socketIO(server, {
   cors: {
-    origin: [process.env.CLIENT_URL, /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:3000$/],
+    origin: [process.env.CLIENT_URL, 'https://radsi.vercel.app', /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:3000$/],
     credentials: true,
+    methods: ["GET", "POST"]
   },
+  transports: ['websocket', 'polling']
 });
 
 // Make io accessible to routes
