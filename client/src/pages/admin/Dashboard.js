@@ -82,10 +82,21 @@ const Dashboard = () => {
   const handleDeleteUser = async (userId, username) => {
     if (window.confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
       try {
-        await deleteUser(userId);
+        const response = await deleteUser(userId);
+        console.log('Delete response:', response);
+        
+        // Immediately remove from UI
+        setUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
+        setFilteredUsers(prevFiltered => prevFiltered.filter(u => u._id !== userId));
+        
         toast.success(`User "${username}" deleted successfully`);
-        loadDashboardData(); // Reload data
+        
+        // Reload to get fresh stats
+        setTimeout(() => {
+          loadDashboardData();
+        }, 500);
       } catch (error) {
+        console.error('Delete error:', error);
         toast.error(error.response?.data?.message || 'Failed to delete user');
       }
     }
