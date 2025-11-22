@@ -53,12 +53,28 @@ const Dashboard = () => {
         getAllUsers()
       ]);
       
-      setStats(statsRes.data);
-      setUsers(usersRes.data);
-      setFilteredUsers(usersRes.data);
+      console.log('Stats response:', statsRes);
+      console.log('Users response:', usersRes);
+      
+      setStats(statsRes.data || {
+        totalUsers: 0,
+        totalPosts: 0,
+        activeUsers: 0,
+        newUsersThisWeek: 0
+      });
+      
+      // Ensure users is always an array
+      const usersArray = Array.isArray(usersRes.data) ? usersRes.data : 
+                        Array.isArray(usersRes.data?.users) ? usersRes.data.users : [];
+      
+      setUsers(usersArray);
+      setFilteredUsers(usersArray);
     } catch (error) {
       console.error('Dashboard error:', error);
       toast.error(error.response?.data?.message || 'Failed to load dashboard data');
+      // Set empty arrays on error
+      setUsers([]);
+      setFilteredUsers([]);
     } finally {
       setLoading(false);
     }
