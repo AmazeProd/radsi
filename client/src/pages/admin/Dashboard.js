@@ -56,16 +56,15 @@ const Dashboard = () => {
       console.log('Stats response:', statsRes);
       console.log('Users response:', usersRes);
       
-      setStats(statsRes.data || {
-        totalUsers: 0,
-        totalPosts: 0,
-        activeUsers: 0,
-        newUsersThisWeek: 0
+      setStats({
+        totalUsers: statsRes.data?.totalUsers || 0,
+        totalPosts: statsRes.data?.totalPosts || 0,
+        activeUsers: statsRes.data?.activeUsers || 0,
+        newUsersThisWeek: statsRes.data?.newUsers || 0
       });
       
-      // Ensure users is always an array
-      const usersArray = Array.isArray(usersRes.data) ? usersRes.data : 
-                        Array.isArray(usersRes.data?.users) ? usersRes.data.users : [];
+      // Backend returns { success, count, total, data: [...users] }
+      const usersArray = usersRes.data?.data || [];
       
       setUsers(usersArray);
       setFilteredUsers(usersArray);
