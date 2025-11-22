@@ -64,7 +64,6 @@ const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
   const [isTabVisible, setIsTabVisible] = useState(true);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef(null);
@@ -137,9 +136,18 @@ const Messages = () => {
           
           if (isRelevant) {
             setMessages((prev) => {
-              // Avoid duplicates
-              const exists = prev.some(m => m._id === message._id);
-              if (exists) return prev;
+              // Avoid duplicates - check both real ID and temp ID
+              const exists = prev.some(m => 
+                m._id === message._id || 
+                (m._id.startsWith('temp-') && m.content === message.content && 
+                 Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) < 2000)
+              );
+              if (exists) {
+                // Replace temp message with real one
+                return prev.map(m => 
+                  (m._id.startsWith('temp-') && m.content === message.content) ? message : m
+                );
+              }
               return [...prev, message];
             });
             scrollToBottom();
@@ -274,25 +282,33 @@ const Messages = () => {
     
     if (!newMessage.trim() || !selectedUser) return;
 
-    setSending(true);
+    const messageText = newMessage.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Optimistic update: Add message to UI immediately
+    const optimisticMessage = {
+      _id: tempId,
+      content: messageText,
+      sender: { _id: user._id },
+      receiver: { _id: selectedUser._id },
+      createdAt: new Date().toISOString(),
+      isRead: false,
+    };
+    
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setNewMessage(''); // Clear input immediately for next message
+    scrollToBottom();
+    
+    // Send in background without blocking
     try {
-      await sendMessage(selectedUser._id, newMessage);
-      
-      // Message already added via socket, no need to manually add
-      setNewMessage('');
-      
-      // Small delay to ensure socket event is processed
-      setTimeout(() => {
-        const messagesContainer = document.querySelector('.overflow-y-auto.p-4.space-y-3');
-        if (messagesContainer) {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-        loadConversations();
-      }, 100);
+      await sendMessage(selectedUser._id, messageText);
+      // Update conversation list in background
+      loadConversations();
     } catch (error) {
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter(m => m._id !== tempId));
+      setNewMessage(messageText); // Restore message text
       toast.error('Failed to send message');
-    } finally {
-      setSending(false);
     }
   };
 
@@ -515,11 +531,11 @@ const Messages = () => {
                   />
                   <button
                     type="submit"
-                    disabled={sending || !newMessage.trim()}
+                    disabled={!newMessage.trim()}
                     className="bg-primary-600 text-white px-6 py-3 rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 font-semibold"
                     onMouseDown={(e) => e.preventDefault()}
                   >
-                    {sending ? '...' : 'Send'}
+                    Send
                   </button>
                 </div>
               </form>
