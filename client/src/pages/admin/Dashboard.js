@@ -57,7 +57,8 @@ const Dashboard = () => {
       setUsers(usersRes.data);
       setFilteredUsers(usersRes.data);
     } catch (error) {
-      toast.error('Failed to load dashboard data');
+      console.error('Dashboard error:', error);
+      toast.error(error.response?.data?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
