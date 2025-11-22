@@ -179,7 +179,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Delete user (admin)
+// @desc    Delete user (admin) - Soft delete
 // @route   DELETE /api/admin/users/:id
 // @access  Private/Admin
 exports.deleteUser = asyncHandler(async (req, res, next) => {
@@ -204,6 +204,39 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: 'User account suspended',
+  });
+});
+
+// @desc    Permanently delete user from database
+// @route   DELETE /api/admin/users/:id/permanent
+// @access  Private/Admin
+exports.permanentDeleteUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return next(new ErrorResponse('User not found', 404));
+  }
+
+  // Prevent deleting own account
+  if (user._id.toString() === req.user.id) {
+    return next(new ErrorResponse('Cannot delete your own account', 400));
+  }
+
+  const userId = user._id;
+  const username = user.username;
+
+  // Delete all related data
+  await Post.deleteMany({ user: userId });
+  await Comment.deleteMany({ user: userId });
+  await Follower.deleteMany({ $or: [{ follower: userId }, { following: userId }] });
+  await Like.deleteMany({ user: userId });
+  
+  // Finally delete the user
+  await User.findByIdAndDelete(userId);
+
+  res.status(200).json({
+    success: true,
+    message: `User ${username} and all related data permanently deleted`,
   });
 });
 

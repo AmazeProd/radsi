@@ -6,6 +6,7 @@ const {
   getUserDetails,
   updateUser,
   deleteUser,
+  permanentDeleteUser,
   suspendUser,
   reactivateUser,
   getAllPosts,
@@ -40,6 +41,7 @@ router.get('/users', getAllUsers);
 router.get('/users/:id', getUserDetails);
 router.put('/users/:id', updateUserValidation, validate, updateUser);
 router.delete('/users/:id', deleteUser);
+router.delete('/users/:id/permanent', permanentDeleteUser);
 router.put('/users/:id/suspend', suspendUser);
 router.put('/users/:id/reactivate', reactivateUser);
 

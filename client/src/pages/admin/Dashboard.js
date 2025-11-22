@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getAdminStats, getAllUsers, deleteUser } from '../../services/adminService';
+import { getAdminStats, getAllUsers, deleteUser, permanentDeleteUser } from '../../services/adminService';
 import { toast } from 'react-toastify';
-import { FiUsers, FiFileText, FiActivity, FiTrendingUp, FiTrash2, FiSearch } from 'react-icons/fi';
+import { FiUsers, FiFileText, FiActivity, FiTrendingUp, FiTrash2, FiSearch, FiUserX } from 'react-icons/fi';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -80,7 +80,7 @@ const Dashboard = () => {
   };
 
   const handleDeleteUser = async (userId, username) => {
-    if (window.confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
+    if (window.confirm(`Are you sure you want to SUSPEND user "${username}"? They can be reactivated later.`)) {
       try {
         const response = await deleteUser(userId);
         console.log('Delete response:', response);
@@ -89,7 +89,7 @@ const Dashboard = () => {
         setUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
         setFilteredUsers(prevFiltered => prevFiltered.filter(u => u._id !== userId));
         
-        toast.success(`User "${username}" deleted successfully`);
+        toast.success(`User "${username}" suspended successfully`);
         
         // Reload to get fresh stats
         setTimeout(() => {
@@ -97,7 +97,36 @@ const Dashboard = () => {
         }, 500);
       } catch (error) {
         console.error('Delete error:', error);
-        toast.error(error.response?.data?.message || 'Failed to delete user');
+        toast.error(error.response?.data?.message || 'Failed to suspend user');
+      }
+    }
+  };
+
+  const handlePermanentDelete = async (userId, username) => {
+    if (window.confirm(`⚠️ PERMANENT DELETE WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to PERMANENTLY DELETE user "${username}"?\n\nThis will:\n- Delete the user account forever\n- Delete ALL their posts and comments\n- Delete ALL their followers/following\n- This CANNOT be undone!\n\nType the username to confirm:`)) {
+      const confirmUsername = prompt(`Type "${username}" to confirm permanent deletion:`);
+      
+      if (confirmUsername === username) {
+        try {
+          const response = await permanentDeleteUser(userId);
+          console.log('Permanent delete response:', response);
+          
+          // Immediately remove from UI
+          setUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
+          setFilteredUsers(prevFiltered => prevFiltered.filter(u => u._id !== userId));
+          
+          toast.success(`User "${username}" permanently deleted`);
+          
+          // Reload to get fresh stats
+          setTimeout(() => {
+            loadDashboardData();
+          }, 500);
+        } catch (error) {
+          console.error('Permanent delete error:', error);
+          toast.error(error.response?.data?.message || 'Failed to permanently delete user');
+        }
+      } else {
+        toast.error('Username did not match. Deletion cancelled.');
       }
     }
   };
@@ -237,13 +266,22 @@ const Dashboard = () => {
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-center gap-2">
                         {user.role !== 'admin' && (
-                          <button
-                            onClick={() => handleDeleteUser(user._id, user.username)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"
-                            title="Delete user"
-                          >
-                            <FiTrash2 size={18} />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleDeleteUser(user._id, user.username)}
+                              className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 p-2 rounded-lg transition"
+                              title="Suspend user (can be reactivated)"
+                            >
+                              <FiUserX size={18} />
+                            </button>
+                            <button
+                              onClick={() => handlePermanentDelete(user._id, user.username)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"
+                              title="Permanently delete user and all data"
+                            >
+                              <FiTrash2 size={18} />
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
