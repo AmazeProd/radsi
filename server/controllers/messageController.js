@@ -154,16 +154,21 @@ exports.sendMessage = asyncHandler(async (req, res, next) => {
     content: `${req.user.username} sent you a message`,
   });
 
-  // Emit socket event - send to both sender and receiver
+  // Emit socket event - send to receiver only
   const io = req.app.get('io');
+  const onlineUsers = io.onlineUsers || new Map();
   
-  // Emit to all clients - they will filter on their end
-  io.emit('receive-message', populatedMessage);
-
-  io.emit('send-notification', {
-    recipientId: receiverId,
-    notification,
-  });
+  // Find receiver's socket ID and emit to them specifically
+  const receiverSocketId = onlineUsers.get(receiverId);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('receive-message', populatedMessage);
+    
+    // Send notification
+    io.to(receiverSocketId).emit('send-notification', {
+      recipientId: receiverId,
+      notification,
+    });
+  }
 
   res.status(201).json({
     success: true,

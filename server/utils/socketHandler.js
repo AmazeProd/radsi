@@ -3,8 +3,11 @@ const User = require('../models/User');
 
 // Socket.io connection handler
 const socketHandler = (io) => {
-  // Store online users
+  // Store online users - userId -> socketId mapping
   const onlineUsers = new Map();
+  
+  // Make onlineUsers accessible from express app
+  io.onlineUsers = onlineUsers;
 
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);

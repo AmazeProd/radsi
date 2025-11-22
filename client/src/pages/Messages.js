@@ -125,6 +125,8 @@ const Messages = () => {
   useEffect(() => {
     if (socket) {
       const handleReceiveMessage = (message) => {
+        console.log('Received message via socket:', message._id, message.content);
+        
         // Always refresh conversation list when a new message arrives
         loadConversations();
         
@@ -136,18 +138,31 @@ const Messages = () => {
           
           if (isRelevant) {
             setMessages((prev) => {
-              // Avoid duplicates - check both real ID and temp ID
-              const exists = prev.some(m => 
-                m._id === message._id || 
-                (m._id.startsWith('temp-') && m.content === message.content && 
-                 Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) < 2000)
-              );
-              if (exists) {
-                // Replace temp message with real one
-                return prev.map(m => 
-                  (m._id.startsWith('temp-') && m.content === message.content) ? message : m
-                );
+              // Check if message already exists by ID
+              const existsById = prev.some(m => m._id === message._id);
+              if (existsById) {
+                console.log('Message already exists, skipping:', message._id);
+                return prev;
               }
+              
+              // Check for temporary message to replace
+              const tempIndex = prev.findIndex(m => 
+                m._id.startsWith('temp-') && 
+                m.content === message.content &&
+                m.sender._id === message.sender._id &&
+                Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) < 5000
+              );
+              
+              if (tempIndex !== -1) {
+                // Replace temp message with real one
+                console.log('Replacing temp message with real one:', message._id);
+                const newMessages = [...prev];
+                newMessages[tempIndex] = message;
+                return newMessages;
+              }
+              
+              // Add new message
+              console.log('Adding new message:', message._id);
               return [...prev, message];
             });
             scrollToBottom();
@@ -339,18 +354,18 @@ const Messages = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-4">
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 h-[calc(100vh-120px)] flex overflow-hidden" style={{position: 'relative'}}>
+    <div className="max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
+      <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg border border-gray-200 h-[calc(100vh-80px)] sm:h-[calc(100vh-120px)] flex overflow-hidden" style={{position: 'relative'}}>
         {/* Conversations List */}
-        <div className="w-1/3 border-r border-gray-200 flex flex-col bg-gray-50 overflow-hidden">
-          <div className="p-5 border-b border-gray-200 bg-white flex-shrink-0">
-            <h2 className="text-xl font-bold text-gray-900">Messages</h2>
+        <div className={`${selectedUser ? 'hidden sm:flex' : 'flex'} w-full sm:w-1/3 border-r border-gray-200 flex-col bg-gray-50 overflow-hidden`}>
+          <div className="p-3 sm:p-5 border-b border-gray-200 bg-white flex-shrink-0">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Messages</h2>
           </div>
           <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                <FiMail size={48} className="mb-3" />
-                <p className="text-sm">No conversations yet</p>
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 px-4">
+                <FiMail size={40} className="sm:w-12 sm:h-12 mb-3" />
+                <p className="text-xs sm:text-sm text-center">No conversations yet</p>
               </div>
             ) : (
               conversations.map((conversation, index) => {
@@ -361,31 +376,31 @@ const Messages = () => {
                   <div
                     key={conversation._id}
                     onClick={() => handleSelectUser(conversation)}
-                    className={`p-4 cursor-pointer hover:bg-white transition-all ${
+                    className={`p-3 sm:p-4 cursor-pointer hover:bg-white transition-all ${
                       selectedUser?._id === otherUser._id ? 'bg-white border-l-4 border-primary-600' : ''
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="relative">
                         {otherUser.profilePicture && !otherUser.profilePicture.includes('ui-avatars.com') ? (
                           <img
                             src={otherUser.profilePicture}
                             alt={otherUser.username}
-                            className="w-14 h-14 rounded-full ring-2 ring-gray-200 object-cover"
+                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full ring-2 ring-gray-200 object-cover"
                           />
                         ) : (
-                          <div className={`w-14 h-14 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-xl font-bold ${getAvatarColor(otherUser.username)}`}>
+                          <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-lg sm:text-xl font-bold ${getAvatarColor(otherUser.username)}`}>
                             {getInitials(otherUser)}
                           </div>
                         )}
                         {(onlineUsers.includes(otherUser._id) || otherUser.isOnline) && (
-                          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                          <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">{otherUser.username}</h3>
+                        <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{otherUser.username}</h3>
                         {conversation.lastMessage && (
-                          <p className="text-sm text-gray-500 truncate">
+                          <p className="text-xs sm:text-sm text-gray-500 truncate">
                             {conversation.lastMessage.content}
                           </p>
                         )}
@@ -399,25 +414,34 @@ const Messages = () => {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 flex flex-col bg-white overflow-hidden">
+        <div className={`${selectedUser ? 'flex' : 'hidden sm:flex'} flex-1 flex-col bg-white overflow-hidden`}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white shadow-sm flex-shrink-0" style={{position: 'sticky', top: 0, zIndex: 10}}>
-                <div className="flex items-center gap-3">
+              <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between bg-white shadow-sm flex-shrink-0" style={{position: 'sticky', top: 0, zIndex: 10}}>
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  {/* Back Button - Mobile Only */}
+                  <button
+                    onClick={() => setSelectedUser(null)}
+                    className="sm:hidden flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition"
+                  >
+                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
                   {selectedUser.profilePicture && !selectedUser.profilePicture.includes('ui-avatars.com') ? (
                     <img
                       src={selectedUser.profilePicture}
                       alt={selectedUser.username}
-                      className="w-11 h-11 rounded-full ring-2 ring-gray-200 object-cover"
+                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-full ring-2 ring-gray-200 object-cover"
                     />
                   ) : (
-                    <div className={`w-11 h-11 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-lg font-bold ${getAvatarColor(selectedUser.username)}`}>
+                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-base sm:text-lg font-bold ${getAvatarColor(selectedUser.username)}`}>
                       {getInitials(selectedUser)}
                     </div>
                   )}
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{selectedUser.username}</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
                       <p className="text-xs text-green-500 font-medium">Active now</p>
                     ) : selectedUser.lastSeen ? (
@@ -441,7 +465,7 @@ const Messages = () => {
               </div>
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+              <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3 bg-gray-50">
                 {messages.map((message) => {
                   const senderId = message.sender?._id || message.sender;
                   const isSent = senderId === user._id || senderId === user.id;
@@ -452,13 +476,13 @@ const Messages = () => {
                       className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-2.5 shadow-sm select-none ${
+                        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
                           isSent
                             ? 'bg-primary-600 text-white rounded-br-none'
                             : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                         }`}
                       >
-                        <p className="break-words select-text">{message.content}</p>
+                        <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
                         <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
                           isSent ? 'text-primary-100' : 'text-gray-400'
                         }`}>
@@ -492,16 +516,16 @@ const Messages = () => {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white flex-shrink-0" style={{position: 'sticky', bottom: 0, zIndex: 10}}>
+              <form onSubmit={handleSendMessage} className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0" style={{position: 'sticky', bottom: 0, zIndex: 10}}>
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                  <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                       {commonEmojis.map((emoji, index) => (
                         <button
                           key={index}
                           onClick={() => handleEmojiClick(emoji)}
-                          className="text-2xl hover:scale-125 transition-transform p-1"
+                          className="text-xl sm:text-2xl hover:scale-125 transition-transform p-1"
                           type="button"
                         >
                           {emoji}
@@ -511,14 +535,14 @@ const Messages = () => {
                   </div>
                 )}
                 
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={`${showEmojiPicker ? 'bg-primary-50 text-primary-600' : 'text-gray-500'} hover:bg-primary-50 hover:text-primary-600 p-3 rounded-full transition`}
+                    className={`${showEmojiPicker ? 'bg-primary-50 text-primary-600' : 'text-gray-500'} hover:bg-primary-50 hover:text-primary-600 p-2 sm:p-3 rounded-full transition flex-shrink-0`}
                     title="Add emoji"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </button>
@@ -527,12 +551,12 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
                   />
                   <button
                     type="submit"
                     disabled={!newMessage.trim()}
-                    className="bg-primary-600 text-white px-6 py-3 rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 font-semibold"
+                    className="bg-primary-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 font-semibold text-sm sm:text-base flex-shrink-0"
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     Send
@@ -541,10 +565,10 @@ const Messages = () => {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-              <FiMessageCircle size={64} className="mb-4" />
-              <p className="text-lg font-medium">Select a conversation</p>
-              <p className="text-sm">Choose from existing conversations or start a new one</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 px-4">
+              <FiMessageCircle size={48} className="sm:w-16 sm:h-16 mb-4" />
+              <p className="text-base sm:text-lg font-medium text-center">Select a conversation</p>
+              <p className="text-xs sm:text-sm text-center">Choose from existing conversations or start a new one</p>
             </div>
           )}
         </div>
