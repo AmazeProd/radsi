@@ -16,8 +16,7 @@ const Home = () => {
       <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-sm z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 sm:gap-3">
-            <img src="/assets/logo.png" alt="Radsi Corp" className="h-8 sm:h-10 w-auto" />
-            <span className="text-xl sm:text-2xl font-bold text-gray-900">Radsi</span>
+            <img src="/assets/logotext.png" alt="Radsi Corp" className="h-10 sm:h-12 w-auto" />
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/login" className="text-gray-700 hover:text-gray-900 font-medium px-3 sm:px-6 py-2 transition text-sm sm:text-base">
@@ -221,8 +220,8 @@ const Home = () => {
       <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
-              Why Choose Radsi
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center justify-center gap-3">
+              Why Choose <img src="/assets/logotext.png" alt="Radsi" className="h-10 sm:h-14 w-auto inline-block" />
             </h2>
             <p className="text-base sm:text-xl text-gray-600">
               The most advanced social platform for your organization
@@ -288,11 +287,10 @@ const Home = () => {
       <footer className="bg-gray-900 text-gray-400 py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex justify-center items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <img src="/assets/logo.png" alt="Radsi" className="h-6 sm:h-8 w-auto filter brightness-0 invert" />
-            <span className="text-xl sm:text-2xl font-bold text-white">Radsi</span>
+            <img src="/assets/logotext.png" alt="Radsi" className="h-8 sm:h-10 w-auto filter brightness-0 invert" />
           </div>
           <p className="text-xs sm:text-sm">
-            © 2025 Radsi Corporation. All rights reserved.
+            © 2025 <img src="/assets/logotext.png" alt="Radsi" className="h-4 sm:h-5 w-auto inline-block filter brightness-0 invert" /> Corporation. All rights reserved.
           </p>
         </div>
       </footer>

@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Logo Section */}
           <div className="flex flex-col items-center md:items-start gap-2">
             <div className="flex items-center gap-3">
-              <img src="/assets/logo.png" alt="Radsi Corp" className="h-10 w-auto filter brightness-0 invert" />
+              <img src="/assets/logotext.png" alt="Radsi Corp" className="h-10 w-auto filter brightness-0 invert" />
             </div>
             <p className="text-sm text-primary-300">Your Social Connection Hub</p>
           </div>
@@ -37,8 +37,8 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-8 pt-6 border-t border-github-border">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-primary-300">
-              © {new Date().getFullYear()} Radsi Corp. All rights reserved.
+            <p className="text-sm text-primary-300 flex items-center gap-1">
+              © {new Date().getFullYear()} <img src="/assets/logotext.png" alt="Radsi" className="h-4 w-auto filter brightness-0 invert inline-block" /> Corp. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm text-primary-300">
               <Link to="#" className="hover:text-github-blue transition">Privacy Policy</Link>
