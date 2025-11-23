@@ -48,7 +48,7 @@ const Register = () => {
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
         <div>
           <div className="flex justify-center mb-4">
-            <img src="/assets/logoimg.png" alt="NewsHub" className="h-14 w-auto" />
+            <img src="/assets/logotext.png" alt="NewsHub" className="h-14 w-auto" />
           </div>
           <h2 className="text-center text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
             Create Account
