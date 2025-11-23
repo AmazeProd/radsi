@@ -220,8 +220,8 @@ const Home = () => {
       <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center justify-center gap-3">
-              Why Choose <img src="/assets/logotext.png" alt="Radsi" className="h-10 sm:h-14 w-auto inline-block" />
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+              Why Choose Radsi
             </h2>
             <p className="text-base sm:text-xl text-gray-600">
               The most advanced social platform for your organization
