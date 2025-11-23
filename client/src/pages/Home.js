@@ -290,7 +290,7 @@ const Home = () => {
             <img src="/assets/logotext.png" alt="Radsi" className="h-16 sm:h-20 w-auto" />
           </div>
           <p className="text-xs sm:text-sm">
-            © 2025 <img src="/assets/logotext.png" alt="Radsi" className="h-7 sm:h-8 w-auto inline-block" /> Corporation. All rights reserved.
+            © 2025 Radsi Corporation. All rights reserved.
           </p>
         </div>
       </footer>
