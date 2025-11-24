@@ -16,7 +16,7 @@ const Home = () => {
       <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-sm z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 sm:gap-3">
-            <img src="/assets/logotext.png" alt="Radsi Corp" className="h-16 sm:h-20 w-auto" />
+            <img src="/assets/logotext.png" alt="Radsi Corp" className="h-20 sm:h-24 w-auto" />
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/login" className="text-gray-700 hover:text-gray-900 font-medium px-3 sm:px-6 py-2 transition text-sm sm:text-base">
@@ -287,7 +287,7 @@ const Home = () => {
       <footer className="bg-gray-900 text-gray-400 py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex justify-center items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <img src="/assets/logotext.png" alt="Radsi" className="h-16 sm:h-20 w-auto" />
+            <img src="/assets/logotext.png" alt="Radsi" className="h-20 sm:h-24 w-auto" />
           </div>
           <p className="text-xs sm:text-sm">
             © 2025 Radsi Corporation. All rights reserved.

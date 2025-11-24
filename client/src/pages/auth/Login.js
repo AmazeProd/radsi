@@ -45,7 +45,7 @@ const Login = () => {
       <div className="relative max-w-md w-full space-y-8 bg-github-card p-10 rounded-2xl shadow-github-lg border border-github-border animate-fadeInScale backdrop-blur-sm">
         <div>
           <div className="flex justify-center mb-4 animate-fadeIn">
-            <img src="/assets/logotext.png" alt="Radsi" className="h-28 w-auto drop-shadow-lg" />
+            <img src="/assets/logotext.png" alt="Radsi" className="h-32 w-auto drop-shadow-lg" />
           </div>
           <h2 className="text-center text-4xl font-bold text-github-heading animate-slideIn delay-100">
             Welcome Back

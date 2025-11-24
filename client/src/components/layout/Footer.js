@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Logo Section */}
           <div className="flex flex-col items-center md:items-start gap-2">
             <div className="flex items-center gap-3">
-              <img src="/assets/logotext.png" alt="Radsi Corp" className="h-20 w-auto" />
+              <img src="/assets/logotext.png" alt="Radsi Corp" className="h-24 w-auto" />
             </div>
             <p className="text-sm text-primary-300">Your Social Connection Hub</p>
           </div>
