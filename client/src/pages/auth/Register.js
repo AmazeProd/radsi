@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
+import { FiUser, FiLock, FiArrowRight } from 'react-icons/fi';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -44,107 +45,142 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-github-canvas relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute w-96 h-96 bg-github-blue/10 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+        <div className="absolute w-96 h-96 bg-purple-500/10 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute w-64 h-64 bg-github-green/10 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{animationDelay: '2s'}}></div>
+      </div>
+      <div className="relative max-w-md w-full space-y-8 bg-github-card p-10 rounded-2xl shadow-github-lg border border-github-border animate-fadeInScale backdrop-blur-sm">
         <div>
-          <div className="flex justify-center mb-4">
-            <img src="/assets/logotext.png" alt="NewsHub" className="h-28 w-auto" />
+          <div className="flex justify-center mb-4 animate-fadeIn">
+            <img src="/assets/logotext.png" alt="Radsi" className="h-32 w-auto drop-shadow-lg" />
           </div>
-          <h2 className="text-center text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-center text-4xl font-bold text-github-heading animate-slideIn delay-100">
             Create Account
           </h2>
-          <p className="mt-3 text-center text-sm text-gray-600">
+          <p className="mt-3 text-center text-base text-github-text animate-slideIn delay-200">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
+            <Link to="/login" className="text-github-blue hover:text-blue-400 font-semibold transition-colors">
               Sign in
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6 animate-slideInFromBottom delay-300" onSubmit={handleSubmit}>
           <div className="space-y-5">
-            <div>
-              <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="group">
+              <label htmlFor="username" className="block text-sm font-semibold text-github-text mb-2">
                 Username
               </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleChange}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                placeholder="Choose a username"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <FiUser className="text-github-text/50 group-focus-within:text-github-blue transition-colors" size={20} />
+                </div>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="block w-full pl-12 pr-4 py-3.5 bg-github-canvas border border-github-border text-github-text rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-github-blue focus:border-transparent transition-all placeholder-github-text/40"
+                  placeholder="Choose a username"
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className="group">
+                <label htmlFor="firstName" className="block text-sm font-semibold text-github-text mb-2">
                   First name
                 </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                  placeholder="First name"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <FiUser className="text-github-text/50 group-focus-within:text-github-blue transition-colors" size={20} />
+                  </div>
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className="block w-full pl-12 pr-4 py-3.5 bg-github-canvas border border-github-border text-github-text rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-github-blue focus:border-transparent transition-all placeholder-github-text/40"
+                    placeholder="First name"
+                  />
+                </div>
               </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
+              <div className="group">
+                <label htmlFor="lastName" className="block text-sm font-semibold text-github-text mb-2">
                   Last name
                 </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <FiUser className="text-github-text/50 group-focus-within:text-github-blue transition-colors" size={20} />
+                  </div>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className="block w-full pl-12 pr-4 py-3.5 bg-github-canvas border border-github-border text-github-text rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-github-blue focus:border-transparent transition-all placeholder-github-text/40"
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="group">
+              <label htmlFor="password" className="block text-sm font-semibold text-github-text mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <FiLock className="text-github-text/50 group-focus-within:text-github-blue transition-colors" size={20} />
+                </div>
                 <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  value={formData.lastName}
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
                   onChange={handleChange}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                  placeholder="Last name"
+                  className="block w-full pl-12 pr-4 py-3.5 bg-github-canvas border border-github-border text-github-text rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-github-blue focus:border-transparent transition-all placeholder-github-text/40"
+                  placeholder="Create a password"
                 />
               </div>
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                placeholder="Create a password"
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="group">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-github-text mb-2">
                 Confirm password
               </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                placeholder="Confirm your password"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <FiLock className="text-github-text/50 group-focus-within:text-github-blue transition-colors" size={20} />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="block w-full pl-12 pr-4 py-3.5 bg-github-canvas border border-github-border text-github-text rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-github-blue focus:border-transparent transition-all placeholder-github-text/40"
+                  placeholder="Confirm your password"
+                />
+              </div>
             </div>
           </div>
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] shadow-lg"
+            className="group w-full flex items-center justify-center gap-2 py-4 px-4 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-github-blue to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-github-blue disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] shadow-github-lg"
           >
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? 'Creating account...' : (
+              <>
+                Create Account
+                <FiArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+              </>
+            )}
           </button>
         </form>
       </div>
