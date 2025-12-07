@@ -71,6 +71,7 @@ const Messages = () => {
   const [hasMoreConversations, setHasMoreConversations] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesCacheRef = useRef(new Map()); // Cache messages by userId
   // const pollIntervalRef = useRef(null);
 
   // Common emojis for quick access
@@ -133,6 +134,16 @@ const Messages = () => {
         
         // Always refresh conversation list when a new message arrives
         loadConversations();
+        
+        // Update cache for this conversation
+        const conversationUserId = message.sender._id === user._id ? message.receiver._id : message.sender._id;
+        if (messagesCacheRef.current.has(conversationUserId)) {
+          const cachedMessages = messagesCacheRef.current.get(conversationUserId);
+          const messageExists = cachedMessages.some(m => m._id === message._id);
+          if (!messageExists) {
+            messagesCacheRef.current.set(conversationUserId, [...cachedMessages, message]);
+          }
+        }
         
         // If we're viewing this conversation, add message to the list
         if (selectedUser) {
@@ -260,6 +271,24 @@ const Messages = () => {
       setConversations(paginatedConversations);
       setHasMoreConversations(endIndex < allConversations.length);
       setConversationPage(page);
+      
+      // Prefetch messages for first 3 conversations for instant display
+      if (page === 1 && paginatedConversations.length > 0) {
+        const topConversations = paginatedConversations.slice(0, 3);
+        topConversations.forEach((conversation, index) => {
+          const otherUser = conversation.participants?.find((p) => p._id !== user._id);
+          if (otherUser && !messagesCacheRef.current.has(otherUser._id)) {
+            // Prefetch with slight delay to not overwhelm server
+            setTimeout(() => {
+              getMessages(otherUser._id)
+                .then(response => {
+                  messagesCacheRef.current.set(otherUser._id, response.data || []);
+                })
+                .catch(err => console.error('Prefetch failed:', err));
+            }, index * 100);
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to load conversations');
     } finally {
@@ -274,13 +303,37 @@ const Messages = () => {
     }
   };
 
-  const loadMessages = async (userId) => {
+  const loadMessages = async (userId, skipCache = false) => {
     try {
-      // Clear messages immediately and show loading state
+      // Check cache first for instant display
+      if (!skipCache && messagesCacheRef.current.has(userId)) {
+        const cachedMessages = messagesCacheRef.current.get(userId);
+        setMessages(cachedMessages);
+        
+        // Still fetch fresh data in background and update if changed
+        getMessages(userId).then(response => {
+          const freshMessages = response.data || [];
+          messagesCacheRef.current.set(userId, freshMessages);
+          setMessages(freshMessages);
+        }).catch(err => console.error('Background refresh failed:', err));
+        
+        // Mark as read
+        if (isTabVisible && !document.hidden) {
+          markAsRead(userId).catch(err => console.error('Failed to mark as read:', err));
+        }
+        return;
+      }
+      
+      // No cache - show empty and fetch
       setMessages([]);
       
       const response = await getMessages(userId);
-      setMessages(response.data || []);
+      const fetchedMessages = response.data || [];
+      
+      // Cache the messages
+      messagesCacheRef.current.set(userId, fetchedMessages);
+      setMessages(fetchedMessages);
+      
       // Mark as read only if tab is visible
       if (isTabVisible && !document.hidden) {
         await markAsRead(userId);
