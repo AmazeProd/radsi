@@ -599,7 +599,7 @@ const Messages = () => {
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between bg-white shadow-sm flex-shrink-0" style={{position: 'sticky', top: 0, zIndex: 10}}>
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white shadow-sm flex-shrink-0 sticky top-0 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
