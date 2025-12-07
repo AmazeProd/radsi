@@ -663,7 +663,6 @@ const Messages = () => {
                       <div
                         key={message._id}
                         className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fadeIn group`}
-                        style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
