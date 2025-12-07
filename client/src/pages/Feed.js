@@ -71,7 +71,13 @@ const Feed = () => {
         formData.append('images', image);
       });
 
+      console.log('Creating post with:');
+      console.log('- Content:', postContent);
+      console.log('- Images:', selectedImages);
+      console.log('- FormData entries:', Array.from(formData.entries()));
+
       const response = await createPost(formData);
+      console.log('Post created:', response);
       setPosts([response.data, ...posts]);
       setPostContent('');
       setSelectedImages([]);
@@ -79,7 +85,8 @@ const Feed = () => {
       setShowEmojiPicker(false);
       toast.success('Post created successfully!');
     } catch (error) {
-      toast.error('Failed to create post');
+      console.error('Failed to create post:', error);
+      toast.error(error.response?.data?.message || 'Failed to create post');
     } finally {
       setPosting(false);
     }
@@ -101,6 +108,7 @@ const Feed = () => {
     // Limit to 4 images
     if (selectedImages.length + files.length > 4) {
       toast.error('You can only upload up to 4 images per post');
+      e.target.value = ''; // Reset input
       return;
     }
     
@@ -132,6 +140,7 @@ const Feed = () => {
     }
     
     setSelectedImages([...selectedImages, ...validFiles]);
+    e.target.value = ''; // Reset input to allow re-selecting same files
   };
 
   const removeImage = (index) => {

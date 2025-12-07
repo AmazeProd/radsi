@@ -125,6 +125,11 @@ exports.getMessages = asyncHandler(async (req, res, next) => {
 exports.sendMessage = asyncHandler(async (req, res, next) => {
   const { receiver: receiverId, content } = req.body;
 
+  console.log('=== SEND MESSAGE ===');
+  console.log('Receiver:', receiverId);
+  console.log('Content:', content);
+  console.log('File:', req.file);
+
   // Check if content or image is provided
   if (!content && !req.file) {
     return next(new ErrorResponse('Message must contain text or an image', 400));
@@ -145,7 +150,9 @@ exports.sendMessage = asyncHandler(async (req, res, next) => {
 
   // Upload image if provided
   if (req.file) {
+    console.log('Uploading image to Cloudinary...');
     const uploadResult = await uploadImage(req.file.path, 'social-media/messages');
+    console.log('Image uploaded:', uploadResult);
     image = {
       url: uploadResult.url,
       publicId: uploadResult.publicId,

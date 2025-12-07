@@ -91,9 +91,10 @@ exports.deleteImage = async (publicId) => {
 // Upload multiple images
 exports.uploadMultipleImages = async (files, folder = 'social-media') => {
   try {
-    const uploadPromises = files.map((file) => this.uploadImage(file.path, folder));
+    const uploadPromises = files.map((file) => exports.uploadImage(file.path, folder));
     return await Promise.all(uploadPromises);
   } catch (error) {
+    console.error('Error uploading multiple images:', error);
     throw error;
   }
 };

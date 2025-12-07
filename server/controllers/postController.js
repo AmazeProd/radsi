@@ -89,6 +89,11 @@ exports.getPost = asyncHandler(async (req, res, next) => {
 exports.createPost = asyncHandler(async (req, res, next) => {
   const { content } = req.body;
 
+  console.log('=== CREATE POST ===');
+  console.log('Content:', content);
+  console.log('Files:', req.files);
+  console.log('Files length:', req.files?.length);
+
   if (!content && (!req.files || req.files.length === 0)) {
     return next(new ErrorResponse('Post must contain text or images', 400));
   }
@@ -97,7 +102,9 @@ exports.createPost = asyncHandler(async (req, res, next) => {
 
   // Upload images if provided
   if (req.files && req.files.length > 0) {
+    console.log('Uploading images to Cloudinary...');
     images = await uploadMultipleImages(req.files, 'social-media/posts');
+    console.log('Images uploaded:', images);
   }
 
   const post = await Post.create({
