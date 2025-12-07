@@ -135,7 +135,14 @@ const Profile = () => {
       console.log('Upload response:', response);
       
       // Handle different response structures
-      const newPhotoUrl = response.data?.profilePicture || response.profilePicture;
+      let newPhotoUrl = response.data?.profilePicture || response.profilePicture;
+      
+      // If URL is relative (local storage), prepend API base URL
+      if (newPhotoUrl && newPhotoUrl.startsWith('/uploads/')) {
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://radsi-backend.onrender.com/api';
+        const baseUrl = apiUrl.replace('/api', '');
+        newPhotoUrl = baseUrl + newPhotoUrl;
+      }
       
       if (newPhotoUrl) {
         // Update profile state with new photo
