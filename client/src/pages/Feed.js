@@ -259,66 +259,6 @@ const Feed = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Crop Modal */}
-      {cropModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-2xl font-bold text-gray-800">Crop Image</h3>
-              <p className="text-gray-600 mt-1">Adjust the crop area by dragging the corners</p>
-            </div>
-            
-            <div className="p-6 overflow-auto max-h-[60vh] flex justify-center">
-              {currentCropImage && (
-                <ReactCrop
-                  crop={crop}
-                  onChange={(c) => setCrop(c)}
-                  onComplete={(c) => setCompletedCrop(c)}
-                  aspect={undefined}
-                >
-                  <img
-                    ref={cropImgRef}
-                    src={currentCropImage.src}
-                    alt="Crop preview"
-                    className="max-w-full h-auto"
-                    onLoad={(e) => {
-                      cropImgRef.current = e.currentTarget;
-                    }}
-                  />
-                </ReactCrop>
-              )}
-            </div>
-            
-            <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
-              <button
-                onClick={handleCropCancel}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition font-medium"
-                disabled={cropping}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCropComplete}
-                disabled={cropping || !completedCrop}
-                className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {cropping ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Cropping...
-                  </>
-                ) : (
-                  <>
-                    <FiCheck className="w-5 h-5" />
-                    Apply Crop
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Create Post Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 hover:shadow-md transition-shadow">
         <textarea
@@ -330,9 +270,69 @@ const Feed = () => {
           onKeyDown={handleKeyPress}
         ></textarea>
         
-  return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Create Post Card */}
+        {/* Emoji Picker */}
+        {showEmojiPicker && (
+          <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex flex-wrap gap-2">
+              {commonEmojis.map((emoji, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleEmojiClick(emoji)}
+                  className="text-2xl hover:scale-125 transition-transform p-1"
+                  type="button"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Image Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            {imagePreviews.map((preview, index) => (
+              <div key={index} className="relative group">
+                <img 
+                  src={preview} 
+                  alt={`Preview ${index + 1}`} 
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+                <button
+                  onClick={() => removeImage(index)}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  type="button"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+          <div className="flex gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              multiple
+              className="hidden"
+            />
+            <button
+              onClick={handleImageClick}
+              className="text-primary-600 hover:bg-primary-50 p-2 rounded-full transition"
+              type="button"
+              title="Add images"
+            >
+              <FiImage className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="text-primary-600 hover:bg-primary-50 p-2 rounded-full transition"
+              type="button"
+              title="Add emoji"
             >
               <FiSmile className="w-5 h-5" />
             </button>
