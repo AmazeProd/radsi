@@ -265,14 +265,21 @@ const Messages = () => {
       const response = await getConversations();
       const allConversations = response.data || [];
       
+      // Sort conversations by most recent message first
+      const sortedConversations = allConversations.sort((a, b) => {
+        const dateA = a.lastMessage?.createdAt || a.updatedAt || a.createdAt || 0;
+        const dateB = b.lastMessage?.createdAt || b.updatedAt || b.createdAt || 0;
+        return new Date(dateB) - new Date(dateA); // Newest first
+      });
+      
       // Client-side pagination
       const limit = 20;
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
-      const paginatedConversations = allConversations.slice(0, endIndex);
+      const paginatedConversations = sortedConversations.slice(0, endIndex);
       
       setConversations(paginatedConversations);
-      setHasMoreConversations(endIndex < allConversations.length);
+      setHasMoreConversations(endIndex < sortedConversations.length);
       setConversationPage(page);
       
       // Prefetch messages for first 3 conversations for instant display
