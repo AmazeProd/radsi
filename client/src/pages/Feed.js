@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost, deletePost } from '../services/postService';
 import { toast } from 'react-toastify';
