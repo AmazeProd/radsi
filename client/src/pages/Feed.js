@@ -402,20 +402,6 @@ const Feed = () => {
                   </div>
                 )}
               </div>
-            )}  {post.images.length === 4 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {post.images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img.url}
-                        alt={`Post ${idx + 1}`}
-                        className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
-                        onClick={() => window.open(img.url, '_blank')}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
             )}
 
             {/* Post Actions */}
