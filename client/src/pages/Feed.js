@@ -121,13 +121,6 @@ const Feed = () => {
     
     // Limit to 4 images
     if (selectedImages.length + files.length > 4) {
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    
-    if (files.length === 0) return;
-    
-    // Limit to 4 images
-    if (selectedImages.length + files.length > 4) {
       toast.error('You can only upload up to 4 images per post');
       e.target.value = ''; // Reset input
       return;
