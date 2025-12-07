@@ -7,7 +7,6 @@ import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
 import { FiMail, FiMessageCircle } from 'react-icons/fi';
 import { debounce } from '../utils/performance';
-import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
