@@ -722,9 +722,8 @@ const Messages = () => {
                           </button>
                         )}
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  })
                 )}
                 <div ref={messagesEndRef} />
               </div>
