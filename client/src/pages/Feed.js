@@ -131,8 +131,8 @@ const Feed = () => {
     const previews = [];
     
     for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} is too large. Maximum size is 5MB`);
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error(`${file.name} is too large. Maximum size is 50MB`);
         continue;
       }
       if (!file.type.startsWith('image/')) {

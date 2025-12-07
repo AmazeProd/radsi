@@ -30,9 +30,9 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+    // Validate file size (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('Image size should be less than 50MB');
       return;
     }
 
@@ -48,26 +48,31 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+    
+    // Use original image dimensions to preserve full resolution
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
+    
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(
       image,
       crop.x * scaleX,
       crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      cropWidth,
+      cropHeight,
       0,
       0,
-      crop.width,
-      crop.height
+      cropWidth,
+      cropHeight
     );
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
         resolve(blob);
-      }, 'image/jpeg', 0.95);
+      }, 'image/jpeg', 1.0); // Use maximum quality (1.0) to preserve resolution
     });
   };
 
