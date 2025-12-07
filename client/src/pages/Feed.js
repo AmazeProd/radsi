@@ -162,7 +162,14 @@ const Feed = () => {
     
     setSelectedImages([...selectedImages, ...validFiles]);
     e.target.value = ''; // Reset input to allow re-selecting same files
-  };nst nextImage = (postId, totalImages) => {
+  };
+
+  const removeImage = (index) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+  };
+
+  const nextImage = (postId, totalImages) => {
     setCurrentImageIndex(prev => ({
       ...prev,
       [postId]: ((prev[postId] || 0) + 1) % totalImages
