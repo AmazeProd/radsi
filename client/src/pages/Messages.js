@@ -724,8 +724,8 @@ const Messages = () => {
                     );
                   })
                 )}
-                <div ref={messagesEndRef} />
               </div>
+              <div ref={messagesEndRef} />
 
               {/* Message Input */}
               <form onSubmit={handleSendMessage} className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0 sticky bottom-0 z-10">
