@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost } from '../services/postService';
 import { toast } from 'react-toastify';
 import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -39,7 +40,7 @@ const Feed = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       const response = await getPosts(1);
       console.log('Full response:', response);
@@ -50,7 +51,7 @@ const Feed = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleCreatePost = async () => {
     if (!postContent.trim()) {

@@ -51,6 +51,14 @@ app.use(mongoSanitize()); // Sanitize data against NoSQL injection
 app.use(xss()); // Prevent XSS attacks
 app.use(hpp()); // Prevent HTTP parameter pollution
 
+// Add caching headers for static assets
+app.use((req, res, next) => {
+  if (req.url.match(/\.(jpg|jpeg|png|gif|ico|css|js|svg|webp)$/)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+  }
+  next();
+});
+
 // Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

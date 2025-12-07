@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,29 +6,36 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 
-// Layout
+// Layout (keep these loaded immediately)
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import PrivateRoute from './components/routing/PrivateRoute';
 import AdminRoute from './components/routing/AdminRoute';
 
-// Pages
-import Home from './pages/Home';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
-import Profile from './pages/Profile';
-import EditProfile from './pages/EditProfile';
-import Feed from './pages/Feed';
-import Post from './pages/Post';
-import Messages from './pages/Messages';
-import Notifications from './pages/Notifications';
-import Search from './pages/Search';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminUsers from './pages/admin/Users';
-import AdminPosts from './pages/admin/Posts';
-import NotFound from './pages/NotFound';
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
+const Profile = lazy(() => import('./pages/Profile'));
+const EditProfile = lazy(() => import('./pages/EditProfile'));
+const Feed = lazy(() => import('./pages/Feed'));
+const Post = lazy(() => import('./pages/Post'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const Search = lazy(() => import('./pages/Search'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/Users'));
+const AdminPosts = lazy(() => import('./pages/admin/Posts'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+// Loading fallback component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="spinner"></div>
+  </div>
+);
 
 function App() {
   return (
@@ -38,6 +45,7 @@ function App() {
           <div className="flex flex-col min-h-screen bg-gray-100">
             <Navbar />
             <main className="flex-grow">
+            <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
@@ -142,6 +150,7 @@ function App() {
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
+            </Suspense>
             </main>
             <Footer />
             <ToastContainer
