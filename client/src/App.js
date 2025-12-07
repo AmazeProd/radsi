@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -37,16 +37,30 @@ const LoadingSpinner = () => (
   </div>
 );
 
+// Layout wrapper to conditionally show navbar
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const hideNavbar = location.pathname.startsWith('/messages');
+  
+  return (
+    <>
+      {!hideNavbar && <Navbar />}
+      <main className={hideNavbar ? 'h-screen' : 'flex-grow'}>
+        {children}
+      </main>
+    </>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <SocketProvider>
         <Router>
           <div className="flex flex-col min-h-screen bg-gray-100">
-            <Navbar />
-            <main className="flex-grow">
             <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
+              <Layout>
+                <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
@@ -150,8 +164,8 @@ function App() {
               <Route path="/404" element={<NotFound />} />
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
+            </Layout>
             </Suspense>
-            </main>
             <Footer />
             <ToastContainer
               position="top-right"

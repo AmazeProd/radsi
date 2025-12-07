@@ -519,18 +519,21 @@ const Messages = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
-      <div className="bg-white rounded-lg sm:rounded-2xl shadow-lg border border-gray-200 h-[calc(100vh-80px)] sm:h-[calc(100vh-120px)] flex overflow-hidden" style={{position: 'relative'}}>
-        {/* Conversations List */}
-        <div className={`${selectedUser ? 'hidden sm:flex' : 'flex'} w-full sm:w-1/3 border-r border-gray-200 flex-col bg-gray-50 overflow-hidden`}>
-          <div className="p-3 sm:p-5 border-b border-gray-200 bg-white flex-shrink-0">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Messages</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto">
+    <div className="h-screen w-screen overflow-hidden bg-gray-100">
+      <div className="h-full max-w-7xl mx-auto">
+        <div className="bg-white h-full flex overflow-hidden shadow-lg sm:rounded-none md:rounded-2xl md:m-4 md:h-[calc(100vh-2rem)]">
+          {/* Conversations List */}
+          <div className={`${selectedUser ? 'hidden sm:flex' : 'flex'} w-full sm:w-80 md:w-96 border-r border-gray-200 flex-col bg-gray-50 overflow-hidden`}>
+            <div className="p-4 sm:p-5 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Messages</h2>
+              <p className="text-xs text-gray-500 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="flex-1 overflow-y-auto">{
             {conversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 px-4">
-                <FiMail size={40} className="sm:w-12 sm:h-12 mb-3" />
-                <p className="text-xs sm:text-sm text-center">No conversations yet</p>
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 px-4 py-12">
+                <FiMail className="w-16 h-16 mb-4 text-gray-300" />
+                <p className="text-sm sm:text-base text-center font-medium">No conversations yet</p>
+                <p className="text-xs text-center mt-2">Start chatting with your connections</p>
               </div>
             ) : (
               conversations.map((conversation, index) => {
@@ -541,32 +544,32 @@ const Messages = () => {
                   <div
                     key={conversation._id}
                     onClick={() => handleSelectUser(conversation)}
-                    className={`p-3 sm:p-4 cursor-pointer hover:bg-white transition-all ${
-                      selectedUser?._id === otherUser._id ? 'bg-white border-l-4 border-primary-600' : ''
+                    className={`p-3 sm:p-4 cursor-pointer hover:bg-white transition-all border-b border-gray-100 ${
+                      selectedUser?._id === otherUser._id ? 'bg-white border-l-4 border-primary-600 shadow-sm' : ''
                     }`}
                   >
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="relative">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-shrink-0">
                         {otherUser.profilePicture && !otherUser.profilePicture.includes('ui-avatars.com') ? (
                           <img
                             src={otherUser.profilePicture}
                             alt={otherUser.username}
-                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full ring-2 ring-gray-200 object-cover"
+                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white object-cover shadow-sm"
                           />
                         ) : (
-                          <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-lg sm:text-xl font-bold ${getAvatarColor(otherUser.username)}`}>
+                          <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xl font-bold shadow-sm ${getAvatarColor(otherUser.username)}`}>
                             {getInitials(otherUser)}
                           </div>
                         )}
                         {(onlineUsers.includes(otherUser._id) || otherUser.isOnline) && (
-                          <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                          <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{otherUser.username}</h3>
+                        <h3 className="font-semibold text-gray-900 truncate text-base">{otherUser.username}</h3>
                         {conversation.lastMessage && (
-                          <p className="text-xs sm:text-sm text-gray-500 truncate">
-                            {conversation.lastMessage.content}
+                          <p className="text-sm text-gray-500 truncate mt-0.5">
+                            {conversation.lastMessage.content || '📷 Photo'}
                           </p>
                         )}
                       </div>
@@ -597,13 +600,13 @@ const Messages = () => {
             <>
               {/* Chat Header */}
               <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between bg-white shadow-sm flex-shrink-0" style={{position: 'sticky', top: 0, zIndex: 10}}>
-                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
                     onClick={() => setSelectedUser(null)}
-                    className="sm:hidden flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition"
+                    className="sm:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0"
                   >
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
@@ -611,23 +614,23 @@ const Messages = () => {
                     <img
                       src={selectedUser.profilePicture}
                       alt={selectedUser.username}
-                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-full ring-2 ring-gray-200 object-cover"
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-full ring-2 ring-gray-200 object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-base sm:text-lg font-bold ${getAvatarColor(selectedUser.username)}`}>
+                    <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ring-2 ring-gray-200 flex items-center justify-center text-white text-lg font-bold flex-shrink-0 ${getAvatarColor(selectedUser.username)}`}>
                       {getInitials(selectedUser)}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{selectedUser.username}</h3>
+                    <h3 className="font-bold text-gray-900 truncate text-base sm:text-lg">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
-                      <p className="text-xs text-green-500 font-medium">Active now</p>
+                      <p className="text-xs sm:text-sm text-green-500 font-medium">● Active now</p>
                     ) : selectedUser.lastSeen ? (
-                      <p className="text-xs text-gray-500">
-                        Last seen {formatLastSeen(selectedUser.lastSeen)}
+                      <p className="text-xs sm:text-sm text-gray-500 truncate">
+                        {formatLastSeen(selectedUser.lastSeen)}
                       </p>
                     ) : (
-                      <p className="text-xs text-gray-500">Offline</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Offline</p>
                     )}
                   </div>
                 </div>
@@ -643,12 +646,12 @@ const Messages = () => {
               </div>
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3 bg-gray-50 scroll-smooth">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 bg-gradient-to-b from-gray-50 to-white scroll-smooth">
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
-                    <div className="text-center text-gray-400 animate-pulse">
-                      <div className="inline-block w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-2"></div>
-                      <p className="text-sm">Loading messages...</p>
+                    <div className="text-center text-gray-400">
+                      <div className="inline-block w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-3"></div>
+                      <p className="text-sm font-medium">Loading messages...</p>
                     </div>
                   </div>
                 ) : (
