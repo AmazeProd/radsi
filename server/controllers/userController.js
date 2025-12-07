@@ -123,6 +123,11 @@ exports.deleteUserAccount = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users/me/profile-picture
 // @access  Private
 exports.uploadAvatar = asyncHandler(async (req, res, next) => {
+  console.log('Upload avatar called');
+  console.log('Params:', req.params);
+  console.log('File:', req.file);
+  console.log('User ID:', req.user?.id);
+  
   // Allow both /users/:id/avatar and /users/me/profile-picture routes
   const userId = req.params.id === 'me' || !req.params.id ? req.user.id : req.params.id;
   
@@ -131,34 +136,44 @@ exports.uploadAvatar = asyncHandler(async (req, res, next) => {
   }
 
   if (!req.file) {
+    console.error('No file uploaded');
     return next(new ErrorResponse('Please upload a file', 400));
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
+    console.error('User not found:', userId);
     return next(new ErrorResponse('User not found', 404));
   }
 
-  // Delete old profile picture if exists (not default)
-  if (
-    user.profilePicture &&
-    !user.profilePicture.includes('avatar-default')
-  ) {
-    const publicId = user.profilePicture.split('/').pop().split('.')[0];
-    await deleteImage(`social-media/avatars/${publicId}`);
+  try {
+    // Delete old profile picture if exists (not default)
+    if (
+      user.profilePicture &&
+      !user.profilePicture.includes('avatar-default')
+    ) {
+      const publicId = user.profilePicture.split('/').pop().split('.')[0];
+      await deleteImage(`social-media/avatars/${publicId}`);
+    }
+
+    // Upload new image
+    console.log('Uploading to Cloudinary...');
+    const result = await uploadImage(req.file.path, 'social-media/avatars');
+    console.log('Cloudinary result:', result);
+
+    user.profilePicture = result.url;
+    await user.save();
+
+    console.log('Profile picture updated successfully');
+    res.status(200).json({
+      success: true,
+      data: { profilePicture: user.profilePicture },
+    });
+  } catch (error) {
+    console.error('Error uploading to Cloudinary:', error);
+    return next(new ErrorResponse('Failed to upload image', 500));
   }
-
-  // Upload new image
-  const result = await uploadImage(req.file.path, 'social-media/avatars');
-
-  user.profilePicture = result.url;
-  await user.save();
-
-  res.status(200).json({
-    success: true,
-    data: { profilePicture: user.profilePicture },
-  });
 });
 
 // @desc    Upload cover photo

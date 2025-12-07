@@ -77,17 +77,26 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
     try {
       setUploading(true);
       const croppedBlob = await getCroppedImg(imgRef.current, completedCrop);
+      
+      if (!croppedBlob) {
+        throw new Error('Failed to crop image');
+      }
+      
       const formData = new FormData();
       formData.append('profilePicture', croppedBlob, 'profile-photo.jpg');
 
-      await onPhotoUpdate(formData);
+      console.log('Uploading photo...');
+      const response = await onPhotoUpdate(formData);
+      console.log('Upload complete:', response);
       
       toast.success('Profile photo updated successfully!');
       setIsModalOpen(false);
       setImageSrc(null);
     } catch (error) {
       console.error('Error uploading photo:', error);
-      toast.error('Failed to upload photo');
+      console.error('Error details:', error.response?.data);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to upload photo';
+      toast.error(errorMsg);
     } finally {
       setUploading(false);
     }

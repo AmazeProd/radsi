@@ -130,14 +130,28 @@ const Profile = () => {
   };
 
   const handlePhotoUpdate = async (formData) => {
-    const response = await uploadProfilePicture(formData);
-    // Update profile state with new photo
-    setProfile({ ...profile, profilePicture: response.data.profilePicture });
-    // Update auth context if needed
-    if (currentUser) {
-      currentUser.profilePicture = response.data.profilePicture;
+    try {
+      const response = await uploadProfilePicture(formData);
+      console.log('Upload response:', response);
+      
+      // Handle different response structures
+      const newPhotoUrl = response.data?.profilePicture || response.profilePicture;
+      
+      if (newPhotoUrl) {
+        // Update profile state with new photo
+        setProfile({ ...profile, profilePicture: newPhotoUrl });
+        // Update auth context if needed
+        if (currentUser) {
+          currentUser.profilePicture = newPhotoUrl;
+        }
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Photo update error:', error);
+      console.error('Error response:', error.response?.data);
+      throw error;
     }
-    return response;
   };
 
   if (loading) {
