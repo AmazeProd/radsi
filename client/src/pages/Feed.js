@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost } from '../services/postService';
 import { toast } from 'react-toastify';
-import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
 
@@ -32,6 +32,7 @@ const Feed = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState({}); // Track current image index for each post
   const fileInputRef = useRef(null);
   
   // Common emojis for quick access
@@ -142,10 +143,24 @@ const Feed = () => {
     setSelectedImages([...selectedImages, ...validFiles]);
     e.target.value = ''; // Reset input to allow re-selecting same files
   };
-
   const removeImage = (index) => {
     setSelectedImages(selectedImages.filter((_, i) => i !== index));
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+  };
+
+  const nextImage = (postId, totalImages) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [postId]: ((prev[postId] || 0) + 1) % totalImages
+    }));
+  };
+
+  const prevImage = (postId, totalImages) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [postId]: ((prev[postId] || 0) - 1 + totalImages) % totalImages
+    }));
+  };setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e) => {
@@ -317,64 +332,77 @@ const Feed = () => {
                 <div>
                   <h3 className="font-semibold text-gray-900 hover:text-primary-600 transition">{post.user.username}</h3>
                   <p className="text-xs text-gray-500">
-                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              </Link>
-              <button className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition">
-                <FiMoreHorizontal size={20} />
-              </button>
-            </div>
-
-            {/* Post Content */}
-            <div className="px-4 pb-3">
-              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{post.content}</p>
-            </div>
-
             {/* Post Images */}
             {post.images && post.images.length > 0 && (
               <div className="px-4 mb-3">
-                {post.images.length === 1 && (
+                {post.images.length === 1 ? (
                   <img
                     src={post.images[0].url}
                     alt="Post"
                     className="w-full max-h-[500px] object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
                     onClick={() => window.open(post.images[0].url, '_blank')}
                   />
-                )}
-                {post.images.length === 2 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {post.images.map((img, idx) => (
+                ) : (
+                  <div className="relative group">
+                    {/* Image Carousel */}
+                    <div className="relative overflow-hidden rounded-lg">
                       <img
-                        key={idx}
-                        src={img.url}
-                        alt={`Post ${idx + 1}`}
-                        className="w-full h-64 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
-                        onClick={() => window.open(img.url, '_blank')}
+                        src={post.images[currentImageIndex[post._id] || 0].url}
+                        alt={`Post ${(currentImageIndex[post._id] || 0) + 1}`}
+                        className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition"
+                        onClick={() => window.open(post.images[currentImageIndex[post._id] || 0].url, '_blank')}
                       />
-                    ))}
+                      
+                      {/* Navigation Buttons */}
+                      {post.images.length > 1 && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevImage(post._id, post.images.length);
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                          >
+                            <FiChevronLeft size={24} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextImage(post._id, post.images.length);
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                          >
+                            <FiChevronRight size={24} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* Image Counter */}
+                    <div className="absolute top-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {(currentImageIndex[post._id] || 0) + 1} / {post.images.length}
+                    </div>
+                    
+                    {/* Dot Indicators */}
+                    {post.images.length > 1 && (
+                      <div className="flex justify-center gap-1.5 mt-3">
+                        {post.images.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentImageIndex(prev => ({ ...prev, [post._id]: idx }))}
+                            className={`h-2 rounded-full transition-all ${
+                              (currentImageIndex[post._id] || 0) === idx
+                                ? 'w-6 bg-primary-600'
+                                : 'w-2 bg-gray-300 hover:bg-gray-400'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-                {post.images.length === 3 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <img
-                      src={post.images[0].url}
-                      alt="Post 1"
-                      className="w-full h-full row-span-2 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
-                      onClick={() => window.open(post.images[0].url, '_blank')}
-                    />
-                    {post.images.slice(1).map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img.url}
-                        alt={`Post ${idx + 2}`}
-                        className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
-                        onClick={() => window.open(img.url, '_blank')}
-                      />
-                    ))}
-                  </div>
-                )}
-                {post.images.length === 4 && (
+              </div>
+            )}  {post.images.length === 4 && (
                   <div className="grid grid-cols-2 gap-2">
                     {post.images.map((img, idx) => (
                       <img
