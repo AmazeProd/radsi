@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost } from '../services/postService';
 import { toast } from 'react-toastify';
-import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
 
@@ -30,6 +30,8 @@ const Feed = () => {
   const [postContent, setPostContent] = useState('');
   const [posting, setPosting] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const fileInputRef = useRef(null);
   
   // Common emojis for quick access
@@ -54,16 +56,26 @@ const Feed = () => {
   }, []);
 
   const handleCreatePost = async () => {
-    if (!postContent.trim()) {
-      toast.error('Post content cannot be empty');
+    if (!postContent.trim() && selectedImages.length === 0) {
+      toast.error('Post must contain text or images');
       return;
     }
 
     setPosting(true);
     try {
-      const response = await createPost({ content: postContent });
+      const formData = new FormData();
+      formData.append('content', postContent);
+      
+      // Append all selected images
+      selectedImages.forEach((image) => {
+        formData.append('images', image);
+      });
+
+      const response = await createPost(formData);
       setPosts([response.data, ...posts]);
       setPostContent('');
+      setSelectedImages([]);
+      setImagePreviews([]);
       setShowEmojiPicker(false);
       toast.success('Post created successfully!');
     } catch (error) {
@@ -82,19 +94,49 @@ const Feed = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+    const files = Array.from(e.target.files);
+    
+    if (files.length === 0) return;
+    
+    // Limit to 4 images
+    if (selectedImages.length + files.length > 4) {
+      toast.error('You can only upload up to 4 images per post');
+      return;
+    }
+    
+    // Validate files
+    const validFiles = [];
+    const previews = [];
+    
+    for (const file of files) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size should be less than 5MB');
-        return;
+        toast.error(`${file.name} is too large. Maximum size is 5MB`);
+        continue;
       }
       if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file');
-        return;
+        toast.error(`${file.name} is not an image file`);
+        continue;
       }
-      toast.info('Image upload feature will be available soon!');
-      // Image upload functionality can be implemented here
+      
+      validFiles.push(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previews.push(e.target.result);
+        if (previews.length === validFiles.length) {
+          setImagePreviews([...imagePreviews, ...previews]);
+        }
+      };
+      reader.readAsDataURL(file);
     }
+    
+    setSelectedImages([...selectedImages, ...validFiles]);
+  };
+
+  const removeImage = (index) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e) => {
@@ -186,19 +228,42 @@ const Feed = () => {
           </div>
         )}
 
+        {/* Image Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            {imagePreviews.map((preview, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+                <button
+                  onClick={() => removeImage(index)}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  type="button"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
           <div className="flex gap-2">
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handleFileChange}
               className="hidden"
             />
             <button 
               onClick={handleImageClick}
               className="text-primary-500 hover:bg-primary-50 p-2 rounded-full transition"
-              title="Add image"
+              title="Add images (up to 4)"
               type="button"
             >
               <FiImage className="w-5 h-5" />
@@ -214,7 +279,7 @@ const Feed = () => {
           </div>
           <button 
             onClick={handleCreatePost}
-            disabled={posting || !postContent.trim()}
+            disabled={posting || (!postContent.trim() && selectedImages.length === 0)}
             className="bg-primary-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105"
           >
             {posting ? 'Posting...' : 'Post'}
@@ -257,14 +322,62 @@ const Feed = () => {
               <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{post.content}</p>
             </div>
 
-            {/* Post Image */}
+            {/* Post Images */}
             {post.images && post.images.length > 0 && (
-              <div className="px-0">
-                <img
-                  src={post.images[0].url}
-                  alt="Post"
-                  className="w-full max-h-[500px] object-cover"
-                />
+              <div className="px-0 mb-3">
+                {post.images.length === 1 && (
+                  <img
+                    src={post.images[0].url}
+                    alt="Post"
+                    className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition"
+                    onClick={() => window.open(post.images[0].url, '_blank')}
+                  />
+                )}
+                {post.images.length === 2 && (
+                  <div className="grid grid-cols-2 gap-1">
+                    {post.images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img.url}
+                        alt={`Post ${idx + 1}`}
+                        className="w-full h-64 object-cover cursor-pointer hover:opacity-95 transition"
+                        onClick={() => window.open(img.url, '_blank')}
+                      />
+                    ))}
+                  </div>
+                )}
+                {post.images.length === 3 && (
+                  <div className="grid grid-cols-2 gap-1">
+                    <img
+                      src={post.images[0].url}
+                      alt="Post 1"
+                      className="w-full h-full row-span-2 object-cover cursor-pointer hover:opacity-95 transition"
+                      onClick={() => window.open(post.images[0].url, '_blank')}
+                    />
+                    {post.images.slice(1).map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img.url}
+                        alt={`Post ${idx + 2}`}
+                        className="w-full h-32 object-cover cursor-pointer hover:opacity-95 transition"
+                        onClick={() => window.open(img.url, '_blank')}
+                      />
+                    ))}
+                  </div>
+                )}
+                {post.images.length === 4 && (
+                  <div className="grid grid-cols-2 gap-1">
+                    {post.images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img.url}
+                        alt={`Post ${idx + 1}`}
+                        className="w-full h-48 object-cover cursor-pointer hover:opacity-95 transition"
+                        onClick={() => window.open(img.url, '_blank')}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

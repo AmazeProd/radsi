@@ -14,9 +14,16 @@ const MessageSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: [true, 'Message content is required'],
       maxlength: [1000, 'Message cannot exceed 1000 characters'],
       trim: true,
+    },
+    image: {
+      url: {
+        type: String,
+      },
+      publicId: {
+        type: String,
+      },
     },
     isRead: {
       type: Boolean,

@@ -11,7 +11,8 @@ const {
 } = require('../controllers/messageController');
 const { protect } = require('../middleware/auth');
 const { validate } = require('../middleware/validator');
-const { messageLimiter } = require('../middleware/rateLimiter');
+const { messageLimiter, uploadLimiter } = require('../middleware/rateLimiter');
+const upload = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -19,9 +20,8 @@ const router = express.Router();
 const sendMessageValidation = [
   body('receiver').notEmpty().withMessage('Receiver ID is required'),
   body('content')
+    .optional()
     .trim()
-    .notEmpty()
-    .withMessage('Message content is required')
     .isLength({ max: 1000 })
     .withMessage('Message cannot exceed 1000 characters'),
 ];
@@ -30,7 +30,7 @@ const sendMessageValidation = [
 router.get('/conversations', protect, getConversations);
 router.get('/unread/count', protect, getUnreadCount);
 router.get('/:userId', protect, getMessages);
-router.post('/', protect, messageLimiter, sendMessageValidation, validate, sendMessage);
+router.post('/', protect, messageLimiter, uploadLimiter, upload.single('image'), sendMessageValidation, validate, sendMessage);
 router.put('/:userId/read', protect, markAsRead);
 router.delete('/conversation/:userId', protect, deleteConversation);
 router.delete('/:id', protect, deleteMessage);

@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../utils/asyncHandler');
+const { uploadImage } = require('../utils/cloudinaryHelper');
 
 // @desc    Get user's conversations
 // @route   GET /api/messages/conversations
@@ -124,6 +125,11 @@ exports.getMessages = asyncHandler(async (req, res, next) => {
 exports.sendMessage = asyncHandler(async (req, res, next) => {
   const { receiver: receiverId, content } = req.body;
 
+  // Check if content or image is provided
+  if (!content && !req.file) {
+    return next(new ErrorResponse('Message must contain text or an image', 400));
+  }
+
   // Check if receiver exists
   const receiver = await User.findById(receiverId);
 
@@ -135,10 +141,22 @@ exports.sendMessage = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Cannot send message to yourself', 400));
   }
 
+  let image = null;
+
+  // Upload image if provided
+  if (req.file) {
+    const uploadResult = await uploadImage(req.file.path, 'social-media/messages');
+    image = {
+      url: uploadResult.url,
+      publicId: uploadResult.publicId,
+    };
+  }
+
   const message = await Message.create({
     sender: req.user.id,
     receiver: receiverId,
-    content,
+    content: content || '',
+    image,
   });
 
   const populatedMessage = await Message.findById(message._id)

@@ -13,10 +13,10 @@ export const getMessages = async (userId) => {
 };
 
 // Send a message
-export const sendMessage = async (receiverId, content) => {
-  const response = await api.post('/messages', {
-    receiver: receiverId,
-    content,
+export const sendMessage = async (data) => {
+  const isFormData = data instanceof FormData;
+  const response = await api.post('/messages', data, {
+    headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
   });
   return response.data;
 };

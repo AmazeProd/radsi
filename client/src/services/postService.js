@@ -14,7 +14,11 @@ export const getPost = async (postId) => {
 
 // Create post
 export const createPost = async (postData) => {
-  const response = await api.post('/posts', postData);
+  const response = await api.post('/posts', postData, {
+    headers: {
+      'Content-Type': postData instanceof FormData ? 'multipart/form-data' : 'application/json',
+    },
+  });
   return response.data;
 };
 

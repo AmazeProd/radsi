@@ -5,7 +5,7 @@ import { useSocket } from '../context/SocketContext';
 import { getConversations, getMessages, sendMessage, markAsRead, deleteConversation } from '../services/messageService';
 import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
-import { FiMail, FiMessageCircle } from 'react-icons/fi';
+import { FiMail, FiMessageCircle, FiImage, FiX } from 'react-icons/fi';
 import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
@@ -70,8 +70,11 @@ const Messages = () => {
   const [conversationPage, setConversationPage] = useState(1);
   const [hasMoreConversations, setHasMoreConversations] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const messagesEndRef = useRef(null);
   const messagesCacheRef = useRef(new Map()); // Cache messages by userId
+  const fileInputRef = useRef(null);
   // const pollIntervalRef = useRef(null);
 
   // Common emojis for quick access
@@ -386,7 +389,8 @@ const Messages = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!newMessage.trim() || !selectedUser) return;
+    if (!newMessage.trim() && !selectedImage) return;
+    if (!selectedUser) return;
 
     const messageText = newMessage.trim();
     const tempId = `temp-${Date.now()}`;
@@ -399,21 +403,36 @@ const Messages = () => {
       receiver: { _id: selectedUser._id },
       createdAt: new Date().toISOString(),
       isRead: false,
+      image: imagePreview ? { url: imagePreview } : null,
     };
     
     setMessages((prev) => [...prev, optimisticMessage]);
     setNewMessage(''); // Clear input immediately for next message
+    const imageToSend = selectedImage;
+    setSelectedImage(null);
+    setImagePreview(null);
     scrollToBottom();
     
     // Send in background without blocking
     try {
-      await sendMessage(selectedUser._id, messageText);
+      const formData = new FormData();
+      formData.append('receiver', selectedUser._id);
+      if (messageText) {
+        formData.append('content', messageText);
+      }
+      if (imageToSend) {
+        formData.append('image', imageToSend);
+      }
+
+      await sendMessage(formData);
       // Update conversation list in background (debounced)
       debouncedLoadConversations();
     } catch (error) {
       // Remove optimistic message on error
       setMessages((prev) => prev.filter(m => m._id !== tempId));
       setNewMessage(messageText); // Restore message text
+      setSelectedImage(imageToSend);
+      setImagePreview(optimisticMessage.image?.url);
       toast.error('Failed to send message');
     }
   };
@@ -423,6 +442,38 @@ const Messages = () => {
     debounce(() => loadConversations(), 500),
     []
   );
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    setSelectedImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleDeleteConversation = async () => {
     if (!selectedUser) return;
@@ -601,7 +652,17 @@ const Messages = () => {
                               : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                           }`}
                         >
-                          <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
+                          {message.image && (
+                            <img
+                              src={message.image.url}
+                              alt="Message attachment"
+                              className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition"
+                              onClick={() => window.open(message.image.url, '_blank')}
+                            />
+                          )}
+                          {message.content && (
+                            <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
+                          )}
                           <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
                             isSent ? 'text-primary-100' : 'text-gray-400'
                           }`}>
@@ -637,6 +698,24 @@ const Messages = () => {
 
               {/* Message Input */}
               <form onSubmit={handleSendMessage} className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0" style={{position: 'sticky', bottom: 0, zIndex: 10}}>
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="mb-3 relative inline-block">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      onClick={removeImage}
+                      type="button"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition"
+                    >
+                      <FiX size={16} />
+                    </button>
+                  </div>
+                )}
+                
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
                   <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -656,6 +735,21 @@ const Messages = () => {
                 )}
                 
                 <div className="flex gap-2 sm:gap-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-gray-500 hover:bg-gray-100 hover:text-primary-600 p-2 sm:p-3 rounded-full transition flex-shrink-0"
+                    title="Attach image"
+                  >
+                    <FiImage className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -675,7 +769,7 @@ const Messages = () => {
                   />
                   <button
                     type="submit"
-                    disabled={!newMessage.trim()}
+                    disabled={!newMessage.trim() && !selectedImage}
                     className="bg-primary-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 font-semibold text-sm sm:text-base flex-shrink-0"
                     onMouseDown={(e) => e.preventDefault()}
                   >
