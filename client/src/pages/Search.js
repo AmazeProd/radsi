@@ -33,8 +33,10 @@ const Search = () => {
   }, []);
 
   const saveToHistory = (user) => {
+    // Ensure we save the user with current profile picture
+    const userToSave = { ...user };
     const newHistory = [
-      user,
+      userToSave,
       ...recentSearches.filter((u) => u._id !== user._id),
     ].slice(0, 5); // Keep only 5 recent searches
     

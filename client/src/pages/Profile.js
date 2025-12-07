@@ -26,7 +26,7 @@ const getAvatarColor = (str) => {
 
 const Profile = () => {
   const { userId } = useParams();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, loadUser } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -156,10 +156,9 @@ const Profile = () => {
       if (newPhotoUrl) {
         // Update profile state with new photo
         setProfile({ ...profile, profilePicture: newPhotoUrl });
-        // Update auth context if needed
-        if (currentUser) {
-          currentUser.profilePicture = newPhotoUrl;
-        }
+        
+        // Refresh auth context to update navbar and other components
+        await loadUser();
         
         // Reload profile to ensure fresh data
         setTimeout(() => {
