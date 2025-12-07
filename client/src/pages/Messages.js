@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
-import { getConversations, getMessages, sendMessage, markAsRead, deleteConversation } from '../services/messageService';
+import { getConversations, getMessages, sendMessage, markAsRead, deleteConversation, deleteMessage } from '../services/messageService';
 import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
-import { FiMail, FiMessageCircle, FiImage, FiX } from 'react-icons/fi';
+import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2 } from 'react-icons/fi';
 import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
@@ -72,6 +72,7 @@ const Messages = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [openMessageDropdown, setOpenMessageDropdown] = useState(null);
   const messagesEndRef = useRef(null);
   const messagesCacheRef = useRef(new Map()); // Cache messages by userId
   const fileInputRef = useRef(null);
@@ -493,6 +494,22 @@ const Messages = () => {
     }
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm('Delete this message? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await deleteMessage(messageId);
+      setMessages(messages.filter(msg => msg._id !== messageId));
+      toast.success('Message deleted');
+      setOpenMessageDropdown(null);
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete message');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -642,52 +659,65 @@ const Messages = () => {
                     return (
                       <div
                         key={message._id}
-                        className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                        className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fadeIn group`}
                         style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
                       >
-                        <div
-                          className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
-                            isSent
-                              ? 'bg-primary-600 text-white rounded-br-none'
-                              : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
-                          }`}
-                        >
-                          {message.image && (
-                            <img
-                              src={message.image.url}
-                              alt="Message attachment"
-                              className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition"
-                              onClick={() => window.open(message.image.url, '_blank')}
-                            />
-                          )}
-                          {message.content && (
-                            <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
-                          )}
-                          <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
-                            isSent ? 'text-primary-100' : 'text-gray-400'
-                          }`}>
-                            <span>
-                              {new Date(message.createdAt).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </span>
-                          {isSent && (
-                            <span className="ml-1">
-                              {message.isRead ? (
-                                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                  <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                  <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              ) : (
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                  <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                  <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              )}
+                        <div className="relative max-w-[85%] sm:max-w-[70%]">
+                          <div
+                            className={`rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
+                              isSent
+                                ? 'bg-primary-600 text-white rounded-br-none'
+                                : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
+                            }`}
+                          >
+                            {message.image && (
+                              <img
+                                src={message.image.url}
+                                alt="Message attachment"
+                                className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition"
+                                onClick={() => window.open(message.image.url, '_blank')}
+                              />
+                            )}
+                            {message.content && (
+                              <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
+                            )}
+                            <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
+                              isSent ? 'text-primary-100' : 'text-gray-400'
+                            }`}>
+                              <span>
+                                {new Date(message.createdAt).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
                             </span>
-                          )}
+                            {isSent && (
+                              <span className="ml-1">
+                                {message.isRead ? (
+                                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                ) : (
+                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </span>
+                            )}
+                          </div>
                         </div>
+                        
+                        {/* Delete Button */}
+                        {isSent && (
+                          <button
+                            onClick={() => handleDeleteMessage(message._id)}
+                            className="ml-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 p-1 transition-opacity"
+                            title="Delete message"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
