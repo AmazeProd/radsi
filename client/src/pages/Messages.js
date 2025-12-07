@@ -276,6 +276,9 @@ const Messages = () => {
 
   const loadMessages = async (userId) => {
     try {
+      // Clear messages immediately and show loading state
+      setMessages([]);
+      
       const response = await getMessages(userId);
       setMessages(response.data || []);
       // Mark as read only if tab is visible
@@ -284,6 +287,7 @@ const Messages = () => {
       }
     } catch (error) {
       toast.error('Failed to load messages');
+      setMessages([]); // Clear messages on error
     }
   };
 
@@ -303,7 +307,11 @@ const Messages = () => {
     
     console.log('User with status:', userWithStatus);
     
+    // Set user and clear messages immediately for instant feedback
     setSelectedUser(userWithStatus);
+    setMessages([]); // Clear previous messages immediately
+    
+    // Load messages in background
     loadMessages(otherUser._id);
     
     // Mark messages as read immediately if tab is visible
@@ -508,28 +516,35 @@ const Messages = () => {
 
               {/* Messages List */}
               <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3 bg-gray-50">
-                {messages.map((message) => {
-                  const senderId = message.sender?._id || message.sender;
-                  const isSent = senderId === user._id || senderId === user.id;
-                  
-                  return (
-                    <div
-                      key={message._id}
-                      className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
-                    >
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-gray-400">
+                      <p className="text-sm">Loading messages...</p>
+                    </div>
+                  </div>
+                ) : (
+                  messages.map((message) => {
+                    const senderId = message.sender?._id || message.sender;
+                    const isSent = senderId === user._id || senderId === user.id;
+                    
+                    return (
                       <div
-                        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
-                          isSent
-                            ? 'bg-primary-600 text-white rounded-br-none'
-                            : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
-                        }`}
+                        key={message._id}
+                        className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
                       >
-                        <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
-                        <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
-                          isSent ? 'text-primary-100' : 'text-gray-400'
-                        }`}>
-                          <span>
-                            {new Date(message.createdAt).toLocaleTimeString([], {
+                        <div
+                          className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
+                            isSent
+                              ? 'bg-primary-600 text-white rounded-br-none'
+                              : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
+                          }`}
+                        >
+                          <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
+                          <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
+                            isSent ? 'text-primary-100' : 'text-gray-400'
+                          }`}>
+                            <span>
+                              {new Date(message.createdAt).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
@@ -554,6 +569,7 @@ const Messages = () => {
                     </div>
                   );
                 })}
+                )}
                 <div ref={messagesEndRef} />
               </div>
 
