@@ -332,6 +332,20 @@ const Feed = () => {
                 <div>
                   <h3 className="font-semibold text-gray-900 hover:text-primary-600 transition">{post.user.username}</h3>
                   <p className="text-xs text-gray-500">
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </Link>
+              <button className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition">
+                <FiMoreHorizontal size={20} />
+              </button>
+            </div>
+
+            {/* Post Content */}
+            <div className="px-4 pb-3">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+            </div>
+
             {/* Post Images */}
             {post.images && post.images.length > 0 && (
               <div className="px-4 mb-3">
