@@ -591,8 +591,8 @@ const Messages = () => {
                 </button>
               </div>
             )}
+            </div>
           </div>
-        </div>
 
         {/* Messages Area */}
         <div className={`${selectedUser ? 'flex' : 'hidden sm:flex'} flex-1 flex-col bg-white overflow-hidden`}>
