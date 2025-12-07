@@ -333,34 +333,34 @@ const Feed = () => {
 
             {/* Post Images */}
             {post.images && post.images.length > 0 && (
-              <div className="px-0 mb-3">
+              <div className="px-4 mb-3">
                 {post.images.length === 1 && (
                   <img
                     src={post.images[0].url}
                     alt="Post"
-                    className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition"
+                    className="w-full max-h-[500px] object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
                     onClick={() => window.open(post.images[0].url, '_blank')}
                   />
                 )}
                 {post.images.length === 2 && (
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-2 gap-2">
                     {post.images.map((img, idx) => (
                       <img
                         key={idx}
                         src={img.url}
                         alt={`Post ${idx + 1}`}
-                        className="w-full h-64 object-cover cursor-pointer hover:opacity-95 transition"
+                        className="w-full h-64 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
                         onClick={() => window.open(img.url, '_blank')}
                       />
                     ))}
                   </div>
                 )}
                 {post.images.length === 3 && (
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-2 gap-2">
                     <img
                       src={post.images[0].url}
                       alt="Post 1"
-                      className="w-full h-full row-span-2 object-cover cursor-pointer hover:opacity-95 transition"
+                      className="w-full h-full row-span-2 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
                       onClick={() => window.open(post.images[0].url, '_blank')}
                     />
                     {post.images.slice(1).map((img, idx) => (
@@ -368,20 +368,20 @@ const Feed = () => {
                         key={idx}
                         src={img.url}
                         alt={`Post ${idx + 2}`}
-                        className="w-full h-32 object-cover cursor-pointer hover:opacity-95 transition"
+                        className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
                         onClick={() => window.open(img.url, '_blank')}
                       />
                     ))}
                   </div>
                 )}
                 {post.images.length === 4 && (
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-2 gap-2">
                     {post.images.map((img, idx) => (
                       <img
                         key={idx}
                         src={img.url}
                         alt={`Post ${idx + 1}`}
-                        className="w-full h-48 object-cover cursor-pointer hover:opacity-95 transition"
+                        className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
                         onClick={() => window.open(img.url, '_blank')}
                       />
                     ))}
