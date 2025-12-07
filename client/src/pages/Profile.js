@@ -54,11 +54,18 @@ const Profile = () => {
       const response = await getUserProfile(userId);
       console.log('Profile data:', response.data);
       console.log('Profile picture:', response.data.profilePicture);
-      console.log('Username:', response.data.username);
-      console.log('First name:', response.data.firstName);
-      console.log('Last name:', response.data.lastName);
-      setProfile(response.data);
-      setIsFollowing(response.data.isFollowing || false);
+      
+      // Fix local image URLs to include backend base URL
+      const profile = response.data;
+      if (profile.profilePicture && profile.profilePicture.startsWith('/uploads/')) {
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://radsi-backend.onrender.com/api';
+        const baseUrl = apiUrl.replace('/api', '');
+        profile.profilePicture = baseUrl + profile.profilePicture;
+        console.log('Fixed profile picture URL:', profile.profilePicture);
+      }
+      
+      setProfile(profile);
+      setIsFollowing(profile.isFollowing || false);
     } catch (error) {
       toast.error('Failed to load profile');
     } finally {
