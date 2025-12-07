@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost, deletePost } from '../services/postService';
 import { toast } from 'react-toastify';
-import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX, FiChevronLeft, FiChevronRight, FiTrash2, FiCheck } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX, FiChevronLeft, FiChevronRight, FiTrash2 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -36,13 +34,6 @@ const Feed = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState({}); // Track current image index for each post
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [cropModalOpen, setCropModalOpen] = useState(false);
-  const [currentCropImage, setCurrentCropImage] = useState(null);
-  const [currentCropIndex, setCurrentCropIndex] = useState(null);
-  const [crop, setCrop] = useState({ unit: '%', width: 90, height: 90, x: 5, y: 5 });
-  const [completedCrop, setCompletedCrop] = useState(null);
-  const [cropping, setCropping] = useState(false);
-  const cropImgRef = useRef(null);
   const fileInputRef = useRef(null);
   
   // Common emojis for quick access
@@ -130,121 +121,48 @@ const Feed = () => {
     
     // Limit to 4 images
     if (selectedImages.length + files.length > 4) {
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (files.length === 0) return;
+    
+    // Limit to 4 images
+    if (selectedImages.length + files.length > 4) {
       toast.error('You can only upload up to 4 images per post');
       e.target.value = ''; // Reset input
       return;
     }
     
-    // Validate and open crop modal for first file
-    const file = files[0];
+    // Validate files
+    const validFiles = [];
+    const previews = [];
     
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error(`${file.name} is too large. Maximum size is 50MB`);
-      e.target.value = '';
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      toast.error(`${file.name} is not an image file`);
-      e.target.value = '';
-      return;
-    }
-    
-    // Read file and open crop modal
-    const reader = new FileReader();
-    reader.onload = () => {
-      setCurrentCropImage({ src: reader.result, file });
-      setCurrentCropIndex(selectedImages.length);
-      setCropModalOpen(true);
-      setCrop({ unit: '%', width: 90, height: 90, x: 5, y: 5 });
-      setCompletedCrop(null);
-    };
-    reader.readAsDataURL(file);
-    
-    e.target.value = ''; // Reset input
-  };
-
-  const getCroppedImg = (image, crop) => {
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    
-    const cropWidth = crop.width * scaleX;
-    const cropHeight = crop.height * scaleY;
-    
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
-    const ctx = canvas.getContext('2d');
-
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      cropWidth,
-      cropHeight
-    );
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(blob);
-      }, 'image/jpeg', 1.0);
-    });
-  };
-
-  const handleCropComplete = async () => {
-    if (!completedCrop || !cropImgRef.current) {
-      toast.error('Please select a crop area');
-      return;
-    }
-
-    try {
-      setCropping(true);
-      const croppedBlob = await getCroppedImg(cropImgRef.current, completedCrop);
-      
-      if (!croppedBlob) {
-        throw new Error('Failed to crop image');
+    for (const file of files) {
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error(`${file.name} is too large. Maximum size is 50MB`);
+        continue;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} is not an image file`);
+        continue;
       }
       
-      const croppedFile = new File([croppedBlob], currentCropImage.file.name, {
-        type: 'image/jpeg',
-        lastModified: Date.now(),
-      });
-
-      // Add to selected images
-      setSelectedImages([...selectedImages, croppedFile]);
+      validFiles.push(file);
       
       // Create preview
-      const previewUrl = URL.createObjectURL(croppedBlob);
-      setImagePreviews([...imagePreviews, previewUrl]);
-      
-      // Close modal
-      setCropModalOpen(false);
-      setCurrentCropImage(null);
-      setCurrentCropIndex(null);
-      toast.success('Image cropped successfully!');
-    } catch (error) {
-      console.error('Error cropping image:', error);
-      toast.error('Failed to crop image');
-    } finally {
-      setCropping(false);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previews.push(e.target.result);
+        if (previews.length === validFiles.length) {
+          setImagePreviews([...imagePreviews, ...previews]);
+        }
+      };
+      reader.readAsDataURL(file);
     }
-  };
-
-  const handleCropCancel = () => {
-    setCropModalOpen(false);
-    setCurrentCropImage(null);
-    setCurrentCropIndex(null);
-  };
-
-  const removeImage = (index) => {
-    setSelectedImages(selectedImages.filter((_, i) => i !== index));
-    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
-  };
-
-  const nextImage = (postId, totalImages) => {
+    
+    setSelectedImages([...selectedImages, ...validFiles]);
+    e.target.value = ''; // Reset input to allow re-selecting same files
+  };nst nextImage = (postId, totalImages) => {
     setCurrentImageIndex(prev => ({
       ...prev,
       [postId]: ((prev[postId] || 0) + 1) % totalImages
@@ -405,69 +323,9 @@ const Feed = () => {
           onKeyDown={handleKeyPress}
         ></textarea>
         
-        {/* Emoji Picker */}
-        {showEmojiPicker && (
-          <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex flex-wrap gap-2">
-              {commonEmojis.map((emoji, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleEmojiClick(emoji)}
-                  className="text-2xl hover:scale-125 transition-transform p-1"
-                  type="button"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Image Previews */}
-        {imagePreviews.length > 0 && (
-          <div className="mb-3 grid grid-cols-2 gap-2">
-            {imagePreviews.map((preview, index) => (
-              <div key={index} className="relative group">
-                <img
-                  src={preview}
-                  alt={`Preview ${index + 1}`}
-                  className="w-full h-40 object-cover rounded-lg"
-                />
-                <button
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                  type="button"
-                >
-                  <FiX size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-          <div className="flex gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <button 
-              onClick={handleImageClick}
-              className="text-primary-500 hover:bg-primary-50 p-2 rounded-full transition"
-              title="Add images (up to 4)"
-              type="button"
-            >
-              <FiImage className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className={`${showEmojiPicker ? 'bg-primary-50 text-primary-600' : 'text-primary-500'} hover:bg-primary-50 p-2 rounded-full transition`}
-              title="Add emoji"
-              type="button"
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Create Post Card */}
             >
               <FiSmile className="w-5 h-5" />
             </button>
