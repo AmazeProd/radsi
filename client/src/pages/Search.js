@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { searchUsers } from '../services/userService';
 import { toast } from 'react-toastify';
 import { FiSearch, FiClock, FiX } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -23,6 +24,7 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     // Load recent searches from localStorage
@@ -31,6 +33,23 @@ const Search = () => {
       setRecentSearches(JSON.parse(saved));
     }
   }, []);
+
+  // Update recent searches when currentUser changes (e.g., profile picture updated)
+  useEffect(() => {
+    if (currentUser) {
+      const saved = localStorage.getItem('recentSearches');
+      if (saved) {
+        const searches = JSON.parse(saved);
+        const updated = searches.map(user => 
+          user._id === currentUser._id || user._id === currentUser.id 
+            ? { ...user, profilePicture: currentUser.profilePicture }
+            : user
+        );
+        setRecentSearches(updated);
+        localStorage.setItem('recentSearches', JSON.stringify(updated));
+      }
+    }
+  }, [currentUser?.profilePicture]);
 
   const saveToHistory = (user) => {
     // Ensure we save the user with current profile picture
