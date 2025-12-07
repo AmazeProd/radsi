@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -6,6 +6,8 @@ import { getConversations, getMessages, sendMessage, markAsRead, deleteConversat
 import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
 import { FiMail, FiMessageCircle } from 'react-icons/fi';
+import { debounce } from '../utils/performance';
+import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -66,6 +68,9 @@ const Messages = () => {
   const [loading, setLoading] = useState(true);
   const [isTabVisible, setIsTabVisible] = useState(true);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [conversationPage, setConversationPage] = useState(1);
+  const [hasMoreConversations, setHasMoreConversations] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const messagesEndRef = useRef(null);
   // const pollIntervalRef = useRef(null);
 
@@ -233,21 +238,40 @@ const Messages = () => {
   }, [onlineUsers, userStatus, selectedUser?._id]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   };
 
   const handleEmojiClick = (emoji) => {
     setNewMessage(newMessage + emoji);
   };
 
-  const loadConversations = async () => {
+  const loadConversations = async (page = 1, append = false) => {
     try {
+      if (append) setLoadingMore(true);
+      
       const response = await getConversations();
-      setConversations(response.data || []);
+      const allConversations = response.data || [];
+      
+      // Client-side pagination
+      const limit = 20;
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedConversations = allConversations.slice(0, endIndex);
+      
+      setConversations(paginatedConversations);
+      setHasMoreConversations(endIndex < allConversations.length);
+      setConversationPage(page);
     } catch (error) {
       console.error('Failed to load conversations');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+  
+  const loadMoreConversations = () => {
+    if (!loadingMore && hasMoreConversations) {
+      loadConversations(conversationPage + 1, true);
     }
   };
 
@@ -317,8 +341,8 @@ const Messages = () => {
     // Send in background without blocking
     try {
       await sendMessage(selectedUser._id, messageText);
-      // Update conversation list in background
-      loadConversations();
+      // Update conversation list in background (debounced)
+      debouncedLoadConversations();
     } catch (error) {
       // Remove optimistic message on error
       setMessages((prev) => prev.filter(m => m._id !== tempId));
@@ -326,6 +350,12 @@ const Messages = () => {
       toast.error('Failed to send message');
     }
   };
+  
+  // Debounced version to prevent excessive API calls
+  const debouncedLoadConversations = useCallback(
+    debounce(() => loadConversations(), 500),
+    []
+  );
 
   const handleDeleteConversation = async () => {
     if (!selectedUser) return;
@@ -409,6 +439,19 @@ const Messages = () => {
                   </div>
                 );
               })
+            )}
+            
+            {/* Load More Button */}
+            {hasMoreConversations && (
+              <div className="p-3 border-t border-gray-200">
+                <button
+                  onClick={loadMoreConversations}
+                  disabled={loadingMore}
+                  className="w-full py-2 px-4 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  {loadingMore ? 'Loading...' : 'Load More Conversations'}
+                </button>
+              </div>
             )}
           </div>
         </div>
