@@ -143,6 +143,7 @@ const Feed = () => {
     setSelectedImages([...selectedImages, ...validFiles]);
     e.target.value = ''; // Reset input to allow re-selecting same files
   };
+
   const removeImage = (index) => {
     setSelectedImages(selectedImages.filter((_, i) => i !== index));
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
@@ -160,7 +161,6 @@ const Feed = () => {
       ...prev,
       [postId]: ((prev[postId] || 0) - 1 + totalImages) % totalImages
     }));
-  };setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e) => {
