@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getUserProfile, followUser, unfollowUser } from '../services/userService';
+import { getUserProfile, followUser, unfollowUser, uploadProfilePicture } from '../services/userService';
 import { getUserPosts, deletePost } from '../services/postService';
 import { toast } from 'react-toastify';
 import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2 } from 'react-icons/fi';
+import ProfilePhotoUpload from '../components/profile/ProfilePhotoUpload';
 
 const getInitials = (profile) => {
   if (profile.firstName && profile.firstName.trim() && profile.lastName && profile.lastName.trim()) {
@@ -128,6 +129,17 @@ const Profile = () => {
     navigate('/messages', { state: { userId, username: profile.username } });
   };
 
+  const handlePhotoUpdate = async (formData) => {
+    const response = await uploadProfilePicture(formData);
+    // Update profile state with new photo
+    setProfile({ ...profile, profilePicture: response.data.profilePicture });
+    // Update auth context if needed
+    if (currentUser) {
+      currentUser.profilePicture = response.data.profilePicture;
+    }
+    return response;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -157,16 +169,23 @@ const Profile = () => {
         <div className="px-6 pb-6">
           {/* Profile Picture and Actions */}
           <div className="flex items-end justify-between -mt-20 mb-4">
-            {profile.profilePicture && !profile.profilePicture.includes('ui-avatars.com') ? (
-              <img
-                src={profile.profilePicture}
-                alt={profile.username}
-                className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+            {isOwnProfile ? (
+              <ProfilePhotoUpload 
+                currentPhoto={profile.profilePicture}
+                onPhotoUpdate={handlePhotoUpdate}
               />
             ) : (
-              <div className={`w-32 h-32 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white text-4xl font-bold ${getAvatarColor(profile.username)}`}>
-                {getInitials(profile)}
-              </div>
+              profile.profilePicture && !profile.profilePicture.includes('ui-avatars.com') ? (
+                <img
+                  src={profile.profilePicture}
+                  alt={profile.username}
+                  className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+                />
+              ) : (
+                <div className={`w-32 h-32 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white text-4xl font-bold ${getAvatarColor(profile.username)}`}>
+                  {getInitials(profile)}
+                </div>
+              )
             )}
             
             {!isOwnProfile && (

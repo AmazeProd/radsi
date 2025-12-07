@@ -30,6 +30,16 @@ export const uploadAvatar = async (userId, file) => {
   return response.data;
 };
 
+// Upload profile picture (for current user)
+export const uploadProfilePicture = async (formData) => {
+  const response = await api.post('/users/me/profile-picture', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 // Upload cover photo
 export const uploadCoverPhoto = async (userId, file) => {
   const formData = new FormData();

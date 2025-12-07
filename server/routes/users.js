@@ -31,6 +31,7 @@ const updateProfileValidation = [
 // Routes
 router.get('/search', searchUsers);
 router.put('/me', protect, updateProfileValidation, validate, updateUserProfile);
+router.post('/me/profile-picture', protect, uploadLimiter, upload.single('profilePicture'), uploadAvatar);
 router.get('/:id', optionalProtect, getUserProfile);
 router.put('/:id', protect, updateProfileValidation, validate, updateUserProfile);
 router.delete('/:id', protect, deleteUserAccount);

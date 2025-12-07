@@ -120,9 +120,13 @@ exports.deleteUserAccount = asyncHandler(async (req, res, next) => {
 
 // @desc    Upload profile picture
 // @route   POST /api/users/:id/avatar
+// @route   POST /api/users/me/profile-picture
 // @access  Private
 exports.uploadAvatar = asyncHandler(async (req, res, next) => {
-  if (req.params.id !== req.user.id) {
+  // Allow both /users/:id/avatar and /users/me/profile-picture routes
+  const userId = req.params.id === 'me' || !req.params.id ? req.user.id : req.params.id;
+  
+  if (userId !== req.user.id) {
     return next(new ErrorResponse('Not authorized to update this profile', 403));
   }
 
@@ -130,7 +134,7 @@ exports.uploadAvatar = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Please upload a file', 400));
   }
 
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(userId);
 
   if (!user) {
     return next(new ErrorResponse('User not found', 404));
@@ -153,7 +157,7 @@ exports.uploadAvatar = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: user,
+    data: { profilePicture: user.profilePicture },
   });
 });
 
