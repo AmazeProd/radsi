@@ -144,6 +144,8 @@ const Profile = () => {
         newPhotoUrl = baseUrl + newPhotoUrl;
       }
       
+      console.log('New photo URL:', newPhotoUrl);
+      
       if (newPhotoUrl) {
         // Update profile state with new photo
         setProfile({ ...profile, profilePicture: newPhotoUrl });
@@ -151,6 +153,11 @@ const Profile = () => {
         if (currentUser) {
           currentUser.profilePicture = newPhotoUrl;
         }
+        
+        // Reload profile to ensure fresh data
+        setTimeout(() => {
+          loadProfile();
+        }, 500);
       }
       
       return response;
@@ -192,6 +199,7 @@ const Profile = () => {
           <div className="flex items-end justify-between -mt-20 mb-4">
             {isOwnProfile ? (
               <ProfilePhotoUpload 
+                key={profile.profilePicture}
                 currentPhoto={profile.profilePicture}
                 onPhotoUpdate={handlePhotoUpdate}
               />
