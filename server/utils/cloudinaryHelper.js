@@ -5,8 +5,12 @@ const path = require('path');
 // Upload image to Cloudinary
 exports.uploadImage = async (filePath, folder = 'social-media') => {
   try {
-    console.log('Uploading file:', filePath);
+    console.log('=== CLOUDINARY UPLOAD START ===');
+    console.log('File path:', filePath);
     console.log('Folder:', folder);
+    console.log('Cloud name:', process.env.CLOUDINARY_CLOUD_NAME);
+    console.log('API Key:', process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not set');
+    console.log('API Secret:', process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not set');
     
     // Check if file exists
     if (!fs.existsSync(filePath)) {
@@ -25,6 +29,7 @@ exports.uploadImage = async (filePath, folder = 'social-media') => {
       };
     }
 
+    console.log('Uploading to Cloudinary...');
     const result = await cloudinary.uploader.upload(filePath, {
       folder: folder,
       resource_type: 'auto',
@@ -35,7 +40,9 @@ exports.uploadImage = async (filePath, folder = 'social-media') => {
       ],
     });
 
-    console.log('Cloudinary upload successful');
+    console.log('Cloudinary upload successful!');
+    console.log('URL:', result.secure_url);
+    console.log('=== CLOUDINARY UPLOAD END ===');
 
     // Delete file from local storage
     fs.unlinkSync(filePath);
@@ -45,7 +52,10 @@ exports.uploadImage = async (filePath, folder = 'social-media') => {
       publicId: result.public_id,
     };
   } catch (error) {
-    console.error('Error in uploadImage:', error.message);
+    console.error('=== CLOUDINARY UPLOAD ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error details:', error);
+    console.error('=================================');
     
     // Delete file from local storage if upload fails
     if (fs.existsSync(filePath)) {
