@@ -248,7 +248,10 @@ const Messages = () => {
   }, [onlineUsers, userStatus, selectedUser?._id]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    // Use requestAnimationFrame for smoother scroll
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    });
   };
 
   const handleEmojiClick = (emoji) => {
@@ -310,11 +313,15 @@ const Messages = () => {
         const cachedMessages = messagesCacheRef.current.get(userId);
         setMessages(cachedMessages);
         
-        // Still fetch fresh data in background and update if changed
+        // Still fetch fresh data in background and update only if different
         getMessages(userId).then(response => {
           const freshMessages = response.data || [];
-          messagesCacheRef.current.set(userId, freshMessages);
-          setMessages(freshMessages);
+          
+          // Only update if messages actually changed (avoid unnecessary re-renders)
+          if (JSON.stringify(freshMessages) !== JSON.stringify(cachedMessages)) {
+            messagesCacheRef.current.set(userId, freshMessages);
+            setMessages(freshMessages);
+          }
         }).catch(err => console.error('Background refresh failed:', err));
         
         // Mark as read
@@ -347,10 +354,6 @@ const Messages = () => {
   const handleSelectUser = (conversation) => {
     const otherUser = conversation.participants.find((p) => p._id !== user._id);
     
-    console.log('Selected user data:', otherUser);
-    console.log('Online users:', onlineUsers);
-    console.log('User status:', userStatus);
-    
     // Add online status from socket
     const userWithStatus = {
       ...otherUser,
@@ -358,13 +361,10 @@ const Messages = () => {
       lastSeen: userStatus.get(otherUser._id)?.lastSeen || otherUser.lastSeen,
     };
     
-    console.log('User with status:', userWithStatus);
-    
-    // Set user and clear messages immediately for instant feedback
+    // Batch state updates for smoother transition
     setSelectedUser(userWithStatus);
-    setMessages([]); // Clear previous messages immediately
     
-    // Load messages in background
+    // Load messages (will use cache if available for instant display)
     loadMessages(otherUser._id);
     
     // Mark messages as read immediately if tab is visible
@@ -568,22 +568,24 @@ const Messages = () => {
               </div>
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3 bg-gray-50">
+              <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3 bg-gray-50 scroll-smooth">
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
-                    <div className="text-center text-gray-400">
+                    <div className="text-center text-gray-400 animate-pulse">
+                      <div className="inline-block w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-2"></div>
                       <p className="text-sm">Loading messages...</p>
                     </div>
                   </div>
                 ) : (
-                  messages.map((message) => {
+                  messages.map((message, index) => {
                     const senderId = message.sender?._id || message.sender;
                     const isSent = senderId === user._id || senderId === user.id;
                     
                     return (
                       <div
                         key={message._id}
-                        className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                        style={{ animationDelay: `${Math.min(index * 20, 200)}ms` }}
                       >
                         <div
                           className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
