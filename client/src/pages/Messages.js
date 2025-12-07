@@ -528,7 +528,7 @@ const Messages = () => {
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Messages</h2>
               <p className="text-xs text-gray-500 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
-            <div className="flex-1 overflow-y-auto">{
+            <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-400 px-4 py-12">
                 <FiMail className="w-16 h-16 mb-4 text-gray-300" />
