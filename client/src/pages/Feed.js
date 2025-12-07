@@ -357,62 +357,59 @@ const Feed = () => {
                     onClick={() => window.open(post.images[0].url, '_blank')}
                   />
                 ) : (
-                  <div className="relative group">
+                  <div className="relative">
                     {/* Image Carousel */}
-                    <div className="relative overflow-hidden rounded-lg">
+                    <div className="relative overflow-hidden rounded-lg group">
                       <img
                         src={post.images[currentImageIndex[post._id] || 0].url}
                         alt={`Post ${(currentImageIndex[post._id] || 0) + 1}`}
-                        className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition"
+                        className="w-full max-h-[500px] object-cover cursor-pointer transition-opacity duration-300"
                         onClick={() => window.open(post.images[currentImageIndex[post._id] || 0].url, '_blank')}
                       />
                       
+                      {/* Image Counter */}
+                      <div className="absolute top-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                        {(currentImageIndex[post._id] || 0) + 1} / {post.images.length}
+                      </div>
+                      
                       {/* Navigation Buttons */}
-                      {post.images.length > 1 && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              prevImage(post._id, post.images.length);
-                            }}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                          >
-                            <FiChevronLeft size={24} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextImage(post._id, post.images.length);
-                            }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                          >
-                            <FiChevronRight size={24} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* Image Counter */}
-                    <div className="absolute top-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {(currentImageIndex[post._id] || 0) + 1} / {post.images.length}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          prevImage(post._id, post.images.length);
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110"
+                        aria-label="Previous image"
+                      >
+                        <FiChevronLeft size={24} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          nextImage(post._id, post.images.length);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110"
+                        aria-label="Next image"
+                      >
+                        <FiChevronRight size={24} />
+                      </button>
                     </div>
                     
                     {/* Dot Indicators */}
-                    {post.images.length > 1 && (
-                      <div className="flex justify-center gap-1.5 mt-3">
-                        {post.images.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentImageIndex(prev => ({ ...prev, [post._id]: idx }))}
-                            className={`h-2 rounded-full transition-all ${
-                              (currentImageIndex[post._id] || 0) === idx
-                                ? 'w-6 bg-primary-600'
-                                : 'w-2 bg-gray-300 hover:bg-gray-400'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex justify-center gap-1.5 mt-3">
+                      {post.images.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentImageIndex(prev => ({ ...prev, [post._id]: idx }))}
+                          className={`h-2 rounded-full transition-all ${
+                            (currentImageIndex[post._id] || 0) === idx
+                              ? 'w-6 bg-primary-600'
+                              : 'w-2 bg-gray-300 hover:bg-gray-400'
+                          }`}
+                          aria-label={`Go to image ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
