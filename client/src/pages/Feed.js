@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost, deletePost } from '../services/postService';
 import { toast } from 'react-toastify';
-import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX, FiChevronLeft, FiChevronRight, FiTrash2 } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX, FiChevronLeft, FiChevronRight, FiTrash2, FiCheck } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -34,6 +36,13 @@ const Feed = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState({}); // Track current image index for each post
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [currentCropImage, setCurrentCropImage] = useState(null);
+  const [currentCropIndex, setCurrentCropIndex] = useState(null);
+  const [crop, setCrop] = useState({ unit: '%', width: 90, height: 90, x: 5, y: 5 });
+  const [completedCrop, setCompletedCrop] = useState(null);
+  const [cropping, setCropping] = useState(false);
+  const cropImgRef = useRef(null);
   const fileInputRef = useRef(null);
   
   // Common emojis for quick access
@@ -126,35 +135,108 @@ const Feed = () => {
       return;
     }
     
-    // Validate files
-    const validFiles = [];
-    const previews = [];
+    // Validate and open crop modal for first file
+    const file = files[0];
     
-    for (const file of files) {
-      if (file.size > 50 * 1024 * 1024) {
-        toast.error(`${file.name} is too large. Maximum size is 50MB`);
-        continue;
-      }
-      if (!file.type.startsWith('image/')) {
-        toast.error(`${file.name} is not an image file`);
-        continue;
-      }
-      
-      validFiles.push(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        previews.push(e.target.result);
-        if (previews.length === validFiles.length) {
-          setImagePreviews([...imagePreviews, ...previews]);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error(`${file.name} is too large. Maximum size is 50MB`);
+      e.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      toast.error(`${file.name} is not an image file`);
+      e.target.value = '';
+      return;
     }
     
-    setSelectedImages([...selectedImages, ...validFiles]);
-    e.target.value = ''; // Reset input to allow re-selecting same files
+    // Read file and open crop modal
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCurrentCropImage({ src: reader.result, file });
+      setCurrentCropIndex(selectedImages.length);
+      setCropModalOpen(true);
+      setCrop({ unit: '%', width: 90, height: 90, x: 5, y: 5 });
+      setCompletedCrop(null);
+    };
+    reader.readAsDataURL(file);
+    
+    e.target.value = ''; // Reset input
+  };
+
+  const getCroppedImg = (image, crop) => {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
+    
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      cropWidth,
+      cropHeight
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, 'image/jpeg', 1.0);
+    });
+  };
+
+  const handleCropComplete = async () => {
+    if (!completedCrop || !cropImgRef.current) {
+      toast.error('Please select a crop area');
+      return;
+    }
+
+    try {
+      setCropping(true);
+      const croppedBlob = await getCroppedImg(cropImgRef.current, completedCrop);
+      
+      if (!croppedBlob) {
+        throw new Error('Failed to crop image');
+      }
+      
+      const croppedFile = new File([croppedBlob], currentCropImage.file.name, {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      });
+
+      // Add to selected images
+      setSelectedImages([...selectedImages, croppedFile]);
+      
+      // Create preview
+      const previewUrl = URL.createObjectURL(croppedBlob);
+      setImagePreviews([...imagePreviews, previewUrl]);
+      
+      // Close modal
+      setCropModalOpen(false);
+      setCurrentCropImage(null);
+      setCurrentCropIndex(null);
+      toast.success('Image cropped successfully!');
+    } catch (error) {
+      console.error('Error cropping image:', error);
+      toast.error('Failed to crop image');
+    } finally {
+      setCropping(false);
+    }
+  };
+
+  const handleCropCancel = () => {
+    setCropModalOpen(false);
+    setCurrentCropImage(null);
+    setCurrentCropIndex(null);
   };
 
   const removeImage = (index) => {
@@ -252,6 +334,66 @@ const Feed = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Crop Modal */}
+      {cropModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-800">Crop Image</h3>
+              <p className="text-gray-600 mt-1">Adjust the crop area by dragging the corners</p>
+            </div>
+            
+            <div className="p-6 overflow-auto max-h-[60vh] flex justify-center">
+              {currentCropImage && (
+                <ReactCrop
+                  crop={crop}
+                  onChange={(c) => setCrop(c)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  aspect={undefined}
+                >
+                  <img
+                    ref={cropImgRef}
+                    src={currentCropImage.src}
+                    alt="Crop preview"
+                    className="max-w-full h-auto"
+                    onLoad={(e) => {
+                      cropImgRef.current = e.currentTarget;
+                    }}
+                  />
+                </ReactCrop>
+              )}
+            </div>
+            
+            <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
+              <button
+                onClick={handleCropCancel}
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition font-medium"
+                disabled={cropping}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCropComplete}
+                disabled={cropping || !completedCrop}
+                className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {cropping ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Cropping...
+                  </>
+                ) : (
+                  <>
+                    <FiCheck className="w-5 h-5" />
+                    Apply Crop
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Create Post Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 hover:shadow-md transition-shadow">
         <textarea

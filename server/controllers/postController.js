@@ -94,7 +94,8 @@ exports.createPost = asyncHandler(async (req, res, next) => {
   console.log('Files:', req.files);
   console.log('Files length:', req.files?.length);
 
-  if (!content && (!req.files || req.files.length === 0)) {
+  // Allow posts with only images (text is optional)
+  if (!content?.trim() && (!req.files || req.files.length === 0)) {
     return next(new ErrorResponse('Post must contain text or images', 400));
   }
 
