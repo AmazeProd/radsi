@@ -654,6 +654,7 @@ const Messages = () => {
                       <p className="text-sm font-medium">Loading messages...</p>
                     </div>
                   </div>
+                </div>
                 ) : (
                   messages.map((message, index) => {
                     const senderId = message.sender?._id || message.sender;
@@ -709,6 +710,7 @@ const Messages = () => {
                             )}
                           </div>
                         </div>
+                      </div>
                         
                         {/* Delete Button */}
                         {isSent && (
