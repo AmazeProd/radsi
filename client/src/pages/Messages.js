@@ -727,7 +727,6 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Message Input */}
               <form onSubmit={handleSendMessage} className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0 sticky bottom-0 z-10">
                 {/* Image Preview */}
                 {imagePreview && (
