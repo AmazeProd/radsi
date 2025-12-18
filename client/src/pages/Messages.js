@@ -73,6 +73,8 @@ const Messages = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [openMessageDropdown, setOpenMessageDropdown] = useState(null);
+  const [sidebarWidth, setSidebarWidth] = useState(384); // Default 96 * 4 = 384px (w-96)
+  const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesCacheRef = useRef(new Map()); // Cache messages by userId
   const fileInputRef = useRef(null);
@@ -80,6 +82,37 @@ const Messages = () => {
 
   // Common emojis for quick access
   const commonEmojis = ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🎉', '🔥', '✨', '💯', '🙌', '👏', '🎊', '💪', '🌟', '😊', '🤗', '😅', '😢', '😭', '😡', '🤣', '😜', '😇', '🥳', '😴', '🤩', '😱'];
+
+  // Handle resizing sidebar
+  const handleMouseDown = (e) => {
+    setIsResizing(true);
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing) return;
+      
+      const newWidth = e.clientX;
+      if (newWidth >= 280 && newWidth <= 600) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   // Force re-render when online users change
   useEffect(() => {
@@ -520,10 +553,13 @@ const Messages = () => {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-gray-100 dark:bg-gray-950 transition-colors">
-      <div className="h-full max-w-7xl mx-auto">
-        <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full flex overflow-hidden shadow-2xl sm:rounded-none md:rounded-2xl md:m-4 md:h-[calc(100vh-2rem)] transition-colors border border-gray-200 dark:border-gray-800">
+      <div className="h-full mx-auto px-2 md:px-4">
+        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full flex overflow-hidden shadow-2xl sm:rounded-none md:rounded-2xl md:my-4 md:h-[calc(100vh-2rem)] transition-colors border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
-          <div className={(selectedUser ? 'hidden sm:flex' : 'flex') + ' w-full sm:w-80 md:w-96 border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}>
+          <div 
+            className={(selectedUser ? 'hidden sm:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}
+            style={{ width: selectedUser ? `${sidebarWidth}px` : '100%', minWidth: '280px', maxWidth: '600px' }}
+          >
             <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0 shadow-sm transition-colors">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Messages</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
@@ -595,6 +631,21 @@ const Messages = () => {
             )}
             </div>
           </div>
+
+          {/* Resizable Divider */}
+          {selectedUser && (
+            <div
+              className="hidden sm:block w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-500 cursor-col-resize transition-colors relative group"
+              onMouseDown={handleMouseDown}
+            >
+              <div className="absolute inset-0 w-4 -mx-1.5" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 rounded-full p-1">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                </svg>
+              </div>
+            </div>
+          )}
 
         {/* Messages Area */}
         <div className={(selectedUser ? 'flex' : 'hidden sm:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors'}>
