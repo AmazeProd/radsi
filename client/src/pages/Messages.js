@@ -541,13 +541,14 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const conversationClasses = `p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-900 transition-all border-b border-gray-100 dark:border-gray-900 ${isSelected ? 'bg-blue-50 dark:bg-gray-900 border-l-4 border-blue-600 shadow-sm' : ''}`;
+                const baseClasses = "p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-900 transition-all border-b border-gray-100 dark:border-gray-900";
+                const selectedClasses = isSelected ? " bg-blue-50 dark:bg-gray-900 border-l-4 border-blue-600 shadow-sm" : "";
                 
                 return (
                   <div
                     key={conversation._id}
                     onClick={() => handleSelectUser(conversation)}
-                    className={conversationClasses}
+                    className={baseClasses + selectedClasses}
                   >
                     <div className="flex items-center gap-3">
                       <div className="relative flex-shrink-0">
