@@ -559,7 +559,7 @@ const Messages = () => {
                             className="w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white object-cover shadow-sm"
                           />
                         ) : (
-                          <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xl font-bold shadow-sm ${getAvatarColor(otherUser.username)}`}>
+                          <div className={"w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xl font-bold shadow-sm " + getAvatarColor(otherUser.username)}>
                             {getInitials(otherUser)}
                           </div>
                         )}
