@@ -244,18 +244,18 @@ const Feed = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="max-w-2xl mx-auto px-4 py-6 min-h-screen">
       {/* Create Post Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 hover:shadow-md transition-shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-4 hover:shadow-md transition-all">
         <textarea
-          className="w-full p-3 border-0 resize-none focus:outline-none text-gray-800 placeholder-gray-400"
+          className="w-full p-3 border-0 resize-none focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent"
           rows="3"
           placeholder="What's happening?"
           value={postContent}
@@ -265,7 +265,7 @@ const Feed = () => {
         
         {/* Emoji Picker */}
         {showEmojiPicker && (
-          <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
             <div className="flex flex-wrap gap-2">
               {commonEmojis.map((emoji, index) => (
                 <button
@@ -303,7 +303,7 @@ const Feed = () => {
           </div>
         )}
         
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex gap-2">
             <input
               type="file"
@@ -315,7 +315,7 @@ const Feed = () => {
             />
             <button
               onClick={handleImageClick}
-              className="text-primary-600 hover:bg-primary-50 p-2 rounded-full transition"
+              className="text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 p-2 rounded-full transition"
               type="button"
               title="Add images"
             >
@@ -323,7 +323,7 @@ const Feed = () => {
             </button>
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="text-primary-600 hover:bg-primary-50 p-2 rounded-full transition"
+              className="text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 p-2 rounded-full transition"
               type="button"
               title="Add emoji"
             >
@@ -343,7 +343,7 @@ const Feed = () => {
       {/* Posts Feed */}
       <div className="space-y-4">
         {posts.map((post, index) => (
-          <div key={post._id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all transform hover:scale-[1.01]">
+          <div key={post._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all transform hover:scale-[1.01]">
             {/* Post Header */}
             <div className="flex items-center justify-between p-4">
               <Link to={`/profile/${post.user._id}`} className="flex items-center gap-3">
@@ -359,8 +359,8 @@ const Feed = () => {
                   </div>
                 )}
                 <div>
-                  <h3 className="font-semibold text-gray-900 hover:text-primary-600 transition">{post.user.username}</h3>
-                  <p className="text-xs text-gray-500">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 transition">{post.user.username}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -368,17 +368,17 @@ const Feed = () => {
               <div className="relative dropdown-container">
                 <button 
                   onClick={() => setOpenDropdown(openDropdown === post._id ? null : post._id)}
-                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
                 >
                   <FiMoreHorizontal size={20} />
                 </button>
                 
                 {openDropdown === post._id && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10">
                     {user && (user._id === post.user._id || user.id === post.user._id) && (
                       <button
                         onClick={() => handleDeletePost(post._id)}
-                        className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 transition"
+                        className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition"
                       >
                         <FiTrash2 size={16} />
                         Delete Post
@@ -391,7 +391,7 @@ const Feed = () => {
 
             {/* Post Content */}
             <div className="px-4 pb-3">
-              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+              <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{post.content}</p>
             </div>
 
             {/* Post Images */}
@@ -464,25 +464,25 @@ const Feed = () => {
             )}
 
             {/* Post Actions */}
-            <div className="px-4 py-3 border-t border-gray-100">
+            <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-5">
                   <button 
                     onClick={() => handleLike(post._id, post.isLiked)}
-                    className={`flex items-center gap-2 transition group ${post.isLiked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'}`}
+                    className={`flex items-center gap-2 transition group ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-400 hover:text-red-500'}`}
                   >
                     <FiHeart className={`w-6 h-6 group-hover:scale-110 transition-all ${post.isLiked ? 'fill-red-500' : 'group-hover:fill-red-500'}`} />
                     <span className="text-sm font-medium">{post.likesCount || 0}</span>
                   </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition group">
+                  <button className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition group">
                     <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     <span className="text-sm font-medium">{post.commentsCount || 0}</span>
                   </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-green-500 transition group">
+                  <button className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-green-500 transition group">
                     <FiSend className="w-6 h-6 group-hover:scale-110 transition-transform" />
                   </button>
                 </div>
-                <button className="text-gray-600 hover:text-yellow-500 transition">
+                <button className="text-gray-600 dark:text-gray-400 hover:text-yellow-500 transition">
                   <FiBookmark className="w-6 h-6 hover:scale-110 transition-transform" />
                 </button>
               </div>
