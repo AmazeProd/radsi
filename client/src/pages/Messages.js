@@ -5,7 +5,7 @@ import { useSocket } from '../context/SocketContext';
 import { getConversations, getMessages, sendMessage, markAsRead, deleteConversation, deleteMessage } from '../services/messageService';
 import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
-import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2 } from 'react-icons/fi';
+import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2, FiCheck } from 'react-icons/fi';
 import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
@@ -75,10 +75,79 @@ const Messages = () => {
   const [openMessageDropdown, setOpenMessageDropdown] = useState(null);
   const [sidebarWidth, setSidebarWidth] = useState(384); // Default 96 * 4 = 384px (w-96)
   const [isResizing, setIsResizing] = useState(false);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const [chatTheme, setChatTheme] = useState(() => {
+    return localStorage.getItem('chatTheme') || 'blue-gradient';
+  });
   const messagesEndRef = useRef(null);
   const messagesCacheRef = useRef(new Map()); // Cache messages by userId
   const fileInputRef = useRef(null);
   // const pollIntervalRef = useRef(null);
+
+  // Chat background themes
+  const chatThemes = [
+    {
+      id: 'blue-gradient',
+      name: 'Ocean Blue',
+      background: 'linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+      pattern: 'repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px)',
+      preview: 'bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300'
+    },
+    {
+      id: 'purple-dream',
+      name: 'Purple Dream',
+      background: 'linear-gradient(to bottom, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%)',
+      pattern: 'repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(255,255,255,.15) 40px, rgba(255,255,255,.15) 80px)',
+      preview: 'bg-gradient-to-b from-purple-100 via-purple-200 to-purple-300'
+    },
+    {
+      id: 'sunset-orange',
+      name: 'Sunset Orange',
+      background: 'linear-gradient(to bottom, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%)',
+      pattern: 'repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,.2) 30px, rgba(255,255,255,.2) 60px)',
+      preview: 'bg-gradient-to-b from-orange-100 via-orange-200 to-orange-300'
+    },
+    {
+      id: 'mint-fresh',
+      name: 'Mint Fresh',
+      background: 'linear-gradient(to bottom, #e0f2f1 0%, #b2dfdb 50%, #80cbc4 100%)',
+      pattern: 'repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,.12) 35px, rgba(255,255,255,.12) 70px)',
+      preview: 'bg-gradient-to-b from-teal-100 via-teal-200 to-teal-300'
+    },
+    {
+      id: 'rose-pink',
+      name: 'Rose Pink',
+      background: 'linear-gradient(to bottom, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%)',
+      pattern: 'repeating-linear-gradient(45deg, transparent, transparent 38px, rgba(255,255,255,.18) 38px, rgba(255,255,255,.18) 76px)',
+      preview: 'bg-gradient-to-b from-pink-100 via-pink-200 to-pink-300'
+    },
+    {
+      id: 'forest-green',
+      name: 'Forest Green',
+      background: 'linear-gradient(to bottom, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+      pattern: 'repeating-linear-gradient(-45deg, transparent, transparent 42px, rgba(255,255,255,.14) 42px, rgba(255,255,255,.14) 84px)',
+      preview: 'bg-gradient-to-b from-green-100 via-green-200 to-green-300'
+    },
+    {
+      id: 'lavender-sky',
+      name: 'Lavender Sky',
+      background: 'linear-gradient(to bottom, #ede7f6 0%, #d1c4e9 50%, #b39ddb 100%)',
+      pattern: 'repeating-linear-gradient(45deg, transparent, transparent 36px, rgba(255,255,255,.16) 36px, rgba(255,255,255,.16) 72px)',
+      preview: 'bg-gradient-to-b from-indigo-100 via-indigo-200 to-indigo-300'
+    },
+    {
+      id: 'coral-reef',
+      name: 'Coral Reef',
+      background: 'linear-gradient(to bottom, #fbe9e7 0%, #ffccbc 50%, #ffab91 100%)',
+      pattern: 'repeating-linear-gradient(-45deg, transparent, transparent 33px, rgba(255,255,255,.2) 33px, rgba(255,255,255,.2) 66px)',
+      preview: 'bg-gradient-to-b from-red-100 via-red-200 to-red-300'
+    }
+  ];
+
+  // Save theme preference
+  useEffect(() => {
+    localStorage.setItem('chatTheme', chatTheme);
+  }, [chatTheme]);
 
   // Common emojis for quick access
   const commonEmojis = ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🎉', '🔥', '✨', '💯', '🙌', '👏', '🎊', '💪', '🌟', '😊', '🤗', '😅', '😢', '😭', '😡', '🤣', '😜', '😇', '🥳', '😴', '🤩', '😱'];
@@ -113,6 +182,23 @@ const Messages = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizing]);
+
+  // Close theme selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showThemeSelector && !e.target.closest('.theme-selector-container')) {
+        setShowThemeSelector(false);
+      }
+    };
+
+    if (showThemeSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showThemeSelector]);
 
   // Force re-render when online users change
   useEffect(() => {
@@ -687,23 +773,76 @@ const Messages = () => {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={handleDeleteConversation}
-                  className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition"
-                  title="Delete conversation"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowThemeSelector(!showThemeSelector)}
+                    className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-lg transition"
+                    title="Change chat theme"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleDeleteConversation}
+                    className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition"
+                    title="Delete conversation"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Theme Selector Dropdown */}
+              {showThemeSelector && (
+                <div className="theme-selector-container absolute top-16 right-4 z-20 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 w-80 max-h-96 overflow-y-auto">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100">Chat Themes</h3>
+                    <button
+                      onClick={() => setShowThemeSelector(false)}
+                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {chatThemes.map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => {
+                          setChatTheme(theme.id);
+                          setShowThemeSelector(false);
+                        }}
+                        className={'relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ' + (chatTheme === theme.id ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' : 'border-gray-300 dark:border-gray-600')}
+                      >
+                        <div className={'h-20 ' + theme.preview}></div>
+                        <div className="p-2 bg-white dark:bg-gray-900">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100 text-center">{theme.name}</p>
+                        </div>
+                        {chatTheme === theme.id && (
+                          <div className="absolute top-1 right-1 bg-blue-500 rounded-full p-1">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               </div>
 
               {/* Messages List */}
               <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scroll-smooth relative" style={{
-                background: 'linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+                background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
-                  linear-gradient(to bottom, rgba(227, 242, 253, 0.9) 0%, rgba(187, 222, 251, 0.9) 50%, rgba(144, 202, 249, 0.9) 100%),
-                  repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px)
+                  ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
+                  ${chatThemes.find(t => t.id === chatTheme)?.pattern || chatThemes[0].pattern}
                 `
               }}>
                 {messages.length === 0 ? (
