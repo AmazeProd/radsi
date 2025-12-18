@@ -642,9 +642,9 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-950 transition-colors overflow-hidden">
+    <div className="h-screen bg-gray-100 dark:bg-gray-950 transition-colors touch-pan-y">
       <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100vh-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
+        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100vh-2rem)] flex shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
             className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}
