@@ -647,9 +647,9 @@ const Messages = () => {
         <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full flex overflow-hidden shadow-2xl sm:rounded-none md:rounded-2xl md:my-4 md:h-[calc(100vh-2rem)] transition-colors border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden sm:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}
             style={{ 
-              width: selectedUser ? `${sidebarWidth}px` : (window.innerWidth >= 640 ? `${sidebarWidth}px` : '100%'), 
+              width: selectedUser ? `${sidebarWidth}px` : (window.innerWidth >= 768 ? `${sidebarWidth}px` : '100%'), 
               minWidth: '280px', 
               maxWidth: '600px' 
             }}
@@ -729,7 +729,7 @@ const Messages = () => {
           {/* Resizable Divider */}
           {selectedUser && (
             <div
-              className="hidden sm:block w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-500 cursor-col-resize transition-colors relative group"
+              className="hidden md:block w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-500 cursor-col-resize transition-colors relative group"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-0 w-4 -mx-1.5" />
@@ -742,7 +742,7 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden sm:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors'}
           {selectedUser ? (
             <>
               {/* Chat Header */}
@@ -751,7 +751,7 @@ const Messages = () => {
                   {/* Back Button - Mobile Only */}
                   <button
                     onClick={() => setSelectedUser(null)}
-                    className="sm:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0"
+                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
                   >
                     <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -845,7 +845,7 @@ const Messages = () => {
               )}
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24 sm:pb-4 space-y-3 scroll-smooth relative" style={{
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scroll-smooth relative" style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
                   ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
@@ -933,7 +933,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/95 to-indigo-50/95 dark:from-gray-800/98 dark:to-gray-900/98 backdrop-blur-lg flex-shrink-0 fixed sm:sticky bottom-0 left-0 right-0 sm:left-auto sm:right-auto z-50 transition-colors shadow-lg">
+              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/95 to-indigo-50/95 dark:from-gray-800/98 dark:to-gray-900/98 backdrop-blur-lg flex-shrink-0 sticky bottom-0 z-50 transition-colors shadow-lg">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
