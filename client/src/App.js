@@ -59,7 +59,7 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <Router>
-            <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+            <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-black transition-colors">
             <Suspense fallback={<LoadingSpinner />}>
               <Layout>
                 <Routes>
