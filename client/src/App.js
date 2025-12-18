@@ -53,9 +53,14 @@ const Layout = ({ children }) => {
   );
 };
 
-// Conditional Footer component
+// Conditional Footer component - must be inside Router/AuthProvider
 const ConditionalFooter = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  
+  // Don't show anything while loading
+  if (loading) {
+    return null;
+  }
   
   // Hide footer when user is logged in
   if (isAuthenticated) {
