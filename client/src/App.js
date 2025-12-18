@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Layout (keep these loaded immediately)
 import Navbar from './components/layout/Navbar';
@@ -54,10 +55,11 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <Router>
-          <div className="flex flex-col min-h-screen bg-gray-100">
+    <ThemeProvider>
+      <AuthProvider>
+        <SocketProvider>
+          <Router>r>
+            <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
             <Suspense fallback={<LoadingSpinner />}>
               <Layout>
                 <Routes>
@@ -179,9 +181,10 @@ function App() {
               pauseOnHover
             />
           </div>
-        </Router>
-      </SocketProvider>
-    </AuthProvider>
+          </Router>
+        </SocketProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
