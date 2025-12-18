@@ -648,7 +648,11 @@ const Messages = () => {
           {/* Conversations List */}
           <div 
             className={(selectedUser ? 'hidden sm:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}
-            style={{ width: selectedUser ? `${sidebarWidth}px` : '100%', minWidth: '280px', maxWidth: '600px' }}
+            style={{ 
+              width: selectedUser ? `${sidebarWidth}px` : (window.innerWidth >= 640 ? `${sidebarWidth}px` : '100%'), 
+              minWidth: '280px', 
+              maxWidth: '600px' 
+            }}
           >
             <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0 shadow-sm transition-colors">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Messages</h2>
