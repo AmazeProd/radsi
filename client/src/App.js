@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -38,7 +38,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// Layout wrapper to conditionally show navbar
+// Layout wrapper to conditionally show navbar and footer
 const Layout = ({ children }) => {
   const location = useLocation();
   const hideNavbar = location.pathname.startsWith('/messages');
@@ -51,6 +51,18 @@ const Layout = ({ children }) => {
       </main>
     </>
   );
+};
+
+// Conditional Footer component
+const ConditionalFooter = () => {
+  const { isAuthenticated } = useAuth();
+  
+  // Hide footer when user is logged in
+  if (isAuthenticated) {
+    return null;
+  }
+  
+  return <Footer />;
 };
 
 function App() {
@@ -168,7 +180,7 @@ function App() {
             </Routes>
             </Layout>
             </Suspense>
-            <Footer />
+            <ConditionalFooter />
             <ToastContainer
               position="top-right"
               autoClose={3000}
