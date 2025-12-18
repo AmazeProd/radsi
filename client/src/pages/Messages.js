@@ -544,9 +544,7 @@ const Messages = () => {
                   <div
                     key={conversation._id}
                     onClick={() => handleSelectUser(conversation)}
-                    className={`p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-900 transition-all border-b border-gray-100 dark:border-gray-900 ${
-                      selectedUser?._id === otherUser._id ? 'bg-blue-50 dark:bg-gray-900 border-l-4 border-blue-600 shadow-sm' : ''
-                    }`}
+                    className={`p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-900 transition-all border-b border-gray-100 dark:border-gray-900 ${selectedUser?._id === otherUser._id ? 'bg-blue-50 dark:bg-gray-900 border-l-4 border-blue-600 shadow-sm' : ''}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="relative flex-shrink-0">
