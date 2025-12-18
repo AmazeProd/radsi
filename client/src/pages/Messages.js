@@ -742,7 +742,7 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden relative'}
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden relative'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
