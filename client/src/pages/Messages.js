@@ -73,7 +73,11 @@ const Messages = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [openMessageDropdown, setOpenMessageDropdown] = useState(null);
-  const [sidebarWidth, setSidebarWidth] = useState(320); // Default 320px (w-80)
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    // Default to 30% of viewport width (minimum 280px, maximum 600px)
+    const defaultWidth = Math.floor(window.innerWidth * 0.3);
+    return Math.max(280, Math.min(600, defaultWidth));
+  });
   const [isResizing, setIsResizing] = useState(false);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [chatTheme, setChatTheme] = useState(() => {
