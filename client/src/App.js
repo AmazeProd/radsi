@@ -41,7 +41,9 @@ const LoadingSpinner = () => (
 // Layout wrapper to conditionally show navbar
 const Layout = ({ children }) => {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith('/messages');
+  const hideNavbar = location.pathname.startsWith('/messages') || 
+                     location.pathname === '/login' || 
+                     location.pathname === '/register';
   
   return (
     <>
