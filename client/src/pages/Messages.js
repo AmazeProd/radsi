@@ -642,9 +642,9 @@ const Messages = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-100 dark:bg-gray-950 transition-colors overflow-hidden">
-      <div className="h-full mx-auto px-0 md:px-4">
-        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100vh-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl md:my-4 transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
+    <div className="h-screen bg-gray-100 dark:bg-gray-950 transition-colors overflow-hidden">
+      <div className="h-full mx-auto px-2 md:px-4">
+        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100vh-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl md:my-4 transition-colors border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
             className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}
@@ -742,11 +742,11 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors h-full'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors h-full max-h-full'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 shadow-md flex-shrink-0 z-10 backdrop-blur-lg transition-colors">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 shadow-md flex-shrink-0 backdrop-blur-lg transition-colors">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
