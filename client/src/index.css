@@ -20,7 +20,22 @@ body {
 
 body.dark {
   background-color: #030712;
-  background-image: none;
+  background-image: none !important;
+}
+
+/* Remove any diagonal patterns in dark mode */
+.dark * {
+  background-image: none !important;
+}
+
+.dark .bg-gradient-to-r,
+.dark .bg-gradient-to-br,
+.dark .bg-gradient-to-b,
+.dark .bg-gradient-to-l,
+.dark .bg-gradient-to-tr,
+.dark .bg-gradient-to-tl,
+.dark .bg-gradient-to-bl {
+  background-image: linear-gradient(var(--tw-gradient-stops)) !important;
 }
 
 code {
