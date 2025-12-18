@@ -835,7 +835,6 @@ const Messages = () => {
                   </div>
                 </div>
               )}
-              </div>
 
               {/* Messages List */}
               <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scroll-smooth relative" style={{
