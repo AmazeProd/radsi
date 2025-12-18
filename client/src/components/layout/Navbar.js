@@ -19,7 +19,7 @@ const getInitials = (user) => {
 };
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, loading } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,6 +28,11 @@ const Navbar = () => {
     logout();
     navigate('/login');
   };
+
+  // Show nothing while checking authentication
+  if (loading) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return (
