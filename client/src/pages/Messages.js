@@ -678,7 +678,7 @@ const Messages = () => {
                               isSent
                                 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-none shadow-lg'
                                 : 'bg-white/95 text-gray-800 border border-gray-200/50 rounded-bl-none shadow-md'
-                            }`}
+                            )}
                           >
                             {message.image && (
                               <img
