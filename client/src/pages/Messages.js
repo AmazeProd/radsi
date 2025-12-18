@@ -519,12 +519,12 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-gray-100 dark:bg-black transition-colors">
+    <div className="h-screen w-screen overflow-hidden bg-gray-100 dark:bg-gray-950 transition-colors">
       <div className="h-full max-w-7xl mx-auto">
-        <div className="bg-white dark:bg-black h-full flex overflow-hidden shadow-2xl sm:rounded-none md:rounded-2xl md:m-4 md:h-[calc(100vh-2rem)] transition-colors border border-gray-200 dark:border-gray-900">
+        <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full flex overflow-hidden shadow-2xl sm:rounded-none md:rounded-2xl md:m-4 md:h-[calc(100vh-2rem)] transition-colors border border-gray-200 dark:border-gray-800">
           {/* Conversations List */}
-          <div className={(selectedUser ? 'hidden sm:flex' : 'flex') + ' w-full sm:w-80 md:w-96 border-r border-gray-200 dark:border-gray-900 flex-col bg-white dark:bg-black overflow-hidden transition-colors'}>
-            <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-900 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-950 dark:to-black flex-shrink-0 shadow-sm transition-colors">
+          <div className={(selectedUser ? 'hidden sm:flex' : 'flex') + ' w-full sm:w-80 md:w-96 border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors'}>
+            <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0 shadow-sm transition-colors">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Messages</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
@@ -541,8 +541,8 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-900 transition-all border-b border-gray-100 dark:border-gray-900";
-                const selectedClasses = isSelected ? " bg-blue-50 dark:bg-gray-900 border-l-4 border-blue-600 shadow-sm" : "";
+                const baseClasses = "p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-800/50 transition-all border-b border-gray-100 dark:border-gray-800";
+                const selectedClasses = isSelected ? " bg-blue-50 dark:bg-gray-800 border-l-4 border-blue-500 shadow-sm" : "";
                 
                 return (
                   <div
@@ -597,11 +597,11 @@ const Messages = () => {
           </div>
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden sm:flex') + ' flex-1 flex-col bg-white dark:bg-black overflow-hidden transition-colors'}>
+        <div className={(selectedUser ? 'flex' : 'hidden sm:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-900 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-950 dark:to-black shadow-md flex-shrink-0 sticky top-0 z-10 backdrop-blur-lg transition-colors">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 shadow-md flex-shrink-0 sticky top-0 z-10 backdrop-blur-lg transition-colors">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
@@ -677,7 +677,7 @@ const Messages = () => {
                             className={'rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 select-none backdrop-blur-sm ' + (
                               isSent
                                 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-none shadow-lg'
-                                : 'bg-white/95 text-gray-800 border border-gray-200/50 rounded-bl-none shadow-md'
+                                : 'bg-white/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-bl-none shadow-md'
                             )}
                           >
                             {message.image && (
@@ -736,14 +736,14 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-900 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-gray-950/95 dark:to-black/95 backdrop-blur-lg flex-shrink-0 sticky bottom-0 z-10 transition-colors shadow-lg">
+              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-gray-800/95 dark:to-gray-900/95 backdrop-blur-lg flex-shrink-0 sticky bottom-0 z-10 transition-colors shadow-lg">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-32 h-32 object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-900"
+                      className="w-32 h-32 object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-800"
                     />
                     <button
                       onClick={removeImage}
@@ -757,7 +757,7 @@ const Messages = () => {
                 
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-900 shadow-md transition-colors">
+                  <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md transition-colors">
                     <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                       {commonEmojis.map((emoji, index) => (
                         <button
@@ -804,7 +804,7 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 border-2 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-sm sm:text-base transition-all shadow-sm"
+                    className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-sm sm:text-base transition-all shadow-sm"
                   />
                   <button
                     type="submit"
@@ -818,7 +818,7 @@ const Messages = () => {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-4 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-950 dark:to-black">
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-4 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-950">
               <FiMessageCircle size={48} className="sm:w-16 sm:h-16 mb-4" />
               <p className="text-base sm:text-lg font-medium text-center">Select a conversation</p>
               <p className="text-xs sm:text-sm text-center">Choose from existing conversations or start a new one</p>

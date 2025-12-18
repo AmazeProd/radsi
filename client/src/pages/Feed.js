@@ -244,7 +244,7 @@ const Feed = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-black">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
@@ -253,7 +253,7 @@ const Feed = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 min-h-screen">
       {/* Create Post Card */}
-      <div className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-gray-200 dark:border-gray-900 p-4 mb-4 hover:shadow-md transition-all">
+      <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 mb-4 hover:shadow-md transition-all">
         <textarea
           className="w-full p-3 border-0 resize-none focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent"
           rows="3"
@@ -265,7 +265,7 @@ const Feed = () => {
         
         {/* Emoji Picker */}
         {showEmojiPicker && (
-          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex flex-wrap gap-2">
               {commonEmojis.map((emoji, index) => (
                 <button
@@ -343,7 +343,7 @@ const Feed = () => {
       {/* Posts Feed */}
       <div className="space-y-4">
         {posts.map((post, index) => (
-          <div key={post._id} className="bg-white dark:bg-gray-950 rounded-xl shadow-sm border border-gray-200 dark:border-gray-900 hover:shadow-md transition-all transform hover:scale-[1.01]">
+          <div key={post._id} className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-all transform hover:scale-[1.01]">
             {/* Post Header */}
             <div className="flex items-center justify-between p-4">
               <Link to={`/profile/${post.user._id}`} className="flex items-center gap-3">
@@ -374,7 +374,7 @@ const Feed = () => {
                 </button>
                 
                 {openDropdown === post._id && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-950 rounded-lg shadow-lg border border-gray-200 dark:border-gray-900 py-1 z-10">
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 py-1 z-10">
                     {user && (user._id === post.user._id || user.id === post.user._id) && (
                       <button
                         onClick={() => handleDeletePost(post._id)}
