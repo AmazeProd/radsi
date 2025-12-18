@@ -742,7 +742,7 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden sm:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 overflow-hidden transition-colors'}
           {selectedUser ? (
             <>
               {/* Chat Header */}
@@ -845,7 +845,7 @@ const Messages = () => {
               )}
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24 sm:pb-4 space-y-3 scroll-smooth relative" style={{
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24 md:pb-4 space-y-3 scroll-smooth relative" style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
                   ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
@@ -933,7 +933,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/95 to-indigo-50/95 dark:from-gray-800/98 dark:to-gray-900/98 backdrop-blur-lg flex-shrink-0 fixed sm:sticky bottom-0 left-0 right-0 sm:left-auto sm:right-auto z-50 transition-colors shadow-lg">
+              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/95 to-indigo-50/95 dark:from-gray-800/98 dark:to-gray-900/98 backdrop-blur-lg flex-shrink-0 fixed md:sticky bottom-0 left-0 right-0 md:left-auto md:right-auto z-50 transition-colors shadow-lg">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
@@ -1001,16 +1001,16 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 sm:px-5 py-3 sm:py-3 border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-base sm:text-base transition-all shadow-sm min-h-[48px] sm:min-h-0"
+                    className="flex-1 px-4 md:px-5 py-3 border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-base transition-all shadow-sm min-h-[48px] md:min-h-0"
                   />
                   <button
                     type="submit"
                     disabled={!newMessage.trim() && !selectedImage}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-3 sm:px-7 sm:py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 font-semibold text-sm sm:text-base flex-shrink-0 shadow-lg hover:shadow-xl flex items-center justify-center min-w-[48px] sm:min-w-0"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-3 md:px-6 md:py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 font-semibold text-sm md:text-base flex-shrink-0 shadow-lg hover:shadow-xl flex items-center justify-center min-w-[48px] md:min-w-0"
                     onMouseDown={(e) => e.preventDefault()}
                   >
-                    <FiSend className="w-5 h-5 sm:hidden" />
-                    <span className="hidden sm:inline">Send</span>
+                    <FiSend className="w-5 h-5 md:hidden" />
+                    <span className="hidden md:inline">Send</span>
                   </button>
                 </div>
               </form>
