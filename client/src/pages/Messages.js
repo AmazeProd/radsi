@@ -647,7 +647,7 @@ const Messages = () => {
         <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors absolute left-0 top-0 bottom-0 md:relative'}
             style={{ 
               width: selectedUser ? `${sidebarWidth}px` : (window.innerWidth >= 768 ? `${sidebarWidth}px` : '100%'), 
               minWidth: '280px', 
@@ -742,11 +742,11 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden relative'}
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 shadow-md flex-shrink-0 backdrop-blur-lg transition-colors sticky top-0 z-20">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 shadow-md flex-shrink-0 backdrop-blur-lg transition-colors absolute top-0 left-0 right-0 z-20">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
@@ -845,7 +845,7 @@ const Messages = () => {
               )}
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scroll-smooth relative overscroll-contain" style={{
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 pt-20 space-y-3 scroll-smooth relative overscroll-contain" style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
                   ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
