@@ -933,7 +933,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/95 to-indigo-50/95 dark:from-gray-800/98 dark:to-gray-900/98 backdrop-blur-lg flex-shrink-0 z-50 transition-colors shadow-lg">
+              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50/95 to-indigo-50/95 dark:from-gray-800/98 dark:to-gray-900/98 backdrop-blur-lg flex-shrink-0 sticky bottom-0 z-50 transition-colors shadow-lg">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
