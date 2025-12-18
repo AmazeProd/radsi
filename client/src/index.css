@@ -15,6 +15,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f9fafb;
+  background-image: none;
+}
+
+body.dark {
+  background-color: #030712;
+  background-image: none;
 }
 
 code {
