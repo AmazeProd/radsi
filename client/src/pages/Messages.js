@@ -519,18 +519,18 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-gray-100">
+    <div className="h-screen w-screen overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors">
       <div className="h-full max-w-7xl mx-auto">
-        <div className="bg-white h-full flex overflow-hidden shadow-lg sm:rounded-none md:rounded-2xl md:m-4 md:h-[calc(100vh-2rem)]">
+        <div className="bg-white dark:bg-gray-900 h-full flex overflow-hidden shadow-2xl sm:rounded-none md:rounded-2xl md:m-4 md:h-[calc(100vh-2rem)] transition-colors border border-gray-200 dark:border-gray-800">
           {/* Conversations List */}
-          <div className={`${selectedUser ? 'hidden sm:flex' : 'flex'} w-full sm:w-80 md:w-96 border-r border-gray-200 flex-col bg-gray-50 overflow-hidden`}>
-            <div className="p-4 sm:p-5 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Messages</h2>
-              <p className="text-xs text-gray-500 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+          <div className={`${selectedUser ? 'hidden sm:flex' : 'flex'} w-full sm:w-80 md:w-96 border-r border-gray-200 dark:border-gray-700 flex-col bg-white dark:bg-gray-800 overflow-hidden transition-colors`}>
+            <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0 shadow-sm transition-colors">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Messages</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
             <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 px-4 py-12">
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 px-4 py-12">
                 <FiMail className="w-16 h-16 mb-4 text-gray-300" />
                 <p className="text-sm sm:text-base text-center font-medium">No conversations yet</p>
                 <p className="text-xs text-center mt-2">Start chatting with your connections</p>
@@ -544,8 +544,8 @@ const Messages = () => {
                   <div
                     key={conversation._id}
                     onClick={() => handleSelectUser(conversation)}
-                    className={`p-3 sm:p-4 cursor-pointer hover:bg-white transition-all border-b border-gray-100 ${
-                      selectedUser?._id === otherUser._id ? 'bg-white border-l-4 border-primary-600 shadow-sm' : ''
+                    className={`p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 transition-all border-b border-gray-100 dark:border-gray-700 ${
+                      selectedUser?._id === otherUser._id ? 'bg-blue-50 dark:bg-gray-700 border-l-4 border-blue-600 shadow-sm' : ''
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -566,9 +566,9 @@ const Messages = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate text-base">{otherUser.username}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate text-base">{otherUser.username}</h3>
                         {conversation.lastMessage && (
-                          <p className="text-sm text-gray-500 truncate mt-0.5">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
                             {conversation.lastMessage.content || '📷 Photo'}
                           </p>
                         )}
@@ -595,11 +595,11 @@ const Messages = () => {
           </div>
 
         {/* Messages Area */}
-        <div className={`${selectedUser ? 'flex' : 'hidden sm:flex'} flex-1 flex-col bg-white overflow-hidden`}>
+        <div className={`${selectedUser ? 'flex' : 'hidden sm:flex'} flex-1 flex-col bg-white dark:bg-gray-900 overflow-hidden transition-colors`}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white shadow-sm flex-shrink-0 sticky top-0 z-10">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 shadow-md flex-shrink-0 sticky top-0 z-10 backdrop-blur-lg transition-colors">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
@@ -622,11 +622,11 @@ const Messages = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 truncate text-base sm:text-lg">{selectedUser.username}</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 truncate text-base sm:text-lg">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
-                      <p className="text-xs sm:text-sm text-green-500 font-medium">● Active now</p>
+                      <p className="text-xs sm:text-sm text-green-500 dark:text-green-400 font-medium">● Active now</p>
                     ) : selectedUser.lastSeen ? (
-                      <p className="text-xs sm:text-sm text-gray-500 truncate">
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                         {formatLastSeen(selectedUser.lastSeen)}
                       </p>
                     ) : (
@@ -636,7 +636,7 @@ const Messages = () => {
                 </div>
                 <button
                   onClick={handleDeleteConversation}
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition"
+                  className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition"
                   title="Delete conversation"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -646,7 +646,13 @@ const Messages = () => {
               </div>
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 bg-gradient-to-b from-gray-50 to-white scroll-smooth">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scroll-smooth relative" style={{
+                background: 'linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+                backgroundImage: `
+                  linear-gradient(to bottom, rgba(227, 242, 253, 0.9) 0%, rgba(187, 222, 251, 0.9) 50%, rgba(144, 202, 249, 0.9) 100%),
+                  repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px)
+                `
+              }}>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-400">
@@ -666,10 +672,10 @@ const Messages = () => {
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={`rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm select-none ${
+                            className={`rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 select-none backdrop-blur-sm ${
                               isSent
-                                ? 'bg-primary-600 text-white rounded-br-none'
-                                : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
+                                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-none shadow-lg'
+                                : 'bg-white/95 text-gray-800 border border-gray-200/50 rounded-bl-none shadow-md'
                             }`}
                           >
                             {message.image && (
@@ -681,10 +687,10 @@ const Messages = () => {
                               />
                             )}
                             {message.content && (
-                              <p className="break-words select-text text-sm sm:text-base">{message.content}</p>
+                              <p className="break-words select-text text-sm sm:text-base leading-relaxed">{message.content}</p>
                             )}
-                            <div className={`flex items-center justify-end gap-1 text-xs mt-1 ${
-                              isSent ? 'text-primary-100' : 'text-gray-400'
+                            <div className={`flex items-center justify-end gap-1 text-xs mt-1.5 ${
+                              isSent ? 'text-blue-100' : 'text-gray-500'
                             }`}>
                               <span>
                                 {new Date(message.createdAt).toLocaleTimeString([], {
@@ -728,14 +734,14 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-2 sm:p-4 border-t border-gray-200 bg-white flex-shrink-0 sticky bottom-0 z-10">
+              <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-gray-800/95 dark:to-gray-900/95 backdrop-blur-lg flex-shrink-0 sticky bottom-0 z-10 transition-colors shadow-lg">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-32 h-32 object-cover rounded-lg"
+                      className="w-32 h-32 object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-700"
                     />
                     <button
                       onClick={removeImage}
@@ -749,7 +755,7 @@ const Messages = () => {
                 
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md transition-colors">
                     <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                       {commonEmojis.map((emoji, index) => (
                         <button
@@ -776,7 +782,7 @@ const Messages = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-gray-500 hover:bg-gray-100 hover:text-primary-600 p-2 sm:p-3 rounded-full transition flex-shrink-0"
+                    className="text-gray-500 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 p-2 sm:p-3 rounded-full transition flex-shrink-0"
                     title="Attach image"
                   >
                     <FiImage className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -784,7 +790,7 @@ const Messages = () => {
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={`${showEmojiPicker ? 'bg-primary-50 text-primary-600' : 'text-gray-500'} hover:bg-primary-50 hover:text-primary-600 p-2 sm:p-3 rounded-full transition flex-shrink-0`}
+                    className={`${showEmojiPicker ? 'bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'} hover:bg-blue-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 p-2 sm:p-3 rounded-full transition flex-shrink-0`}
                     title="Add emoji"
                   >
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -796,12 +802,12 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base"
+                    className="flex-1 px-4 sm:px-5 py-2.5 sm:py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-sm sm:text-base transition-all shadow-sm"
                   />
                   <button
                     type="submit"
                     disabled={!newMessage.trim() && !selectedImage}
-                    className="bg-primary-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 font-semibold text-sm sm:text-base flex-shrink-0"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 sm:px-7 py-2.5 sm:py-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 font-semibold text-sm sm:text-base flex-shrink-0 shadow-lg hover:shadow-xl"
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     Send
@@ -810,7 +816,7 @@ const Messages = () => {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 px-4">
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-4 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
               <FiMessageCircle size={48} className="sm:w-16 sm:h-16 mb-4" />
               <p className="text-base sm:text-lg font-medium text-center">Select a conversation</p>
               <p className="text-xs sm:text-sm text-center">Choose from existing conversations or start a new one</p>
