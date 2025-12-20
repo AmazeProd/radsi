@@ -86,6 +86,8 @@ const Messages = () => {
   const messagesEndRef = useRef(null);
   const messagesCacheRef = useRef(new Map()); // Cache messages by userId
   const fileInputRef = useRef(null);
+  const prevMessagesLengthRef = useRef(0);
+  const prevSelectedUserRef = useRef(null);
   // const pollIntervalRef = useRef(null);
 
   // Chat background themes
@@ -351,7 +353,18 @@ const Messages = () => {
   }, [socket, selectedUser, user, isTabVisible]);
 
   useEffect(() => {
-    scrollToBottom();
+    const userChanged = prevSelectedUserRef.current !== selectedUser?._id;
+    const messagesAdded = messages.length > prevMessagesLengthRef.current;
+    
+    // Instant scroll when user changes, smooth scroll for new messages
+    if (userChanged) {
+      scrollToBottom(true); // instant
+      prevSelectedUserRef.current = selectedUser?._id;
+    } else if (messagesAdded) {
+      scrollToBottom(false); // smooth
+    }
+    
+    prevMessagesLengthRef.current = messages.length;
   }, [messages, selectedUser?._id]);
 
   // Update selectedUser status when online/offline status changes
@@ -374,10 +387,14 @@ const Messages = () => {
     }
   }, [onlineUsers, userStatus, selectedUser?._id]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = (instant = false) => {
     // Use requestAnimationFrame for smoother scroll
     requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      // Use instant scroll when switching users or initial load, smooth for new messages
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: instant ? 'auto' : 'smooth', 
+        block: 'end' 
+      });
     });
   };
 
