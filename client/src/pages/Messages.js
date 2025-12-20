@@ -659,16 +659,16 @@ const Messages = () => {
   }
 
   return (
-    <div style={{ height: '100svh' }} className="bg-gray-100 dark:bg-gray-950 transition-colors overflow-hidden">
+    <div style={{ height: '100vh' }} className="bg-gray-100 dark:bg-gray-950 transition-colors overflow-hidden">
       <div className="h-full mx-auto px-0 md:px-4 md:py-4">
         <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors absolute left-0 top-0 bottom-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors flex-shrink-0 md:relative'}
             style={{ 
-              width: selectedUser ? `${sidebarWidth}px` : (window.innerWidth >= 768 ? `${sidebarWidth}px` : '100%'), 
-              minWidth: '280px', 
-              maxWidth: '600px' 
+              width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
+              minWidth: window.innerWidth < 768 ? '100%' : '280px',
+              maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
             <div className="p-5 sm:p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-900 dark:via-blue-800 dark:to-indigo-900 flex-shrink-0 shadow-lg transition-colors">
@@ -862,7 +862,7 @@ const Messages = () => {
               )}
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 pb-4 space-y-3" style={{
+              <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y" style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
                   ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
