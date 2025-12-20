@@ -356,15 +356,15 @@ const Messages = () => {
     const userChanged = prevSelectedUserRef.current !== selectedUser?._id;
     const messagesAdded = messages.length > prevMessagesLengthRef.current;
     
-    // Instant scroll when user changes, smooth scroll for new messages
+    // Instant scroll when user changes or initial load, smooth scroll only for new messages
     if (userChanged) {
       scrollToBottom(true); // instant
       prevSelectedUserRef.current = selectedUser?._id;
+      prevMessagesLengthRef.current = messages.length; // Update to prevent smooth scroll after
     } else if (messagesAdded) {
       scrollToBottom(false); // smooth
+      prevMessagesLengthRef.current = messages.length;
     }
-    
-    prevMessagesLengthRef.current = messages.length;
   }, [messages, selectedUser?._id]);
 
   // Update selectedUser status when online/offline status changes
@@ -659,16 +659,16 @@ const Messages = () => {
   }
 
   return (
-    <div style={{ height: '100svh' }} className="bg-gray-100 dark:bg-gray-950 transition-colors overflow-hidden">
-      <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-950 transition-colors">
+      <div className="min-h-screen flex flex-col mx-auto px-0 md:px-4 md:py-4">
+        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 flex flex-1 min-h-0 overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors absolute left-0 top-0 bottom-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors relative md:relative flex-shrink-0 min-h-0'}
             style={{ 
-              width: selectedUser ? `${sidebarWidth}px` : (window.innerWidth >= 768 ? `${sidebarWidth}px` : '100%'), 
-              minWidth: '280px', 
-              maxWidth: '600px' 
+              width: window.innerWidth >= 768 ? `${sidebarWidth}px` : '100%', 
+              minWidth: window.innerWidth >= 768 ? '280px' : '100%', 
+              maxWidth: window.innerWidth >= 768 ? '600px' : '100%'
             }}
           >
             <div className="p-5 sm:p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-900 dark:via-blue-800 dark:to-indigo-900 flex-shrink-0 shadow-lg transition-colors">
@@ -759,7 +759,7 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden relative'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden relative min-h-0'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
@@ -862,7 +862,7 @@ const Messages = () => {
               )}
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 pb-4 space-y-3" style={{
+              <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 pb-4 space-y-3 min-h-0" style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
                   ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
