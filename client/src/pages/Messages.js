@@ -654,9 +654,9 @@ const Messages = () => {
               maxWidth: '600px' 
             }}
           >
-            <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0 shadow-sm transition-colors">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Messages</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+            <div className="p-5 sm:p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-900 dark:via-blue-800 dark:to-indigo-900 flex-shrink-0 shadow-lg transition-colors">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-sm">Messages</h2>
+              <p className="text-xs sm:text-sm text-blue-100 dark:text-blue-200 mt-1.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
             <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
@@ -671,8 +671,8 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "p-3 sm:p-4 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-800/50 transition-all border-b border-gray-100 dark:border-gray-800";
-                const selectedClasses = isSelected ? " bg-blue-50 dark:bg-gray-800 border-l-4 border-blue-500 shadow-sm" : "";
+                const baseClasses = "p-4 sm:p-5 cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-800/80 dark:hover:to-gray-700/80 transition-all duration-200 border-b border-gray-100 dark:border-gray-800 active:scale-[0.98]";
+                const selectedClasses = isSelected ? " bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-gray-800 dark:to-gray-700 border-l-4 border-blue-600 shadow-md" : "";
                 
                 return (
                   <div
@@ -686,21 +686,21 @@ const Messages = () => {
                           <img
                             src={otherUser.profilePicture}
                             alt={otherUser.username}
-                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white object-cover shadow-sm"
+                            className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full ring-2 ring-white dark:ring-gray-800 object-cover shadow-lg transition-transform hover:scale-105"
                           />
                         ) : (
-                          <div className={"w-14 h-14 sm:w-16 sm:h-16 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xl font-bold shadow-sm " + getAvatarColor(otherUser.username)}>
+                          <div className={"w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full ring-2 ring-white dark:ring-gray-800 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-lg transition-transform hover:scale-105 " + getAvatarColor(otherUser.username)}>
                             {getInitials(otherUser)}
                           </div>
                         )}
                         {(onlineUsers.includes(otherUser._id) || otherUser.isOnline) && (
-                          <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
+                          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 shadow-lg animate-pulse"></div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate text-base">{otherUser.username}</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-gray-100 truncate text-base sm:text-lg">{otherUser.username}</h3>
                         {conversation.lastMessage && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate mt-1 font-medium">
                             {conversation.lastMessage.content || '📷 Photo'}
                           </p>
                         )}
@@ -871,10 +871,10 @@ const Messages = () => {
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={'rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 select-none backdrop-blur-sm ' + (
+                            className={'rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 select-none backdrop-blur-sm transition-all hover:shadow-xl ' + (
                               isSent
-                                ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-none shadow-lg'
-                                : 'bg-white/95 dark:bg-gray-800/95 text-gray-800 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-bl-none shadow-md'
+                                ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-br-md shadow-lg hover:shadow-blue-500/50'
+                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-md hover:shadow-lg'
                             )}
                           >
                             {message.image && (
@@ -886,10 +886,10 @@ const Messages = () => {
                               />
                             )}
                             {message.content && (
-                              <p className="break-words select-text text-sm sm:text-base leading-relaxed">{message.content}</p>
+                              <p className="break-words select-text text-sm sm:text-base leading-relaxed font-medium">{message.content}</p>
                             )}
-                            <div className={'flex items-center justify-end gap-1 text-xs mt-1.5 ' + (
-                              isSent ? 'text-blue-100' : 'text-gray-500'
+                            <div className={'flex items-center justify-end gap-1.5 text-xs mt-2 font-medium ' + (
+                              isSent ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
                             )}>
                               <span>
                                 {new Date(message.createdAt).toLocaleTimeString([], {
