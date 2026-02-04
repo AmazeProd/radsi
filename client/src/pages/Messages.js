@@ -661,17 +661,17 @@ const Messages = () => {
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-950 transition-colors">
       <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200 dark:border-gray-800 " + (isResizing ? 'select-none' : '')}>
+        <div className={"bg-white/40 dark:bg-gradient-to-br dark:from-gray-900/40 dark:to-gray-950/40 backdrop-blur-3xl h-full md:h-[calc(100%-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200/30 dark:border-gray-700/30 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200 dark:border-gray-800 flex-col bg-white dark:bg-gray-900 transition-colors flex-shrink-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200/50 dark:border-gray-700/50 flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl transition-colors flex-shrink-0 md:relative'}
             style={{ 
               width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
               minWidth: window.innerWidth < 768 ? '100%' : '280px',
               maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex-shrink-0 transition-colors">
+            <div className="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex-shrink-0 transition-colors">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Messages</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
@@ -688,8 +688,8 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 border-b border-gray-100 dark:border-gray-800";
-                const selectedClasses = isSelected ? " bg-gray-100 dark:bg-gray-800 border-l-2 border-blue-500" : "";
+                const baseClasses = "p-4 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/30 backdrop-blur-sm transition-colors duration-150 border-b border-gray-100/50 dark:border-gray-800/50";
+                const selectedClasses = isSelected ? " bg-gray-100/70 dark:bg-gray-800/70 backdrop-blur-md border-l-2 border-blue-500" : "";
                 
                 return (
                   <div
@@ -759,7 +759,7 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden relative'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-transparent transition-colors overflow-hidden relative'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
@@ -822,7 +822,7 @@ const Messages = () => {
 
               {/* Theme Selector Dropdown */}
               {showThemeSelector && (
-                <div className="theme-selector-container absolute top-16 right-4 z-20 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 w-80 max-h-96 overflow-y-auto">
+                <div className="theme-selector-container absolute top-16 right-4 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-4 w-80 max-h-96 overflow-y-auto">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-bold text-gray-900 dark:text-gray-100">Chat Themes</h3>
                     <button
@@ -888,10 +888,10 @@ const Messages = () => {
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={'rounded-lg px-4 py-2.5 select-none transition-shadow ' + (
+                            className={'rounded-lg px-4 py-2.5 select-none transition-shadow backdrop-blur-md ' + (
                               isSent
-                                ? 'bg-blue-500 text-white rounded-br-none shadow-sm'
-                                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-none shadow-sm'
+                                ? 'bg-blue-500/90 text-white rounded-br-none shadow-sm'
+                                : 'bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-bl-none shadow-sm'
                             )}
                           >
                             {message.image && (
@@ -950,7 +950,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex-shrink-0 transition-colors z-20">
+              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex-shrink-0 transition-colors z-20">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
@@ -971,7 +971,7 @@ const Messages = () => {
                 
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
+                  <div className="mb-3 p-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-lg border border-gray-200/50 dark:border-gray-700/50 transition-colors">
                     <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                       {commonEmojis.map((emoji, index) => (
                         <button
@@ -1018,7 +1018,7 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
+                    className="flex-1 px-4 py-2.5 border border-gray-300/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
                   />
                   <button
                     type="submit"
@@ -1032,7 +1032,7 @@ const Messages = () => {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-4 bg-gray-50 dark:bg-gray-900">
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-4 bg-transparent">
               <FiMessageCircle size={48} className="sm:w-16 sm:h-16 mb-4" />
               <p className="text-base sm:text-lg font-medium text-center">Select a conversation</p>
               <p className="text-xs sm:text-sm text-center">Choose from existing conversations or start a new one</p>
