@@ -661,17 +661,17 @@ const Messages = () => {
   return (
     <div className="h-screen bg-gray-900 dark:bg-black transition-colors">
       <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"bg-gray-850 dark:bg-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors border-0 md:border border-gray-800 dark:border-gray-900 " + (isResizing ? 'select-none' : '')}>
+        <div className={"bg-gray-850 dark:bg-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors border-0 md:border border-gray-700 dark:border-gray-700 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-800 dark:border-gray-900 flex-col bg-gray-850 dark:bg-gray-950 transition-colors flex-shrink-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-700 dark:border-gray-700 flex-col bg-gray-850 dark:bg-gray-950 transition-colors flex-shrink-0 md:relative'}
             style={{ 
               width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
               minWidth: window.innerWidth < 768 ? '100%' : '280px',
               maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
-            <div className="px-6 py-4 border-b border-gray-800 dark:border-gray-900 bg-gray-850 dark:bg-gray-950 flex-shrink-0 transition-colors">
+            <div className="px-6 py-4 border-b border-gray-700 dark:border-gray-700 bg-gray-850 dark:bg-gray-950 flex-shrink-0 transition-colors">
               <h2 className="text-lg font-semibold text-white">Messages</h2>
               <p className="text-xs text-gray-400 mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
@@ -688,7 +688,7 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "px-4 py-3 cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors duration-150 border-b border-gray-800/50 dark:border-gray-900/50";
+                const baseClasses = "px-4 py-3 cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors duration-150 border-b border-gray-700/80 dark:border-gray-700/80";
                 const selectedClasses = isSelected ? " bg-gray-800 dark:bg-gray-900" : "";
                 
                 return (
@@ -746,7 +746,7 @@ const Messages = () => {
           {/* Resizable Divider */}
           {selectedUser && (
             <div
-              className="hidden md:block w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-500 cursor-col-resize transition-colors relative group"
+              className="hidden md:block w-1 bg-gray-700 dark:bg-gray-700 hover:bg-blue-500 dark:hover:bg-blue-500 cursor-col-resize transition-colors relative group"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-0 w-4 -mx-1.5" />
@@ -763,7 +763,7 @@ const Messages = () => {
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 flex-shrink-0 transition-colors z-20">
+              <div className="px-6 py-4 border-b border-gray-700 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-900 flex-shrink-0 transition-colors z-20">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
