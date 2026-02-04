@@ -659,26 +659,26 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-900 dark:bg-black transition-colors">
+    <div className="h-screen bg-[var(--bg-canvas)] transition-colors">
       <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"bg-gray-850 dark:bg-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors border-0 md:border border-gray-700 dark:border-gray-700 " + (isResizing ? 'select-none' : '')}>
+        <div className={"panel-surface h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-700 dark:border-gray-700 flex-col bg-gray-850 dark:bg-gray-950 transition-colors flex-shrink-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-[var(--bg-elevated)] transition-colors flex-shrink-0 md:relative'}
             style={{ 
               width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
               minWidth: window.innerWidth < 768 ? '100%' : '280px',
               maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
-            <div className="px-6 py-4 border-b border-gray-700 dark:border-gray-700 bg-gray-850 dark:bg-gray-950 flex-shrink-0 transition-colors">
-              <h2 className="text-lg font-semibold text-white">Messages</h2>
-              <p className="text-xs text-gray-400 mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+            <div className="px-6 py-4 border-b border-[var(--surface-border)] bg-[var(--bg-elevated)] flex-shrink-0 transition-colors">
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Messages</h2>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
             <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 px-4 py-12">
-                <FiMail className="w-16 h-16 mb-4 text-gray-300" />
+              <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] px-4 py-12">
+                <FiMail className="w-16 h-16 mb-4 text-[var(--text-muted)]" />
                 <p className="text-sm sm:text-base text-center font-medium">No conversations yet</p>
                 <p className="text-xs text-center mt-2">Start chatting with your connections</p>
               </div>
@@ -688,8 +688,8 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "px-4 py-3 cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors duration-150 border-b border-gray-700/80 dark:border-gray-700/80";
-                const selectedClasses = isSelected ? " bg-gray-800 dark:bg-gray-900" : "";
+                const baseClasses = "px-4 py-3 cursor-pointer hover:bg-white/5 transition-colors duration-150 border-b border-[var(--surface-border)]";
+                const selectedClasses = isSelected ? " bg-white/8" : "";
                 
                 return (
                   <div
@@ -715,9 +715,9 @@ const Messages = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white truncate text-sm">{otherUser.username}</h3>
+                        <h3 className="font-semibold text-[var(--text-primary)] truncate text-sm">{otherUser.username}</h3>
                         {conversation.lastMessage && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                          <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
                             {conversation.lastMessage.content || '📷 Photo'}
                           </p>
                         )}
@@ -746,7 +746,7 @@ const Messages = () => {
           {/* Resizable Divider */}
           {selectedUser && (
             <div
-              className="hidden md:block w-1 bg-gray-700 dark:bg-gray-700 hover:bg-blue-500 dark:hover:bg-blue-500 cursor-col-resize transition-colors relative group"
+              className="hidden md:block w-1 bg-[var(--surface-border)] hover:bg-[var(--accent)] cursor-col-resize transition-colors relative group"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-0 w-4 -mx-1.5" />
@@ -759,18 +759,18 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-gray-900 dark:bg-black transition-colors overflow-hidden relative'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-[var(--bg-canvas)] transition-colors overflow-hidden relative'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="px-6 py-4 border-b border-gray-700 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-900 flex-shrink-0 transition-colors z-20">
+              <div className="px-6 py-4 border-b border-[var(--surface-border)] flex items-center justify-between bg-[var(--bg-elevated)] flex-shrink-0 transition-colors z-20">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
                     onClick={() => setSelectedUser(null)}
-                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/5 transition-colors flex-shrink-0"
                   >
-                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-[var(--text-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
@@ -786,11 +786,11 @@ const Messages = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-white truncate text-base">{selectedUser.username}</h3>
+                    <h3 className="font-semibold text-[var(--text-primary)] truncate text-base">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
-                      <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span>Online</p>
+                      <p className="text-xs text-[var(--accent-strong)] flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span>Online</p>
                     ) : selectedUser.lastSeen ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      <p className="text-xs text-[var(--text-muted)] truncate">
                         {formatLastSeen(selectedUser.lastSeen)}
                       </p>
                     ) : (
@@ -801,7 +801,7 @@ const Messages = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowThemeSelector(!showThemeSelector)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-lg transition"
+                    className="text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-white/5 p-2 rounded-lg transition"
                     title="Change chat theme"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -810,7 +810,7 @@ const Messages = () => {
                   </button>
                   <button
                     onClick={handleDeleteConversation}
-                    className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-lg transition"
+                    className="text-[var(--text-muted)] hover:text-red-400 hover:bg-red-900/20 p-2 rounded-lg transition"
                     title="Delete conversation"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -822,12 +822,12 @@ const Messages = () => {
 
               {/* Theme Selector Dropdown */}
               {showThemeSelector && (
-                <div className="theme-selector-container absolute top-16 right-4 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl rounded-xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-4 w-80 max-h-96 overflow-y-auto">
+                <div className="theme-selector-container absolute top-16 right-4 z-20 panel-surface backdrop-blur-2xl rounded-xl shadow-2xl p-4 w-80 max-h-96 overflow-y-auto">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-gray-900 dark:text-gray-100">Chat Themes</h3>
+                    <h3 className="font-bold text-[var(--text-primary)]">Chat Themes</h3>
                     <button
                       onClick={() => setShowThemeSelector(false)}
-                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      className="text-[var(--text-muted)] hover:text-[var(--accent)]"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -845,8 +845,8 @@ const Messages = () => {
                         className={'relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ' + (chatTheme === theme.id ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' : 'border-gray-300 dark:border-gray-600')}
                       >
                         <div className={'h-20 ' + theme.preview}></div>
-                        <div className="p-2 bg-white dark:bg-gray-900">
-                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100 text-center">{theme.name}</p>
+                        <div className="p-2 bg-[var(--bg-soft)]">
+                          <p className="text-xs font-medium text-[var(--text-primary)] text-center">{theme.name}</p>
                         </div>
                         {chatTheme === theme.id && (
                           <div className="absolute top-1 right-1 bg-blue-500 rounded-full p-1">
@@ -890,8 +890,8 @@ const Messages = () => {
                           <div
                             className={'rounded-lg px-3 py-2 select-none transition-shadow ' + (
                               isSent
-                                ? 'bg-blue-600 text-white rounded-br-none'
-                                : 'bg-gray-800 dark:bg-gray-850 text-white rounded-bl-none'
+                                ? 'bg-[var(--accent)] text-[#07101f] rounded-br-none font-medium'
+                                : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-none border border-[var(--surface-border)]'
                             )}
                           >
                             {message.image && (
@@ -906,7 +906,7 @@ const Messages = () => {
                               <p className="break-words select-text text-sm leading-relaxed">{message.content}</p>
                             )}
                             <div className={'flex items-center justify-end gap-1 text-xs mt-1.5 ' + (
-                              isSent ? 'text-blue-50' : 'text-gray-500 dark:text-gray-400'
+                              isSent ? 'text-[#07101f]/70' : 'text-[var(--text-muted)]'
                             )}>
                               <span>
                                 {new Date(message.createdAt).toLocaleTimeString([], {
@@ -950,7 +950,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-gray-800 dark:border-gray-900 bg-gray-850 dark:bg-gray-950 flex-shrink-0 transition-colors z-20">
+              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-[var(--surface-border)] bg-[var(--bg-elevated)] flex-shrink-0 transition-colors z-20">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
@@ -971,7 +971,7 @@ const Messages = () => {
                 
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-3 p-3 bg-gray-800 dark:bg-gray-900 rounded-lg border border-gray-700 transition-colors">
+                  <div className="mb-3 p-3 bg-[var(--bg-soft)] rounded-lg border border-[var(--surface-border)] transition-colors">
                     <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                       {commonEmojis.map((emoji, index) => (
                         <button
@@ -998,7 +998,7 @@ const Messages = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 p-2 rounded-lg transition flex-shrink-0"
+                    className="text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--accent)] p-2 rounded-lg transition flex-shrink-0"
                     title="Attach image"
                   >
                     <FiImage className="w-5 h-5" />
@@ -1006,7 +1006,7 @@ const Messages = () => {
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={(showEmojiPicker ? 'bg-gray-800 dark:bg-gray-900 text-gray-200' : 'text-gray-400') + ' hover:bg-gray-800 dark:hover:bg-gray-900 hover:text-gray-200 p-2 rounded-lg transition flex-shrink-0'}
+                    className={(showEmojiPicker ? 'bg-white/8 text-[var(--accent)]' : 'text-[var(--text-muted)]') + ' hover:bg-white/5 hover:text-[var(--accent)] p-2 rounded-lg transition flex-shrink-0'}
                     title="Add emoji"
                   >
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1018,12 +1018,12 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2 border-0 bg-gray-800 dark:bg-gray-900 text-white placeholder-gray-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm transition-colors"
+                    className="flex-1 px-4 py-2 border-0 bg-[var(--bg-soft)] text-[var(--text-primary)] placeholder-[var(--text-muted)] rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)] text-sm transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={!newMessage.trim() && !selectedImage}
-                    className="bg-blue-500 hover:bg-blue-600 text-white p-2.5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                    className="pill-button p-2.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     <FiSend className="w-5 h-5" />
@@ -1032,7 +1032,7 @@ const Messages = () => {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 px-4 bg-transparent">
+            <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)] px-4 bg-transparent">
               <FiMessageCircle size={48} className="sm:w-16 sm:h-16 mb-4" />
               <p className="text-base sm:text-lg font-medium text-center">Select a conversation</p>
               <p className="text-xs sm:text-sm text-center">Choose from existing conversations or start a new one</p>
