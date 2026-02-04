@@ -737,8 +737,8 @@ const Messages = () => {
 
   return (
     <div className="h-screen bg-[var(--bg-canvas)] transition-colors">
-      <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"panel-surface h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors " + (isResizing ? 'select-none' : '')}>
+      <div className="h-full w-full">
+        <div className={"panel-surface h-full flex overflow-hidden transition-colors " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
             className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-transparent transition-colors flex-shrink-0 md:relative backdrop-blur-md'}
