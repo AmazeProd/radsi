@@ -83,6 +83,9 @@ const Messages = () => {
   const [chatTheme, setChatTheme] = useState(() => {
     return localStorage.getItem('chatTheme') || 'blue-gradient';
   });
+  const [contextMenu, setContextMenu] = useState(null);
+  const [selectedMessageForContext, setSelectedMessageForContext] = useState(null);
+  const [selectedConversationForContext, setSelectedConversationForContext] = useState(null);
   const messagesEndRef = useRef(null);
   const messagesCacheRef = useRef(new Map()); // Cache messages by userId
   const fileInputRef = useRef(null);
@@ -205,6 +208,25 @@ const Messages = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showThemeSelector]);
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (contextMenu && !e.target.closest('.context-menu')) {
+        setContextMenu(null);
+        setSelectedMessageForContext(null);
+        setSelectedConversationForContext(null);
+      }
+    };
+
+    if (contextMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
 
   // Force re-render when online users change
   useEffect(() => {
@@ -644,9 +666,64 @@ const Messages = () => {
       setMessages(messages.filter(msg => msg._id !== messageId));
       toast.success('Message deleted');
       setOpenMessageDropdown(null);
+      setContextMenu(null);
     } catch (error) {
       console.error('Failed to delete message:', error);
       toast.error(error.response?.data?.message || 'Failed to delete message');
+    }
+  };
+
+  const handleMessageRightClick = (e, message) => {
+    e.preventDefault();
+    const senderId = message.sender?._id || message.sender;
+    const isSent = senderId === user._id || senderId === user.id;
+    
+    if (!isSent) return; // Only allow context menu for sent messages
+    
+    setSelectedMessageForContext(message);
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      type: 'message'
+    });
+  };
+
+  const handleConversationRightClick = (e, conversation) => {
+    e.preventDefault();
+    setSelectedConversationForContext(conversation);
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      type: 'conversation'
+    });
+  };
+
+  const handleCopyMessage = () => {
+    if (selectedMessageForContext?.content) {
+      navigator.clipboard.writeText(selectedMessageForContext.content);
+      toast.success('Message copied to clipboard');
+      setContextMenu(null);
+    }
+  };
+
+  const handleDeleteFromContext = () => {
+    if (contextMenu?.type === 'message' && selectedMessageForContext) {
+      handleDeleteMessage(selectedMessageForContext._id);
+    } else if (contextMenu?.type === 'conversation' && selectedConversationForContext) {
+      const otherUser = selectedConversationForContext.participants?.find((p) => p._id !== user._id);
+      if (otherUser) {
+        deleteConversation(otherUser._id).then(() => {
+          toast.success('Conversation deleted');
+          loadConversations();
+          if (selectedUser?._id === otherUser._id) {
+            setSelectedUser(null);
+            setMessages([]);
+          }
+        }).catch(() => {
+          toast.error('Failed to delete conversation');
+        });
+      }
+      setContextMenu(null);
     }
   };
 
@@ -664,14 +741,14 @@ const Messages = () => {
         <div className={"panel-surface h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-[var(--bg-elevated)] transition-colors flex-shrink-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-transparent transition-colors flex-shrink-0 md:relative backdrop-blur-md'}
             style={{ 
               width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
               minWidth: window.innerWidth < 768 ? '100%' : '280px',
               maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
-            <div className="px-6 py-4 border-b border-[var(--surface-border)] bg-[var(--bg-elevated)] flex-shrink-0 transition-colors">
+            <div className="px-6 py-4 border-b border-[var(--surface-border)] bg-transparent flex-shrink-0 transition-colors">
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">Messages</h2>
               <p className="text-xs text-[var(--text-muted)] mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
@@ -695,6 +772,7 @@ const Messages = () => {
                   <div
                     key={conversation._id}
                     onClick={() => handleSelectUser(conversation)}
+                    onContextMenu={(e) => handleConversationRightClick(e, conversation)}
                     className={baseClasses + selectedClasses}
                   >
                     <div className="flex items-center gap-3">
@@ -763,7 +841,7 @@ const Messages = () => {
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="px-6 py-4 border-b border-[var(--surface-border)] flex items-center justify-between bg-[var(--bg-elevated)] flex-shrink-0 transition-colors z-20">
+              <div className="px-6 py-4 border-b border-[var(--surface-border)] flex items-center justify-between bg-transparent backdrop-blur-md flex-shrink-0 transition-colors z-20">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
@@ -885,10 +963,11 @@ const Messages = () => {
                       <div
                         key={message._id}
                         className={'flex ' + (isSent ? 'justify-end' : 'justify-start') + ' animate-fadeIn group'}
+                        onContextMenu={(e) => handleMessageRightClick(e, message)}
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={'rounded-lg px-3 py-2 select-none transition-shadow ' + (
+                            className={'rounded-lg px-3 py-2 select-none transition-shadow cursor-pointer ' + (
                               isSent
                                 ? 'bg-[var(--accent)] text-[#07101f] rounded-br-none font-medium'
                                 : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-none border border-[var(--surface-border)]'
@@ -950,7 +1029,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-[var(--surface-border)] bg-[var(--bg-elevated)] flex-shrink-0 transition-colors z-20">
+              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-[var(--surface-border)] bg-transparent backdrop-blur-md flex-shrink-0 transition-colors z-20">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
@@ -1041,6 +1120,70 @@ const Messages = () => {
         </div>
       </div>
     </div>
+
+    {/* Context Menu */}
+    {contextMenu && (
+      <div
+        className="context-menu fixed z-50"
+        style={{
+          left: `${contextMenu.x}px`,
+          top: `${contextMenu.y}px`,
+        }}
+      >
+        {contextMenu.type === 'message' ? (
+          <>
+            {selectedMessageForContext?.content && (
+              <div
+                className="context-menu-item"
+                onClick={handleCopyMessage}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Copy Text</span>
+              </div>
+            )}
+            <div className="context-menu-separator"></div>
+            <div
+              className="context-menu-item danger"
+              onClick={handleDeleteFromContext}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Delete Message</span>
+            </div>
+          </>
+        ) : contextMenu.type === 'conversation' ? (
+          <>
+            <div
+              className="context-menu-item"
+              onClick={() => {
+                if (selectedConversationForContext) {
+                  handleSelectUser(selectedConversationForContext);
+                  setContextMenu(null);
+                }
+              }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              <span>Open Chat</span>
+            </div>
+            <div className="context-menu-separator"></div>
+            <div
+              className="context-menu-item danger"
+              onClick={handleDeleteFromContext}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Delete Conversation</span>
+            </div>
+          </>
+        ) : null}
+      </div>
+    )}
   </div>
   );
 };
