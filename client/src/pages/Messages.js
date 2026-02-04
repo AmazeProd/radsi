@@ -6,9 +6,7 @@ import { getConversations, getMessages, sendMessage, markAsRead, deleteConversat
 import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
 import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2, FiCheck, FiSend } from 'react-icons/fi';
-import { Eye, Search, MoreVertical } from 'lucide-react';
 import { debounce } from '../utils/performance';
-import MessageBubble from '../components/messages/MessageBubble';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -861,23 +859,21 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-[#0F0F0F] transition-colors overflow-hidden relative'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-[var(--bg-canvas)] transition-colors overflow-hidden relative'}>
           {selectedUser ? (
             <>
-              {/* Telegram-Style Chat Header */}
-              <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between bg-[#1a1a1a] sticky top-0 z-50">
+              {/* Chat Header */}
+              <div className="px-6 py-4 border-b border-[var(--surface-border)] flex items-center justify-between bg-transparent backdrop-blur-md flex-shrink-0 transition-colors z-20">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
                     onClick={() => setSelectedUser(null)}
-                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
+                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/5 transition-colors flex-shrink-0"
                   >
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-[var(--text-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  
-                  {/* Avatar */}
                   {selectedUser.profilePicture && !selectedUser.profilePicture.includes('ui-avatars.com') ? (
                     <img
                       src={selectedUser.profilePicture}
@@ -885,89 +881,172 @@ const Messages = () => {
                       className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600">
+                    <div className={"w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 " + getAvatarColor(selectedUser.username)}>
                       {getInitials(selectedUser)}
                     </div>
                   )}
-                  
-                  {/* Channel Name and Subscriber Count */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white truncate text-base">{selectedUser.username}</h3>
-                    <p className="text-xs text-gray-400">
-                      {onlineUsers.includes(selectedUser._id) ? '🟢 Online' : '1.2K subscribers'}
-                    </p>
+                    <h3 className="font-semibold text-[var(--text-primary)] truncate text-base">{selectedUser.username}</h3>
+                    {onlineUsers.includes(selectedUser._id) ? (
+                      <p className="text-xs text-[var(--accent-strong)] flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span>Online</p>
+                    ) : selectedUser.lastSeen ? (
+                      <p className="text-xs text-[var(--text-muted)] truncate">
+                        {formatLastSeen(selectedUser.lastSeen)}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Offline</p>
+                    )}
                   </div>
                 </div>
-                
-                {/* Right Side: Search and Three-Dot Menu */}
                 <div className="flex items-center gap-2">
                   <button
-                    className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition"
-                    title="Search"
+                    onClick={() => setShowThemeSelector(!showThemeSelector)}
+                    className="text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-white/5 p-2 rounded-lg transition"
+                    title="Change chat theme"
                   >
-                    <Search size={20} />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    </svg>
                   </button>
                   <button
                     onClick={handleDeleteConversation}
-                    className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition"
-                    title="More options"
+                    className="text-[var(--text-muted)] hover:text-red-400 hover:bg-red-900/20 p-2 rounded-lg transition"
+                    title="Delete conversation"
                   >
-                    <MoreVertical size={20} />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               </div>
 
-              {/* Messages List with Dark Background and Doodle Pattern Placeholder */}
-              <div 
-                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain py-4 touch-action-pan-y" 
-                style={{
-                  background: '#0F0F0F',
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.02\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                }}
-              >
-                {/* Date Separator */}
-                <div className="flex justify-center mb-6">
-                  <div className="bg-[#2a2a2a] px-4 py-1.5 rounded-full text-xs text-gray-300 font-medium shadow-lg">
-                    Yesterday
+              {/* Theme Selector Dropdown */}
+              {showThemeSelector && (
+                <div className="theme-selector-container absolute top-16 right-4 z-20 panel-surface backdrop-blur-2xl rounded-xl shadow-2xl p-4 w-80 max-h-96 overflow-y-auto">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-[var(--text-primary)]">Chat Themes</h3>
+                    <button
+                      onClick={() => setShowThemeSelector(false)}
+                      className="text-[var(--text-muted)] hover:text-[var(--accent)]"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {chatThemes.map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => {
+                          setChatTheme(theme.id);
+                          setShowThemeSelector(false);
+                        }}
+                        className={'relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ' + (chatTheme === theme.id ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' : 'border-gray-300 dark:border-gray-600')}
+                      >
+                        <div className={'h-20 ' + theme.preview}></div>
+                        <div className="p-2 bg-[var(--bg-soft)]">
+                          <p className="text-xs font-medium text-[var(--text-primary)] text-center">{theme.name}</p>
+                        </div>
+                        {chatTheme === theme.id && (
+                          <div className="absolute top-1 right-1 bg-blue-500 rounded-full p-1">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
+              )}
 
+              {/* Messages List */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y" style={{
+                background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
+                backgroundImage: `
+                  ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
+                  ${chatThemes.find(t => t.id === chatTheme)?.pattern || chatThemes[0].pattern}
+                `
+              }}>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-400">
-                      <div className="inline-block w-10 h-10 border-4 border-gray-700 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+                      <div className="inline-block w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-3"></div>
                       <p className="text-sm font-medium">Loading messages...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {messages.map((message, index) => {
-                      const senderId = message.sender?._id || message.sender;
-                      const isSent = senderId === user._id || senderId === user.id;
-                      
-                      // Convert message to MessageBubble format
-                      const bubbleMessage = {
-                        ...message,
-                        sender: message.sender || selectedUser,
-                        text: message.content,
-                        imageUrl: message.image?.url,
-                        timestamp: message.createdAt,
-                        views: Math.floor(Math.random() * 2000) + 500, // Mock view count
-                        reactions: isSent ? [] : [
-                          { emoji: '❤️', count: Math.floor(Math.random() * 50) + 10 },
-                          { emoji: '🔥', count: Math.floor(Math.random() * 20) + 3 }
-                        ]
-                      };
-                      
-                      return (
-                        <MessageBubble 
-                          key={message._id} 
-                          message={bubbleMessage}
-                          showAvatar={!isSent}
-                        />
-                      );
-                    })}
-                  </div>
+                  messages.map((message, index) => {
+                    const senderId = message.sender?._id || message.sender;
+                    const isSent = senderId === user._id || senderId === user.id;
+                    
+                    return (
+                      <div
+                        key={message._id}
+                        className={'flex ' + (isSent ? 'justify-end' : 'justify-start') + ' animate-fadeIn group'}
+                        onContextMenu={(e) => handleMessageRightClick(e, message)}
+                      >
+                        <div className="relative max-w-[85%] sm:max-w-[70%]">
+                          <div
+                            className={'rounded-lg px-3 py-2 select-none transition-shadow cursor-pointer ' + (
+                              isSent
+                                ? 'bg-[var(--accent)] text-[#07101f] rounded-br-none font-medium'
+                                : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-none border border-[var(--surface-border)]'
+                            )}
+                          >
+                            {message.image && (
+                              <img
+                                src={message.image.url}
+                                alt="Message attachment"
+                                className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition"
+                                onClick={() => window.open(message.image.url, '_blank')}
+                              />
+                            )}
+                            {message.content && (
+                              <p className="break-words select-text text-sm leading-relaxed">{message.content}</p>
+                            )}
+                            <div className={'flex items-center justify-end gap-1 text-xs mt-1.5 ' + (
+                              isSent ? 'text-[#07101f]/70' : 'text-[var(--text-muted)]'
+                            )}>
+                              <span>
+                                {new Date(message.createdAt).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                            {isSent && (
+                              <span className="ml-1">
+                                {message.isRead ? (
+                                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                ) : (
+                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                    <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                        
+                        {/* Delete Button */}
+                        {isSent && (
+                          <button
+                            onClick={() => handleDeleteMessage(message._id)}
+                            className="ml-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 p-1 transition-opacity"
+                            title="Delete message"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
                 <div ref={messagesEndRef} />
               </div>
