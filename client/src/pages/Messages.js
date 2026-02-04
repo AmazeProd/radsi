@@ -748,9 +748,9 @@ const Messages = () => {
               maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
-            <div className="px-6 py-4 border-b border-[var(--surface-border)] bg-transparent flex-shrink-0 transition-colors">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">Messages</h2>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+            <div className="px-6 py-5 border-b border-[var(--surface-border)] bg-transparent flex-shrink-0 transition-colors">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Messages</h2>
+              <p className="text-xs text-[var(--text-muted)] mt-1.5 font-medium">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
             <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
@@ -765,8 +765,10 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "px-4 py-3 cursor-pointer hover:bg-white/5 transition-colors duration-150 border-b border-[var(--surface-border)]";
-                const selectedClasses = isSelected ? " bg-white/8" : "";
+                const hasUnread = conversation.unreadCount > 0;
+                const lastMessageTime = conversation.lastMessage?.createdAt;
+                const baseClasses = "px-5 py-4 cursor-pointer hover:bg-white/8 transition-all duration-200 border-b border-[var(--surface-border)]/50 group";
+                const selectedClasses = isSelected ? " bg-gradient-to-r from-[var(--accent)]/10 to-transparent border-l-2 border-l-[var(--accent)]" : "";
                 
                 return (
                   <div
@@ -775,29 +777,52 @@ const Messages = () => {
                     onContextMenu={(e) => handleConversationRightClick(e, conversation)}
                     className={baseClasses + selectedClasses}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start gap-3.5">
                       <div className="relative flex-shrink-0">
                         {otherUser.profilePicture && !otherUser.profilePicture.includes('ui-avatars.com') ? (
                           <img
                             src={otherUser.profilePicture}
                             alt={otherUser.username}
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="w-14 h-14 rounded-full object-cover ring-2 ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/30 transition-all"
                           />
                         ) : (
-                          <div className={"w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold " + getAvatarColor(otherUser.username)}>
+                          <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-base font-bold bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] ring-2 ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/50 transition-all shadow-lg">
                             {getInitials(otherUser)}
                           </div>
                         )}
                         {(onlineUsers.includes(otherUser._id) || otherUser.isOnline) && (
-                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-[var(--bg-canvas)] shadow-lg">
+                            <div className="w-full h-full rounded-full bg-green-400 animate-ping opacity-75"></div>
+                          </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-[var(--text-primary)] truncate text-sm">{otherUser.username}</h3>
-                        {conversation.lastMessage && (
-                          <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
-                            {conversation.lastMessage.content || '📷 Photo'}
-                          </p>
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <div className="flex items-baseline justify-between gap-2 mb-1">
+                          <h3 className={"font-semibold truncate " + (hasUnread ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]/90")}>
+                            {otherUser.username}
+                          </h3>
+                          {lastMessageTime && (
+                            <span className="text-xs text-[var(--text-muted)] flex-shrink-0 font-medium">
+                              {new Date(lastMessageTime).toLocaleDateString() === new Date().toLocaleDateString()
+                                ? new Date(lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                : new Date(lastMessageTime).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          {conversation.lastMessage && (
+                            <p className={"text-sm truncate " + (hasUnread ? "text-[var(--text-primary)] font-medium" : "text-[var(--text-muted)]")}>
+                              {conversation.lastMessage.content || '📷 Photo'}
+                            </p>
+                          )}
+                          {hasUnread && (
+                            <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 bg-[var(--accent)] text-[#07101f] rounded-full text-xs font-bold flex items-center justify-center">
+                              {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                         )}
                       </div>
                     </div>
