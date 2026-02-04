@@ -47,4 +47,8 @@ router.delete('/:id', protect, deletePost);
 router.post('/:id/like', protect, likePost);
 router.delete('/:id/unlike', protect, unlikePost);
 
+// Reaction routes
+router.post('/:id/reactions', protect, require('../controllers/postController').addReaction);
+router.delete('/:id/reactions', protect, require('../controllers/postController').removeReaction);
+
 module.exports = router;

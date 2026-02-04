@@ -326,3 +326,114 @@ exports.getTrendingPosts = asyncHandler(async (req, res, next) => {
     data: posts,
   });
 });
+
+// @desc    Add or update reaction to a post
+// @route   POST /api/posts/:id/reactions
+// @access  Private
+exports.addReaction = asyncHandler(async (req, res, next) => {
+  const { emoji } = req.body;
+  
+  if (!emoji) {
+    return next(new ErrorResponse('Emoji reaction is required', 400));
+  }
+
+  const allowedEmojis = ['❤️', '🔥', '👏', '😍', '💯', '🎉', '👍', '🙌', '😂', '😮', '😢', '😡'];
+  if (!allowedEmojis.includes(emoji)) {
+    return next(new ErrorResponse('Invalid reaction emoji', 400));
+  }
+
+  const post = await Post.findById(req.params.id);
+
+  if (!post || post.isDeleted) {
+    return next(new ErrorResponse('Post not found', 404));
+  }
+
+  // Find if user already reacted
+  const existingReactionIndex = post.reactions.findIndex(
+    r => r.user.toString() === req.user.id
+  );
+
+  if (existingReactionIndex > -1) {
+    // Update existing reaction
+    const oldEmoji = post.reactions[existingReactionIndex].type;
+    post.reactions[existingReactionIndex].type = emoji;
+    post.reactions[existingReactionIndex].createdAt = new Date();
+    
+    // Update counts
+    if (post.reactionCounts[oldEmoji] > 0) {
+      post.reactionCounts[oldEmoji] -= 1;
+    }
+    post.reactionCounts[emoji] = (post.reactionCounts[emoji] || 0) + 1;
+  } else {
+    // Add new reaction
+    post.reactions.push({
+      user: req.user.id,
+      type: emoji,
+      createdAt: new Date()
+    });
+    post.reactionCounts[emoji] = (post.reactionCounts[emoji] || 0) + 1;
+  }
+
+  await post.save();
+
+  // Create notification for post owner if it's not their own post
+  if (post.user.toString() !== req.user.id) {
+    await Notification.create({
+      recipient: post.user,
+      sender: req.user.id,
+      type: 'reaction',
+      post: post._id,
+      message: `reacted ${emoji} to your post`,
+    });
+  }
+
+  const populatedPost = await Post.findById(post._id)
+    .populate('user', 'username firstName lastName profilePicture avatar')
+    .populate('reactions.user', 'username firstName lastName');
+
+  res.status(200).json({
+    success: true,
+    data: populatedPost,
+  });
+});
+
+// @desc    Remove reaction from a post
+// @route   DELETE /api/posts/:id/reactions
+// @access  Private
+exports.removeReaction = asyncHandler(async (req, res, next) => {
+  const post = await Post.findById(req.params.id);
+
+  if (!post || post.isDeleted) {
+    return next(new ErrorResponse('Post not found', 404));
+  }
+
+  // Find user's reaction
+  const reactionIndex = post.reactions.findIndex(
+    r => r.user.toString() === req.user.id
+  );
+
+  if (reactionIndex === -1) {
+    return next(new ErrorResponse('You have not reacted to this post', 400));
+  }
+
+  const emoji = post.reactions[reactionIndex].type;
+  
+  // Remove reaction
+  post.reactions.splice(reactionIndex, 1);
+  
+  // Update count
+  if (post.reactionCounts[emoji] > 0) {
+    post.reactionCounts[emoji] -= 1;
+  }
+
+  await post.save();
+
+  const populatedPost = await Post.findById(post._id)
+    .populate('user', 'username firstName lastName profilePicture avatar')
+    .populate('reactions.user', 'username firstName lastName');
+
+  res.status(200).json({
+    success: true,
+    data: populatedPost,
+  });
+});

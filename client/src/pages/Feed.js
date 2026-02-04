@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost, deletePost } from '../services/postService';
+import { addReaction, removeReaction } from '../services/reactionService';
 import { toast } from 'react-toastify';
-import { FiHeart, FiMessageCircle, FiSend, FiBookmark, FiMoreHorizontal, FiImage, FiSmile, FiX, FiChevronLeft, FiChevronRight, FiTrash2 } from 'react-icons/fi';
+import { FiImage, FiSmile, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
+import PostCard from '../components/posts/PostCard';
+import CelebrationPost from '../components/posts/CelebrationPost';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -198,6 +201,47 @@ const Feed = () => {
     }
   };
 
+  const handleReaction = async (postId, emoji) => {
+    // Find if user already reacted
+    const post = posts.find(p => p._id === postId);
+    const userReaction = post?.reactions?.find(r => r.user === user?._id || r.user?._id === user?._id);
+    
+    // Optimistically update UI
+    setPosts(prevPosts => prevPosts.map(p => {
+      if (p._id === postId) {
+        let newReactions = [...(p.reactions || [])];
+        let newReactionCounts = { ...(p.reactionCounts || {}) };
+        
+        if (userReaction) {
+          // Remove old reaction
+          newReactions = newReactions.filter(r => (r.user !== user._id && r.user?._id !== user._id));
+          newReactionCounts[userReaction.type] = Math.max(0, (newReactionCounts[userReaction.type] || 0) - 1);
+        }
+        
+        // Add new reaction
+        newReactions.push({ user: user._id, type: emoji, createdAt: new Date() });
+        newReactionCounts[emoji] = (newReactionCounts[emoji] || 0) + 1;
+        
+        return { ...p, reactions: newReactions, reactionCounts: newReactionCounts };
+      }
+      return p;
+    }));
+
+    try {
+      const response = await addReaction(postId, emoji);
+      // Update with server response
+      setPosts(prevPosts => prevPosts.map(p => 
+        p._id === postId ? { ...p, ...response.data } : p
+      ));
+      toast.success(`Reacted with ${emoji}`);
+    } catch (error) {
+      console.error('Reaction error:', error);
+      toast.error('Failed to add reaction');
+      // Revert on error
+      loadPosts();
+    }
+  };
+
   const handleLike = async (postId, isLiked) => {
     // Optimistically update UI first
     setPosts(prevPosts => prevPosts.map(post => {
@@ -342,152 +386,24 @@ const Feed = () => {
 
       {/* Posts Feed */}
       <div className="space-y-4">
-        {posts.map((post, index) => (
-          <div key={post._id} className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-all transform hover:scale-[1.01]">
-            {/* Post Header */}
-            <div className="flex items-center justify-between p-4">
-              <Link to={`/profile/${post.user._id}`} className="flex items-center gap-3">
-                {post.user.profilePicture && !post.user.profilePicture.includes('ui-avatars.com') ? (
-                  <img
-                    src={post.user.profilePicture}
-                    alt={post.user.username}
-                    className="w-11 h-11 rounded-full ring-2 ring-gray-100 hover:ring-primary-400 transition object-cover"
-                  />
-                ) : (
-                  <div className={`w-11 h-11 rounded-full ring-2 ring-gray-100 hover:ring-primary-400 transition flex items-center justify-center text-white text-lg font-bold ${getAvatarColor(post.user.username)}`}>
-                    {getInitials(post.user)}
-                  </div>
-                )}
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 transition">{post.user.username}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              </Link>
-              <div className="relative dropdown-container">
-                <button 
-                  onClick={() => setOpenDropdown(openDropdown === post._id ? null : post._id)}
-                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
-                >
-                  <FiMoreHorizontal size={20} />
-                </button>
-                
-                {openDropdown === post._id && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 py-1 z-10">
-                    {user && (user._id === post.user._id || user.id === post.user._id) && (
-                      <button
-                        onClick={() => handleDeletePost(post._id)}
-                        className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition"
-                      >
-                        <FiTrash2 size={16} />
-                        Delete Post
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Post Content */}
-            <div className="px-4 pb-3">
-              <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">{post.content}</p>
-            </div>
-
-            {/* Post Images */}
-            {post.images && post.images.length > 0 && (
-              <div className="px-4 mb-3">
-                {post.images.length === 1 ? (
-                  <img
-                    src={post.images[0].url}
-                    alt="Post"
-                    className="w-full max-h-[500px] object-cover rounded-lg cursor-pointer hover:opacity-95 transition"
-                    onClick={() => window.open(post.images[0].url, '_blank')}
-                  />
-                ) : (
-                  <div className="relative">
-                    {/* Image Carousel */}
-                    <div className="relative overflow-hidden rounded-lg group">
-                      <img
-                        src={post.images[currentImageIndex[post._id] || 0].url}
-                        alt={`Post ${(currentImageIndex[post._id] || 0) + 1}`}
-                        className="w-full max-h-[500px] object-cover cursor-pointer transition-opacity duration-300"
-                        onClick={() => window.open(post.images[currentImageIndex[post._id] || 0].url, '_blank')}
-                      />
-                      
-                      {/* Image Counter */}
-                      <div className="absolute top-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                        {(currentImageIndex[post._id] || 0) + 1} / {post.images.length}
-                      </div>
-                      
-                      {/* Navigation Buttons */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          prevImage(post._id, post.images.length);
-                        }}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110"
-                        aria-label="Previous image"
-                      >
-                        <FiChevronLeft size={24} />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          nextImage(post._id, post.images.length);
-                        }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110"
-                        aria-label="Next image"
-                      >
-                        <FiChevronRight size={24} />
-                      </button>
-                    </div>
-                    
-                    {/* Dot Indicators */}
-                    <div className="flex justify-center gap-1.5 mt-3">
-                      {post.images.map((_, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setCurrentImageIndex(prev => ({ ...prev, [post._id]: idx }))}
-                          className={`h-2 rounded-full transition-all ${
-                            (currentImageIndex[post._id] || 0) === idx
-                              ? 'w-6 bg-primary-600'
-                              : 'w-2 bg-gray-300 hover:bg-gray-400'
-                          }`}
-                          aria-label={`Go to image ${idx + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Post Actions */}
-            <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-5">
-                  <button 
-                    onClick={() => handleLike(post._id, post.isLiked)}
-                    className={`flex items-center gap-2 transition group ${post.isLiked ? 'text-red-500' : 'text-gray-600 dark:text-gray-400 hover:text-red-500'}`}
-                  >
-                    <FiHeart className={`w-6 h-6 group-hover:scale-110 transition-all ${post.isLiked ? 'fill-red-500' : 'group-hover:fill-red-500'}`} />
-                    <span className="text-sm font-medium">{post.likesCount || 0}</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition group">
-                    <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                    <span className="text-sm font-medium">{post.commentsCount || 0}</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-green-500 transition group">
-                    <FiSend className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                  </button>
-                </div>
-                <button className="text-gray-600 dark:text-gray-400 hover:text-yellow-500 transition">
-                  <FiBookmark className="w-6 h-6 hover:scale-110 transition-transform" />
-                </button>
-              </div>
-            </div>
-          </div>
+        {posts.map((post) => (
+          post.isCelebration ? (
+            <CelebrationPost
+              key={post._id}
+              post={post}
+              onReaction={handleReaction}
+            />
+          ) : (
+            <PostCard
+              key={post._id}
+              post={post}
+              onReaction={handleReaction}
+              onDelete={handleDeletePost}
+              currentImageIndex={currentImageIndex[post._id] || 0}
+              onNextImage={nextImage}
+              onPrevImage={prevImage}
+            />
+          )
         ))}
       </div>
     </div>

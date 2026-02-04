@@ -33,6 +33,46 @@ const PostSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    reactions: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        type: {
+          type: String,
+          enum: ['❤️', '🔥', '👏', '😍', '💯', '🎉', '👍', '🙌', '😂', '😮', '😢', '😡'],
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    reactionCounts: {
+      '❤️': { type: Number, default: 0 },
+      '🔥': { type: Number, default: 0 },
+      '👏': { type: Number, default: 0 },
+      '😍': { type: Number, default: 0 },
+      '💯': { type: Number, default: 0 },
+      '🎉': { type: Number, default: 0 },
+      '👍': { type: Number, default: 0 },
+      '🙌': { type: Number, default: 0 },
+      '😂': { type: Number, default: 0 },
+      '😮': { type: Number, default: 0 },
+      '😢': { type: Number, default: 0 },
+      '😡': { type: Number, default: 0 },
+    },
+    isCelebration: {
+      type: Boolean,
+      default: false,
+    },
+    celebrationData: {
+      milestone: String,
+      count: Number,
+      type: String,
+    },
     commentsCount: {
       type: Number,
       default: 0,
