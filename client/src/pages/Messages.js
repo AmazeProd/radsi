@@ -995,11 +995,7 @@ const Messages = () => {
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={'overflow-hidden select-none transition-shadow cursor-pointer ' + (
-                              isSent
-                                ? 'bg-[var(--accent)] text-[#07101f] rounded-tl-lg rounded-tr-lg rounded-bl-lg font-medium'
-                                : 'bg-[#182533] text-white rounded-tl-lg rounded-tr-lg rounded-br-lg'
-                            )}
+                            className={'overflow-hidden select-none transition-shadow cursor-pointer bg-[#182533] text-white rounded-tl-lg rounded-tr-lg rounded-br-lg'}
                           >
                             {message.image && (
                               <img
@@ -1012,15 +1008,11 @@ const Messages = () => {
                             {message.content && (
                               <p className={'break-words select-text text-sm leading-relaxed ' + (message.image ? 'px-3 pt-2 pb-1' : 'px-3 py-2')}>{message.content}</p>
                             )}
-                            <div className={'flex items-center justify-end gap-2 text-xs px-3 pb-2 ' + (
-                              isSent ? 'text-[#07101f]/70' : 'text-gray-400'
-                            )}>
-                              {!isSent && (
-                                <div className="flex items-center gap-1">
-                                  <FiEye size={12} />
-                                  <span>{Math.floor(Math.random() * 1000) + 100}</span>
-                                </div>
-                              )}
+                            <div className="flex items-center justify-end gap-2 text-xs px-3 pb-2 text-gray-400">
+                              <div className="flex items-center gap-1">
+                                <FiEye size={12} />
+                                <span>{Math.floor(Math.random() * 1000) + 100}</span>
+                              </div>
                               <span>
                                 {new Date(message.createdAt).toLocaleTimeString([], {
                                 hour: '2-digit',
@@ -1028,35 +1020,8 @@ const Messages = () => {
                                 hour12: true
                               })}
                             </span>
-                            {isSent && (
-                              <span className="ml-1">
-                                {message.isRead ? (
-                                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                    <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                ) : (
-                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                    <path d="M3 12l4 4L18 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M9 12l4 4L24 5" strokeLinecap="round" strokeLinejoin="round"/>
-                                  </svg>
-                                )}
-                              </span>
-                            )}
                           </div>
                         </div>
-                      </div>
-                        
-                        {/* Delete Button */}
-                        {isSent && (
-                          <button
-                            onClick={() => handleDeleteMessage(message._id)}
-                            className="ml-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 p-1 transition-opacity"
-                            title="Delete message"
-                          >
-                            <FiTrash2 size={16} />
-                          </button>
-                        )}
                       </div>
                     );
                   })
