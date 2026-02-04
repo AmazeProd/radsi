@@ -659,21 +659,21 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-950 transition-colors">
+    <div className="h-screen bg-gray-900 dark:bg-black transition-colors">
       <div className="h-full mx-auto px-0 md:px-4 md:py-4">
-        <div className={"bg-white/40 dark:bg-gradient-to-br dark:from-gray-900/40 dark:to-gray-950/40 backdrop-blur-3xl h-full md:h-[calc(100%-2rem)] flex overflow-hidden shadow-2xl md:rounded-2xl transition-colors border-0 md:border border-gray-200/30 dark:border-gray-700/30 " + (isResizing ? 'select-none' : '')}>
+        <div className={"bg-gray-850 dark:bg-gray-950 h-full md:h-[calc(100%-2rem)] flex overflow-hidden md:rounded-2xl transition-colors border-0 md:border border-gray-800 dark:border-gray-900 " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-200/50 dark:border-gray-700/50 flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl transition-colors flex-shrink-0 md:relative'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-gray-800 dark:border-gray-900 flex-col bg-gray-850 dark:bg-gray-950 transition-colors flex-shrink-0 md:relative'}
             style={{ 
               width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
               minWidth: window.innerWidth < 768 ? '100%' : '280px',
               maxWidth: window.innerWidth < 768 ? '100%' : '600px'
             }}
           >
-            <div className="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex-shrink-0 transition-colors">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Messages</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
+            <div className="px-6 py-4 border-b border-gray-800 dark:border-gray-900 bg-gray-850 dark:bg-gray-950 flex-shrink-0 transition-colors">
+              <h2 className="text-lg font-semibold text-white">Messages</h2>
+              <p className="text-xs text-gray-400 mt-0.5">{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</p>
             </div>
             <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
@@ -688,8 +688,8 @@ const Messages = () => {
                 if (!otherUser) return null;
                 
                 const isSelected = selectedUser?._id === otherUser._id;
-                const baseClasses = "p-4 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/30 backdrop-blur-sm transition-colors duration-150 border-b border-gray-100/50 dark:border-gray-800/50";
-                const selectedClasses = isSelected ? " bg-gray-100/70 dark:bg-gray-800/70 backdrop-blur-md border-l-2 border-blue-500" : "";
+                const baseClasses = "px-4 py-3 cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-900 transition-colors duration-150 border-b border-gray-800/50 dark:border-gray-900/50";
+                const selectedClasses = isSelected ? " bg-gray-800 dark:bg-gray-900" : "";
                 
                 return (
                   <div
@@ -715,7 +715,7 @@ const Messages = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate text-sm">{otherUser.username}</h3>
+                        <h3 className="font-semibold text-white truncate text-sm">{otherUser.username}</h3>
                         {conversation.lastMessage && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                             {conversation.lastMessage.content || '📷 Photo'}
@@ -759,7 +759,7 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-transparent transition-colors overflow-hidden relative'}>
+        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-gray-900 dark:bg-black transition-colors overflow-hidden relative'}>
           {selectedUser ? (
             <>
               {/* Chat Header */}
@@ -786,7 +786,7 @@ const Messages = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white truncate text-base">{selectedUser.username}</h3>
+                    <h3 className="font-semibold text-white truncate text-base">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
                       <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span>Online</p>
                     ) : selectedUser.lastSeen ? (
@@ -888,10 +888,10 @@ const Messages = () => {
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={'rounded-lg px-4 py-2.5 select-none transition-shadow backdrop-blur-md ' + (
+                            className={'rounded-lg px-3 py-2 select-none transition-shadow ' + (
                               isSent
-                                ? 'bg-blue-500/90 text-white rounded-br-none shadow-sm'
-                                : 'bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-gray-100 border border-gray-200/50 dark:border-gray-700/50 rounded-bl-none shadow-sm'
+                                ? 'bg-blue-600 text-white rounded-br-none'
+                                : 'bg-gray-800 dark:bg-gray-850 text-white rounded-bl-none'
                             )}
                           >
                             {message.image && (
@@ -950,7 +950,7 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex-shrink-0 transition-colors z-20">
+              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-gray-800 dark:border-gray-900 bg-gray-850 dark:bg-gray-950 flex-shrink-0 transition-colors z-20">
                 {/* Image Preview */}
                 {imagePreview && (
                   <div className="mb-3 relative inline-block">
@@ -971,7 +971,7 @@ const Messages = () => {
                 
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-3 p-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-lg border border-gray-200/50 dark:border-gray-700/50 transition-colors">
+                  <div className="mb-3 p-3 bg-gray-800 dark:bg-gray-900 rounded-lg border border-gray-700 transition-colors">
                     <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
                       {commonEmojis.map((emoji, index) => (
                         <button
@@ -1006,7 +1006,7 @@ const Messages = () => {
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={(showEmojiPicker ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400') + ' hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200 p-2 rounded-lg transition flex-shrink-0'}
+                    className={(showEmojiPicker ? 'bg-gray-800 dark:bg-gray-900 text-gray-200' : 'text-gray-400') + ' hover:bg-gray-800 dark:hover:bg-gray-900 hover:text-gray-200 p-2 rounded-lg transition flex-shrink-0'}
                     title="Add emoji"
                   >
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1018,7 +1018,7 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2.5 border border-gray-300/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
+                    className="flex-1 px-4 py-2 border-0 bg-gray-800 dark:bg-gray-900 text-white placeholder-gray-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm transition-colors"
                   />
                   <button
                     type="submit"
