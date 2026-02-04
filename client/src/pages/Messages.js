@@ -1009,10 +1009,6 @@ const Messages = () => {
                               <p className={'break-words select-text text-sm leading-relaxed ' + (message.image ? 'px-3 pt-2 pb-1' : 'px-3 py-2')}>{message.content}</p>
                             )}
                             <div className="flex items-center justify-end gap-2 text-xs px-3 pb-2 text-gray-400">
-                              <div className="flex items-center gap-1">
-                                <FiEye size={12} />
-                                <span>{Math.floor(Math.random() * 1000) + 100}</span>
-                              </div>
                               <span>
                                 {new Date(message.createdAt).toLocaleTimeString([], {
                                 hour: '2-digit',
