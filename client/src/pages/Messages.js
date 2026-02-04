@@ -5,7 +5,7 @@ import { useSocket } from '../context/SocketContext';
 import { getConversations, getMessages, sendMessage, markAsRead, deleteConversation, deleteMessage } from '../services/messageService';
 import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
-import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2, FiCheck, FiSend } from 'react-icons/fi';
+import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2, FiCheck, FiSend, FiEye } from 'react-icons/fi';
 import { debounce } from '../utils/performance';
 
 const getInitials = (user) => {
@@ -859,11 +859,17 @@ const Messages = () => {
           )}
 
         {/* Messages Area */}
-        <div className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col bg-[var(--bg-canvas)] transition-colors overflow-hidden relative'}>
+        <div 
+          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative'}
+          style={{
+            backgroundColor: '#0e1621',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}
+        >
           {selectedUser ? (
             <>
-              {/* Chat Header */}
-              <div className="px-6 py-4 border-b border-[var(--surface-border)] flex items-center justify-between bg-transparent backdrop-blur-md flex-shrink-0 transition-colors z-20">
+              {/* Sticky Chat Header */}
+              <div className="px-6 py-4 border-b border-gray-700/50 flex items-center justify-between bg-[#0e1621]/95 backdrop-blur-sm flex-shrink-0 sticky top-0 z-20">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back Button - Mobile Only */}
                   <button
@@ -989,30 +995,37 @@ const Messages = () => {
                       >
                         <div className="relative max-w-[85%] sm:max-w-[70%]">
                           <div
-                            className={'rounded-lg px-3 py-2 select-none transition-shadow cursor-pointer ' + (
+                            className={'overflow-hidden select-none transition-shadow cursor-pointer ' + (
                               isSent
-                                ? 'bg-[var(--accent)] text-[#07101f] rounded-br-none font-medium'
-                                : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-none border border-[var(--surface-border)]'
+                                ? 'bg-[var(--accent)] text-[#07101f] rounded-tl-lg rounded-tr-lg rounded-bl-lg font-medium'
+                                : 'bg-[#182533] text-white rounded-tl-lg rounded-tr-lg rounded-br-lg'
                             )}
                           >
                             {message.image && (
                               <img
                                 src={message.image.url}
                                 alt="Message attachment"
-                                className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition"
+                                className="w-full h-auto cursor-pointer hover:opacity-90 transition rounded-t-lg"
                                 onClick={() => window.open(message.image.url, '_blank')}
                               />
                             )}
                             {message.content && (
-                              <p className="break-words select-text text-sm leading-relaxed">{message.content}</p>
+                              <p className={'break-words select-text text-sm leading-relaxed ' + (message.image ? 'px-3 pt-2 pb-1' : 'px-3 py-2')}>{message.content}</p>
                             )}
-                            <div className={'flex items-center justify-end gap-1 text-xs mt-1.5 ' + (
-                              isSent ? 'text-[#07101f]/70' : 'text-[var(--text-muted)]'
+                            <div className={'flex items-center justify-end gap-2 text-xs px-3 pb-2 ' + (
+                              isSent ? 'text-[#07101f]/70' : 'text-gray-400'
                             )}>
+                              {!isSent && (
+                                <div className="flex items-center gap-1">
+                                  <FiEye size={12} />
+                                  <span>{Math.floor(Math.random() * 1000) + 100}</span>
+                                </div>
+                              )}
                               <span>
                                 {new Date(message.createdAt).toLocaleTimeString([], {
                                 hour: '2-digit',
                                 minute: '2-digit',
+                                hour12: true
                               })}
                             </span>
                             {isSent && (
