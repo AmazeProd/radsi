@@ -39,14 +39,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
+      console.log('Login attempt with:', credentials);
       const response = await loginService(credentials);
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
+      console.log('Login response:', response);
+      
+      // Handle both nested and flat response structures
+      const data = response.data || response;
+      const token = data.token;
+      const user = data.user;
+      
+      if (!token || !user) {
+        console.error('Invalid response structure:', data);
+        throw new Error('Invalid response from server');
+      }
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
       setIsAuthenticated(true);
+      toast.success('Login successful!');
       return response;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      console.error('Login error:', error);
+      const message = error.response?.data?.message || error.message || 'Login failed';
       toast.error(message);
       throw error;
     }
@@ -55,9 +70,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await registerService(userData);
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
+      const { token, user } = response.data || response;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
       setIsAuthenticated(true);
       return response;
     } catch (error) {

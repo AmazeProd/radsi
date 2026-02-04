@@ -46,7 +46,7 @@ const Layout = ({ children }) => {
   return (
     <>
       {!hideNavbar && <Navbar />}
-      <main className={hideNavbar ? 'h-screen' : 'flex-grow'}>
+      <main className={`${hideNavbar ? 'h-screen' : 'flex-grow'} main-shell`}>
         {children}
       </main>
     </>
@@ -76,7 +76,7 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <Router>
-            <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-950 transition-colors">
+            <div className="app-shell flex flex-col min-h-screen transition-colors">
             <Suspense fallback={<LoadingSpinner />}>
               <Layout>
                 <Routes>

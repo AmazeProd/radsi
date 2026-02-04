@@ -27,7 +27,7 @@ app.set('trust proxy', 1);
 // Initialize Socket.io
 const io = socketIO(server, {
   cors: {
-    origin: [process.env.CLIENT_URL, 'https://radsi.vercel.app', /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:3000$/],
+    origin: process.env.CLIENT_URL || '*',
     credentials: true,
     methods: ["GET", "POST"]
   },
@@ -40,7 +40,7 @@ app.set('io', io);
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: [process.env.CLIENT_URL, /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:3000$/],
+  origin: process.env.CLIENT_URL || '*',
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -95,7 +95,7 @@ socketHandler(io);
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  console.log(`Access from other devices at: http://192.168.31.121:${PORT}`);
+  console.log(`MongoDB Connected: ${mongoose.connection.host}`);
 });
 
 // Handle unhandled promise rejections

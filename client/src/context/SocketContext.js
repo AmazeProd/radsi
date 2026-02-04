@@ -47,9 +47,12 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && user && isTabVisible) {
-      const socketUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+      const socketUrl = process.env.REACT_APP_SOCKET_URL;
       const newSocket = io(socketUrl, {
-        transports: ['websocket'],
+        transports: ['websocket', 'polling'],
+        timeout: 20000,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
       });
 
       newSocket.on('connect', () => {
