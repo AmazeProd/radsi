@@ -1039,7 +1039,6 @@ const Messages = () => {
                     const senderId = message.sender?._id || message.sender;
                     const isSent = senderId === user._id || senderId === user.id;
                     const isRead = message.read;
-                    const showAvatar = !isSent && (index === 0 || messages[index - 1]?.sender?._id !== message.sender?._id);
                     
                     return (
                       <div
@@ -1047,25 +1046,6 @@ const Messages = () => {
                         className={'flex items-end gap-2 ' + (isSent ? 'justify-end' : 'justify-start') + ' animate-fadeIn group'}
                         onContextMenu={(e) => handleMessageRightClick(e, message)}
                       >
-                        {/* Avatar for received messages */}
-                        {!isSent && (
-                          <div className="w-8 h-8 flex-shrink-0" style={{ opacity: showAvatar ? 1 : 0 }}>
-                            {showAvatar && (
-                              selectedUser.profilePicture && !selectedUser.profilePicture.includes('ui-avatars.com') ? (
-                                <img
-                                  src={selectedUser.profilePicture}
-                                  alt={selectedUser.username}
-                                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
-                                />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-gradient-to-br from-blue-400 to-blue-600 ring-2 ring-white/20">
-                                  {getInitials(selectedUser)}
-                                </div>
-                              )
-                            )}
-                          </div>
-                        )}
-                        
                         <div className="relative max-w-[75%] sm:max-w-[65%]">
                           {/* Message Bubble */}
                           <div
@@ -1151,9 +1131,6 @@ const Messages = () => {
                             </button>
                           )}
                         </div>
-                        
-                        {/* Spacer for sent messages */}
-                        {isSent && <div className="w-8" />}
                       </div>
                     );
                   })
