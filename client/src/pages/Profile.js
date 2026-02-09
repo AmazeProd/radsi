@@ -6,23 +6,7 @@ import { getUserPosts, deletePost } from '../services/postService';
 import { toast } from 'react-toastify';
 import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2 } from 'react-icons/fi';
 import ProfilePhotoUpload from '../components/profile/ProfilePhotoUpload';
-
-const getInitials = (profile) => {
-  if (profile.firstName && profile.firstName.trim() && profile.lastName && profile.lastName.trim()) {
-    return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase();
-  }
-  if (profile.firstName && profile.firstName.trim()) {
-    return profile.firstName.charAt(0).toUpperCase();
-  }
-  if (profile.username && profile.username.trim()) {
-    return profile.username.charAt(0).toUpperCase();
-  }
-  return 'U';
-};
-
-const getAvatarColor = (str) => {
-  return 'bg-blue-500';
-};
+import Avatar from '../components/common/Avatar';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -210,17 +194,7 @@ const Profile = () => {
                 onPhotoUpdate={handlePhotoUpdate}
               />
             ) : (
-              profile.profilePicture && !profile.profilePicture.includes('ui-avatars.com') ? (
-                <img
-                  src={profile.profilePicture}
-                  alt={profile.username}
-                  className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
-                />
-              ) : (
-                <div className={`w-32 h-32 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white text-4xl font-bold ${getAvatarColor(profile.username)}`}>
-                  {getInitials(profile)}
-                </div>
-              )
+              <Avatar user={profile} size="2xl" clickable={false} showRing={false} className="border-4 border-white shadow-lg" />
             )}
             
             {!isOwnProfile && (

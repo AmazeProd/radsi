@@ -4,19 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { FiHome, FiUser, FiSearch, FiBell, FiMail, FiMenu, FiX, FiLogOut, FiMoon, FiSun } from 'react-icons/fi';
 import { MdAdminPanelSettings } from 'react-icons/md';
-
-const getInitials = (user) => {
-  if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-  }
-  if (user.firstName && user.firstName.trim()) {
-    return user.firstName.charAt(0).toUpperCase();
-  }
-  if (user.username && user.username.trim()) {
-    return user.username.charAt(0).toUpperCase();
-  }
-  return 'U';
-};
+import Avatar from '../common/Avatar';
 
 const Navbar = () => {
   const { isAuthenticated, user, logout, loading } = useAuth();
@@ -124,17 +112,7 @@ const Navbar = () => {
               </Link>
             )}
             <Link to={`/profile/${user?.id}`} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition">
-              {user?.profilePicture && !user.profilePicture.includes('ui-avatars.com') ? (
-                <img
-                  src={user.profilePicture}
-                  alt={user.username}
-                  className="w-9 h-9 rounded-full object-cover ring-2 ring-[var(--surface-border)] hover:ring-[var(--accent)] transition"
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-full ring-2 ring-[var(--surface-border)] hover:ring-[var(--accent)] transition flex items-center justify-center text-white text-sm font-bold bg-blue-500">
-                  {getInitials(user)}
-                </div>
-              )}
+              <Avatar user={{ ...user, _id: user?.id }} size="sm" clickable={false} />
               <span className="text-[var(--text-primary)] font-medium">{user?.username}</span>
             </Link>
             <button

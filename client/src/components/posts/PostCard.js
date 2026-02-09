@@ -2,25 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMessageCircle, FiShare2, FiMoreHorizontal, FiTrash2, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import Avatar from '../common/Avatar';
 
 const REACTION_EMOJIS = ['❤️', '🔥', '👏', '😍', '💯', '🎉', '👍', '🙌'];
-
-const getInitials = (user) => {
-  if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-  }
-  if (user.firstName && user.firstName.trim()) {
-    return user.firstName.charAt(0).toUpperCase();
-  }
-  if (user.username && user.username.trim()) {
-    return user.username.charAt(0).toUpperCase();
-  }
-  return 'U';
-};
-
-const getAvatarColor = (str) => {
-  return 'bg-gradient-to-br from-blue-500 to-purple-600';
-};
 
 const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, onPrevImage }) => {
   const { user } = useAuth();
@@ -52,19 +36,7 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
       {/* Post Header */}
       <div className="flex items-start justify-between p-4">
         <div className="flex items-center space-x-3">
-          <Link to={`/profile/${post.user?._id}`}>
-            {post.user?.avatar ? (
-              <img 
-                src={post.user.avatar} 
-                alt={post.user.username}
-                className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-purple-500 transition-all"
-              />
-            ) : (
-              <div className={`w-12 h-12 rounded-full ${getAvatarColor(post.user?.username)} flex items-center justify-center text-white font-bold text-sm ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-purple-500 transition-all`}>
-                {getInitials(post.user)}
-              </div>
-            )}
-          </Link>
+          <Avatar user={post.user} size="md" />
           <div>
             <Link to={`/profile/${post.user?._id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
               {post.user?.firstName && post.user?.lastName ? 

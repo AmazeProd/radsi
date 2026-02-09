@@ -7,23 +7,7 @@ import { getUserProfile } from '../services/userService';
 import { toast } from 'react-toastify';
 import { FiMail, FiMessageCircle, FiImage, FiX, FiTrash2, FiCheck, FiSend, FiEye } from 'react-icons/fi';
 import { debounce } from '../utils/performance';
-
-const getInitials = (user) => {
-  if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-  }
-  if (user.firstName && user.firstName.trim()) {
-    return user.firstName.charAt(0).toUpperCase();
-  }
-  if (user.username && user.username.trim()) {
-    return user.username.charAt(0).toUpperCase();
-  }
-  return 'U';
-};
-
-const getAvatarColor = (str) => {
-  return 'bg-blue-500';
-};;
+import Avatar from '../components/common/Avatar';
 
 // Helper function to format last seen time
 const formatLastSeen = (lastSeen) => {
@@ -790,37 +774,7 @@ const Messages = () => {
                       )}
                       
                       <div className="relative flex-shrink-0 z-10">
-                        {otherUser.profilePicture && !otherUser.profilePicture.includes('ui-avatars.com') ? (
-                          <div className="relative">
-                            <img
-                              src={otherUser.profilePicture}
-                              alt={otherUser.username}
-                              className={"w-14 h-14 rounded-full object-cover ring-2 transition-all duration-300 " 
-                                + (isSelected 
-                                  ? "ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-canvas)] shadow-lg" 
-                                  : "ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/40 group-hover:scale-105"
-                                )}
-                            />
-                            {/* Glowing effect for selected */}
-                            {isSelected && (
-                              <div className="absolute inset-0 rounded-full bg-[var(--accent)] opacity-20 blur-md animate-pulse" />
-                            )}
-                          </div>
-                        ) : (
-                          <div className="relative">
-                            <div className={"w-14 h-14 rounded-full flex items-center justify-center text-white text-base font-bold transition-all duration-300 "
-                              + (isSelected
-                                ? "bg-gradient-to-br from-[var(--accent)] via-[var(--accent-strong)] to-purple-600 ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-canvas)] shadow-lg scale-105"
-                                : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] ring-2 ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/50 group-hover:scale-105 shadow-md"
-                              )}
-                            >
-                              {getInitials(otherUser)}
-                            </div>
-                            {isSelected && (
-                              <div className="absolute inset-0 rounded-full bg-[var(--accent)] opacity-20 blur-lg animate-pulse" />
-                            )}
-                          </div>
-                        )}
+                        <Avatar user={otherUser} size="lg" clickable={false} showRing={isSelected} />
                         {/* Online Status Badge */}
                         {(onlineUsers.includes(otherUser._id) || otherUser.isOnline) && (
                           <div className="absolute -bottom-0.5 -right-0.5 z-20">
@@ -932,17 +886,7 @@ const Messages = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  {selectedUser.profilePicture && !selectedUser.profilePicture.includes('ui-avatars.com') ? (
-                    <img
-                      src={selectedUser.profilePicture}
-                      alt={selectedUser.username}
-                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                    />
-                  ) : (
-                    <div className={"w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 " + getAvatarColor(selectedUser.username)}>
-                      {getInitials(selectedUser)}
-                    </div>
-                  )}
+                  <Avatar user={selectedUser} size="sm" clickable={false} />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-[var(--text-primary)] truncate text-base">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
