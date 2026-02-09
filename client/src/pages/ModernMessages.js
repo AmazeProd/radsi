@@ -88,22 +88,21 @@ const ModernMessages = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [selectedUser]);
 
-  // Load initial data
+  // Load initial data (only on mount or navigation)
   useEffect(() => {
     loadConversations();
     if (location.state?.userId) {
       loadUserProfile(location.state.userId);
     }
-  }, [location.state, onlineUsers, userStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.userId]);
 
   // Socket event handlers
   useEffect(() => {
     if (!socket) return;
 
     const handleReceiveMessage = (message) => {
-      console.log('Received message:', message._id);
-      
-      loadConversations();
+      debouncedLoadConversations();
       
       const conversationUserId = 
         message.sender._id === user._id ? message.receiver._id : message.sender._id;
@@ -231,66 +230,59 @@ const ModernMessages = () => {
     }
   };
 
-  // Load messages with instant display and scroll
+  // Load messages with instant cache display
   const loadMessages = async (userId, skipCache = false) => {
     try {
-      // Check cache for instant display
+      // Show cached messages instantly while fetching fresh ones
       if (!skipCache && messagesCacheRef.current.has(userId)) {
-        const cachedMessages = messagesCacheRef.current.get(userId);
-        setMessages(cachedMessages);
-        
-        // Background refresh without blocking UI
-        getMessages(userId).then(response => {
-          const freshMessages = response.data || [];
-          if (JSON.stringify(freshMessages) !== JSON.stringify(cachedMessages)) {
-            messagesCacheRef.current.set(userId, freshMessages);
-            setMessages(freshMessages);
-          }
-        }).catch(err => console.error('Background refresh failed:', err));
-        
-        if (isTabVisible) {
-          markAsRead(userId).catch(err => console.error('Failed to mark as read:', err));
-        }
-        return;
+        setMessages(messagesCacheRef.current.get(userId));
+      } else {
+        // Only clear messages if no cache (avoids flash of empty state)
+        setMessages([]);
       }
       
-      // No cache - fetch fresh
+      // Fetch fresh messages
       const response = await getMessages(userId);
-      const fetchedMessages = response.data || [];
+      const freshMessages = response.data || [];
       
-      messagesCacheRef.current.set(userId, fetchedMessages);
-      setMessages(fetchedMessages);
+      // Update only if data actually changed (compare length + last message id)
+      const cached = messagesCacheRef.current.get(userId);
+      const hasChanged = !cached || 
+        cached.length !== freshMessages.length || 
+        cached[cached.length - 1]?._id !== freshMessages[freshMessages.length - 1]?._id;
       
-      if (isTabVisible) {
-        await markAsRead(userId);
+      if (hasChanged) {
+        messagesCacheRef.current.set(userId, freshMessages);
+        setMessages(freshMessages);
       }
+      
+      // markAsRead is already done server-side in getMessages endpoint
     } catch (error) {
       console.error('Failed to load messages:', error);
-      setMessages([]);
+      if (!messagesCacheRef.current.has(userId)) {
+        setMessages([]);
+      }
     }
   };
 
-  // Handle select user with useCallback
+  // Handle select user — stable callback, reads refs/state inline
   const handleSelectUser = useCallback((conversation) => {
     const otherUser = conversation.participants.find(p => p._id !== user._id);
+    if (!otherUser) return;
     
-    const userWithStatus = {
-      ...otherUser,
-      isOnline: onlineUsers.includes(otherUser._id),
-      lastSeen: userStatus.get(otherUser._id)?.lastSeen || otherUser.lastSeen,
-    };
+    setSelectedUser(prev => {
+      // Skip if same user already selected
+      if (prev?._id === otherUser._id) return prev;
+      return {
+        ...otherUser,
+        isOnline: onlineUsers.includes(otherUser._id),
+        lastSeen: userStatus.get(otherUser._id)?.lastSeen || otherUser.lastSeen,
+      };
+    });
     
-    setSelectedUser(userWithStatus);
+    // Show cached messages instantly, then fetch fresh
     loadMessages(otherUser._id);
-    
-    if (isTabVisible) {
-      setTimeout(() => {
-        markAsRead(otherUser._id).catch(err => 
-          console.error('Failed to mark as read:', err)
-        );
-      }, 100);
-    }
-  }, [user._id, onlineUsers, userStatus, isTabVisible]);
+  }, [user._id]);
 
   // Handle send message
   const handleSendMessage = async (messageText) => {

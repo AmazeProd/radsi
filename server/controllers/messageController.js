@@ -75,46 +75,38 @@ exports.getMessages = asyncHandler(async (req, res, next) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const startIndex = (page - 1) * limit;
 
-  const messages = await Message.find({
-    $or: [
-      { sender: req.user.id, receiver: req.params.userId },
-      { sender: req.params.userId, receiver: req.user.id },
-    ],
-    isDeleted: false,
-  })
-    .populate('sender', 'username profilePicture')
-    .populate('receiver', 'username profilePicture')
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .skip(startIndex);
-
-  const total = await Message.countDocuments({
-    $or: [
-      { sender: req.user.id, receiver: req.params.userId },
-      { sender: req.params.userId, receiver: req.user.id },
-    ],
-    isDeleted: false,
-  });
-
-  // Mark messages as read
-  await Message.updateMany(
-    {
-      sender: req.params.userId,
-      receiver: req.user.id,
-      isRead: false,
-    },
-    {
-      isRead: true,
-      readAt: Date.now(),
-    }
-  );
+  const [messages, _] = await Promise.all([
+    Message.find({
+      $or: [
+        { sender: req.user.id, receiver: req.params.userId },
+        { sender: req.params.userId, receiver: req.user.id },
+      ],
+      isDeleted: false,
+    })
+      .populate('sender', 'username profilePicture')
+      .populate('receiver', 'username profilePicture')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(startIndex)
+      .lean(),
+    
+    // Mark messages as read in parallel
+    Message.updateMany(
+      {
+        sender: req.params.userId,
+        receiver: req.user.id,
+        isRead: false,
+      },
+      {
+        isRead: true,
+        readAt: Date.now(),
+      }
+    )
+  ]);
 
   res.status(200).json({
     success: true,
     count: messages.length,
-    total,
-    totalPages: Math.ceil(total / limit),
-    currentPage: page,
     data: messages.reverse(),
   });
 });

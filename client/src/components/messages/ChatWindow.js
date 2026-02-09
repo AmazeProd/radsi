@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, memo, useState, useMemo } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { 
   FiArrowLeft, 
   FiTrash2, 
@@ -224,7 +223,7 @@ const ChatWindow = memo(({
               </p>
             </div>
           ) : (
-            <AnimatePresence initial={false}>
+            <>
               {groupedMessages.map((item) => {
                 if (item.type === 'date') {
                   return (
@@ -252,7 +251,7 @@ const ChatWindow = memo(({
                   />
                 );
               })}
-            </AnimatePresence>
+            </>
           )}
           <div ref={messagesEndRef} />
         </div>
