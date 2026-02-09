@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, memo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useRef, memo, useState, useMemo } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { 
   FiArrowLeft, 
-  FiMoreVertical, 
   FiTrash2, 
   FiPhone, 
   FiVideo,
-  FiInfo 
+  FiMoreHorizontal,
+  FiMessageCircle
 } from 'react-icons/fi';
 import Avatar from '../common/Avatar';
 import MessageBubble from './MessageBubble';
@@ -27,33 +27,39 @@ const ChatWindow = memo(({
   const isInitialLoad = useRef(true);
   const prevSelectedUserRef = useRef(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [showHeaderMenu, setShowHeaderMenu] = useState(false);
 
   useEffect(() => {
-    // Instant scroll on user change, smooth scroll on new messages
     const userChanged = prevSelectedUserRef.current !== selectedUser?._id;
     
     if (userChanged) {
       prevSelectedUserRef.current = selectedUser?._id;
       isInitialLoad.current = true;
       setInitialLoadDone(false);
-      // Instant scroll then mark initial load done after a tick
+      setShowHeaderMenu(false);
       scrollToBottom(true);
       requestAnimationFrame(() => {
         setInitialLoadDone(true);
       });
     } else if (messages.length > 0) {
-      scrollToBottom(false); // Smooth scroll for new messages
+      scrollToBottom(false);
     }
   }, [messages, selectedUser?._id]);
+
+  // Close menu on click outside
+  useEffect(() => {
+    if (!showHeaderMenu) return;
+    const close = () => setShowHeaderMenu(false);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [showHeaderMenu]);
 
   const scrollToBottom = (instant = false) => {
     requestAnimationFrame(() => {
       if (messagesContainerRef.current && isInitialLoad.current) {
-        // Instant scroll to bottom for initial load
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         isInitialLoad.current = false;
       } else {
-        // Smooth scroll for new messages
         messagesEndRef.current?.scrollIntoView({ 
           behavior: instant ? 'auto' : 'smooth', 
           block: 'end' 
@@ -71,77 +77,94 @@ const ChatWindow = memo(({
     const diffMins = Math.floor(diffMs / 60000);
     
     if (diffMins < 1) return 'Active now';
-    if (diffMins < 60) return `Active ${diffMins}m ago`;
+    if (diffMins < 60) return `${diffMins}m ago`;
     
     const diffHours = Math.floor(diffMs / 3600000);
-    if (diffHours < 24) return `Active ${diffHours}h ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
     
-    return `Last seen ${lastSeenDate.toLocaleDateString()}`;
+    return lastSeenDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
+  // Group messages by date
+  const groupedMessages = useMemo(() => {
+    if (!messages.length) return [];
+    
+    const groups = [];
+    let currentDate = null;
+    
+    messages.forEach((message) => {
+      const msgDate = new Date(message.createdAt);
+      const dateKey = msgDate.toDateString();
+      
+      if (dateKey !== currentDate) {
+        currentDate = dateKey;
+        const now = new Date();
+        const isToday = msgDate.toDateString() === now.toDateString();
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const isYesterday = msgDate.toDateString() === yesterday.toDateString();
+        
+        let label;
+        if (isToday) label = 'Today';
+        else if (isYesterday) label = 'Yesterday';
+        else label = msgDate.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+        
+        groups.push({ type: 'date', label, key: `date-${dateKey}` });
+      }
+      
+      groups.push({ type: 'message', data: message, key: message._id });
+    });
+    
+    return groups;
+  }, [messages]);
+
+  // Empty state - no user selected
   if (!selectedUser) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 p-8">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center">
-            <svg className="w-16 h-16 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
+      <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 p-8">
+        <div className="text-center max-w-xs">
+          <div className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center shadow-sm">
+            <FiMessageCircle size={32} className="text-gray-300 dark:text-gray-700" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Select a conversation
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">
+            Your messages
           </h2>
-          <p className="text-gray-500 dark:text-gray-400">
-            Choose from your existing conversations or start a new one
+          <p className="text-sm text-gray-400 dark:text-gray-600 leading-relaxed">
+            Select a conversation to start messaging
           </p>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50 dark:bg-gray-950">
       {/* Chat Header */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex items-center justify-between overflow-hidden"
-      >
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+      <div className="flex-shrink-0 px-4 sm:px-5 h-[64px] border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-gray-950 flex items-center justify-between">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Back Button - Mobile */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          <button
             onClick={onBack}
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
           >
-            <FiArrowLeft size={20} className="text-gray-700 dark:text-gray-300" />
-          </motion.button>
+            <FiArrowLeft size={18} className="text-gray-600 dark:text-gray-400" />
+          </button>
 
           {/* User Info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
-            <div className="relative">
-              <Avatar user={selectedUser} size="md" clickable={false} />
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="relative flex-shrink-0">
+              <Avatar user={selectedUser} size="sm" clickable={false} />
               {isOnline && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full"
-                />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-gray-950 rounded-full" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+              <h3 className="text-[14px] font-semibold text-gray-900 dark:text-white truncate leading-tight">
                 {selectedUser.username}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-[12px] text-gray-400 dark:text-gray-500 truncate leading-tight mt-0.5">
                 {isOnline ? (
-                  <span className="text-green-600 dark:text-green-400">Active now</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Online</span>
                 ) : (
                   formatLastSeen(lastSeen)
                 )}
@@ -151,101 +174,100 @@ const ChatWindow = memo(({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+        <div className="flex items-center gap-1">
+          <button
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             title="Audio call"
           >
-            <FiPhone size={18} />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+            <FiPhone size={16} />
+          </button>
+          <button
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             title="Video call"
           >
-            <FiVideo size={18} />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
-            title="Info"
-          >
-            <FiInfo size={18} />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={onDeleteConversation}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors"
-            title="Delete conversation"
-          >
-            <FiTrash2 size={18} />
-          </motion.button>
+            <FiVideo size={16} />
+          </button>
+          <div className="relative">
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowHeaderMenu(!showHeaderMenu); }}
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            >
+              <FiMoreHorizontal size={16} />
+            </button>
+            {/* Dropdown */}
+            {showHeaderMenu && (
+              <div className="absolute right-0 top-11 w-48 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5 dark:shadow-black/30 py-1.5 z-50">
+                <button
+                  onClick={() => { setShowHeaderMenu(false); onDeleteConversation(); }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                >
+                  <FiTrash2 size={15} />
+                  Delete conversation
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Messages Area */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4 space-y-4 custom-scrollbar max-w-full"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%)
-          `
-        }}
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden msg-scrollbar"
       >
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
-            />
-          </div>
-        ) : messages.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center h-full text-center"
-          >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center mb-4">
-              <svg className="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
+        <div className="px-4 sm:px-6 py-4 space-y-1 max-w-3xl mx-auto w-full">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex items-center gap-3 text-gray-400 dark:text-gray-600">
+                <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-700 border-t-indigo-500 rounded-full animate-spin" />
+                <span className="text-sm font-medium">Loading messages...</span>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              No messages yet
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Start the conversation with {selectedUser.username}
-            </p>
-          </motion.div>
-        ) : (
-          <AnimatePresence initial={false}>
-            {messages.map((message, index) => {
-              const senderId = message.sender?._id || message.sender;
-              const isSent = senderId === currentUser._id || senderId === currentUser.id;
-              
-              return (
-                <MessageBubble
-                  key={message._id}
-                  message={message}
-                  isSent={isSent}
-                  isRead={message.isRead || message.read}
-                  onDelete={onDeleteMessage}
-                  currentUser={currentUser}
-                  skipAnimation={!initialLoadDone}
-                />
-              );
-            })}
-          </AnimatePresence>
-        )}
-        <div ref={messagesEndRef} />
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-3">
+                <span className="text-2xl">👋</span>
+              </div>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                Start the conversation
+              </h3>
+              <p className="text-xs text-gray-400 dark:text-gray-600">
+                Say hello to {selectedUser.username}
+              </p>
+            </div>
+          ) : (
+            <AnimatePresence initial={false}>
+              {groupedMessages.map((item) => {
+                if (item.type === 'date') {
+                  return (
+                    <div key={item.key} className="flex items-center justify-center py-3">
+                      <span className="px-3 py-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-full shadow-sm uppercase tracking-wider">
+                        {item.label}
+                      </span>
+                    </div>
+                  );
+                }
+                
+                const message = item.data;
+                const senderId = message.sender?._id || message.sender;
+                const isSent = senderId === currentUser._id || senderId === currentUser.id;
+                
+                return (
+                  <MessageBubble
+                    key={message._id}
+                    message={message}
+                    isSent={isSent}
+                    isRead={message.isRead || message.read}
+                    onDelete={onDeleteMessage}
+                    currentUser={currentUser}
+                    skipAnimation={!initialLoadDone}
+                  />
+                );
+              })}
+            </AnimatePresence>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
     </div>
   );

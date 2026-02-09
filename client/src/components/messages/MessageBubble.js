@@ -1,6 +1,6 @@
 import React, { useState, memo } from 'react';
 import { motion } from 'framer-motion';
-import { FiCheck, FiCheckCircle, FiTrash2, FiCopy, FiDownload } from 'react-icons/fi';
+import { FiCheck, FiCheckCircle, FiTrash2, FiCopy, FiDownload, FiCornerUpRight } from 'react-icons/fi';
 
 const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, currentUser, skipAnimation }) => {
   const [showActions, setShowActions] = useState(false);
@@ -16,13 +16,16 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
 
   const handleContextMenu = (e) => {
     e.preventDefault();
-    setShowActions(true);
-    setTimeout(() => setShowActions(false), 3000);
+    setShowActions(prev => !prev);
+    if (!showActions) {
+      setTimeout(() => setShowActions(false), 4000);
+    }
   };
 
   const handleCopyText = () => {
     if (message.content) {
       navigator.clipboard.writeText(message.content);
+      setShowActions(false);
       onCopy?.();
     }
   };
@@ -35,50 +38,68 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
 
   return (
     <motion.div
-      initial={skipAnimation ? false : { opacity: 0, y: 10, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={skipAnimation ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={skipAnimation ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
-      className={`flex items-end gap-2 group ${isSent ? 'justify-end' : 'justify-start'}`}
+      transition={skipAnimation ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className={`flex items-end gap-1.5 group py-0.5 ${isSent ? 'justify-end' : 'justify-start'}`}
       onContextMenu={handleContextMenu}
     >
-      <div className={`relative max-w-[85%] sm:max-w-[75%] md:max-w-[65%] ${isSent ? 'order-2' : 'order-1'}`}>
+      {/* Actions - left side for sent */}
+      {isSent && (
+        <div className={`flex items-center gap-1 transition-all duration-200 ${showActions ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+          {message.content && (
+            <button
+              onClick={handleCopyText}
+              className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
+              title="Copy"
+            >
+              <FiCopy size={12} className="text-gray-500 dark:text-gray-400" />
+            </button>
+          )}
+          <button
+            onClick={() => { onDelete?.(message._id); setShowActions(false); }}
+            className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-950/40 flex items-center justify-center transition-colors"
+            title="Delete"
+          >
+            <FiTrash2 size={12} className="text-gray-500 dark:text-gray-400 hover:text-red-500" />
+          </button>
+        </div>
+      )}
+
+      <div className={`relative max-w-[80%] sm:max-w-[70%] md:max-w-[60%]`}>
         {/* Message Bubble */}
         <div
           className={`
-            relative overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 max-w-full break-words
+            relative overflow-hidden transition-shadow duration-200 max-w-full
             ${isSent 
-              ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 text-white rounded-[20px] rounded-br-md' 
-              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-[20px] rounded-bl-md border border-gray-200 dark:border-gray-700'
+              ? 'bg-indigo-600 text-white rounded-2xl rounded-br-md shadow-sm shadow-indigo-500/10' 
+              : 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-md border border-gray-100 dark:border-gray-800 shadow-sm'
             }
           `}
         >
           {/* Image Message */}
           {message.image && (
             <div className="relative overflow-hidden group/img">
-              <motion.img
-                initial={{ opacity: 0 }}
-                animate={{ opacity: imageLoaded ? 1 : 0 }}
+              <img
                 src={message.image.url}
-                alt="Message attachment"
+                alt="Attachment"
                 onLoad={() => setImageLoaded(true)}
-                className="w-full h-auto max-h-96 object-cover cursor-pointer"
+                className={`w-full h-auto max-h-80 object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => window.open(message.image.url, '_blank')}
               />
-              {/* Image Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileHover={{ opacity: 1, scale: 1.1 }}
+              {/* Download overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-all duration-200 flex items-center justify-center">
+                <button
                   onClick={handleDownloadImage}
-                  className="opacity-0 group-hover/img:opacity-100 bg-white/90 dark:bg-gray-800/90 p-3 rounded-full shadow-lg"
+                  className="opacity-0 group-hover/img:opacity-100 bg-white/90 dark:bg-gray-900/90 p-2.5 rounded-xl shadow-lg transition-all duration-200 hover:scale-105"
                 >
-                  <FiDownload className="text-gray-900 dark:text-white" size={20} />
-                </motion.button>
+                  <FiDownload className="text-gray-700 dark:text-gray-300" size={16} />
+                </button>
               </div>
               {!imageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-full h-48 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                  <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-700 border-t-indigo-500 rounded-full animate-spin" />
                 </div>
               )}
             </div>
@@ -86,9 +107,9 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
 
           {/* Text Content */}
           {message.content && (
-            <div className={message.image ? 'px-4 pt-3 pb-2' : 'px-4 py-3'}>
-              <p className={`text-[15px] leading-relaxed break-words select-text overflow-wrap-anywhere ${
-                isSent ? 'text-white' : 'text-gray-800 dark:text-gray-100'
+            <div className={`${message.image ? 'px-3.5 pt-2.5 pb-1' : 'px-3.5 py-2.5'}`}>
+              <p className={`text-[14px] leading-[1.5] break-words select-text ${
+                isSent ? 'text-white' : 'text-gray-800 dark:text-gray-200'
               }`} style={{ overflowWrap: 'anywhere' }}>
                 {message.content}
               </p>
@@ -96,59 +117,43 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
           )}
 
           {/* Timestamp & Status */}
-          <div className={`flex items-center gap-1.5 px-4 pb-2 text-[11px] ${
-            isSent ? 'justify-end text-blue-50' : 'justify-end text-gray-500 dark:text-gray-400'
+          <div className={`flex items-center gap-1 px-3.5 pb-2 ${
+            !message.content && message.image ? 'pt-1' : ''
+          } ${
+            isSent ? 'justify-end' : 'justify-end'
           }`}>
-            <span className="font-medium">{formatTime(message.createdAt)}</span>
+            <span className={`text-[10px] font-medium tabular-nums ${
+              isSent ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500'
+            }`}>
+              {formatTime(message.createdAt)}
+            </span>
             {isSent && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2 }}
-              >
+              <span className="flex items-center">
                 {isRead ? (
-                  <FiCheckCircle size={14} className="text-blue-100" />
+                  <FiCheckCircle size={12} className="text-indigo-200" />
                 ) : (
-                  <FiCheck size={14} className="text-blue-200" />
+                  <FiCheck size={12} className="text-indigo-300" />
                 )}
-              </motion.div>
+              </span>
             )}
           </div>
         </div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: showActions || undefined ? 1 : 0, scale: showActions || undefined ? 1 : 0.8 }}
-          className={`
-            absolute ${isSent ? 'left-0 -translate-x-full' : 'right-0 translate-x-full'} 
-            top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity
-          `}
-        >
-          {message.content && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleCopyText}
-              className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center shadow-md"
-              title="Copy text"
-            >
-              <FiCopy size={14} className="text-gray-700 dark:text-gray-300" />
-            </motion.button>
-          )}
-          {isSent && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => onDelete?.(message._id)}
-              className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 flex items-center justify-center shadow-md"
-              title="Delete message"
-            >
-              <FiTrash2 size={14} className="text-red-600 dark:text-red-400" />
-            </motion.button>
-          )}
-        </motion.div>
       </div>
+
+      {/* Actions - right side for received */}
+      {!isSent && (
+        <div className={`flex items-center gap-1 transition-all duration-200 ${showActions ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+          {message.content && (
+            <button
+              onClick={handleCopyText}
+              className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
+              title="Copy"
+            >
+              <FiCopy size={12} className="text-gray-500 dark:text-gray-400" />
+            </button>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 });

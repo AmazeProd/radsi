@@ -397,20 +397,23 @@ const ModernMessages = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="flex justify-center items-center h-full bg-white dark:bg-gray-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-800 border-t-indigo-600 rounded-full animate-spin" />
+          <span className="text-xs font-medium text-gray-400 dark:text-gray-600">Loading messages...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
+    <div className="h-full bg-white dark:bg-gray-950 overflow-hidden">
       <div className={'h-full w-full mx-auto flex min-h-0 ' + (isResizing ? 'select-none' : '')}>
         {/* Conversation List */}
         <div 
           className={`
             ${selectedUser ? 'hidden md:flex' : 'flex'} 
-            flex-shrink-0 border-r border-gray-200 dark:border-gray-800
+            flex-shrink-0 border-r border-gray-100 dark:border-gray-800/80
           `}
           style={{
             width: window.innerWidth < 768 ? '100%' : `${sidebarWidth}px`,
@@ -431,15 +434,10 @@ const ModernMessages = () => {
 
         {/* Resizable Divider */}
         <div
-          className="hidden md:block w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 cursor-col-resize transition-colors relative group flex-shrink-0"
+          className="hidden md:block w-[3px] bg-gray-100 dark:bg-gray-800/80 hover:bg-indigo-500 dark:hover:bg-indigo-600 cursor-col-resize transition-colors duration-200 relative group flex-shrink-0"
           onMouseDown={handleMouseDown}
         >
-          <div className="absolute inset-0 w-4 -mx-1.5" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 rounded-full p-1.5">
-            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-            </svg>
-          </div>
+          <div className="absolute inset-0 w-3 -mx-[5px]" />
         </div>
 
         {/* Chat Window */}

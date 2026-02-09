@@ -170,6 +170,32 @@ code {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--accent-strong);
 }
+
+/* Messages scrollbar - thin & minimal */
+.msg-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.msg-scrollbar:hover {
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+.msg-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.msg-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.msg-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 10px;
+}
+.msg-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+}
+.msg-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
 /* Animation utilities */
 @keyframes fadeIn {
   from {
