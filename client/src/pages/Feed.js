@@ -266,8 +266,11 @@ const Feed = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-600 border-t-transparent"></div>
+      <div className="flex justify-center items-center min-h-screen bg-white dark:bg-gray-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-800 border-t-indigo-600 rounded-full animate-spin" />
+          <span className="text-xs font-medium text-gray-400 dark:text-gray-600">Loading feed...</span>
+        </div>
       </div>
     );
   }
