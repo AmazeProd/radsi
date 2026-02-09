@@ -865,7 +865,7 @@ const Messages = () => {
 
         {/* Messages Area */}
         <div 
-          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative min-w-0 h-full'}
+          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative min-w-0'}
           style={{
             backgroundColor: '#0e1621',
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -965,14 +965,16 @@ const Messages = () => {
               {/* Messages List */}
               <div 
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y max-w-full" 
+                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y max-w-full"
                 style={{
-                background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
-                backgroundImage: `
-                  ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
-                  ${chatThemes.find(t => t.id === chatTheme)?.pattern || chatThemes[0].pattern}
-                `
-              }}>
+                  minHeight: 0,
+                  height: 'auto',
+                  background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
+                  backgroundImage: `
+                    ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
+                    ${chatThemes.find(t => t.id === chatTheme)?.pattern || chatThemes[0].pattern}
+                  `
+                }}>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-400">
