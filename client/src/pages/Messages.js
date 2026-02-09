@@ -75,6 +75,8 @@ const Messages = () => {
   const fileInputRef = useRef(null);
   const prevMessagesLengthRef = useRef(0);
   const prevSelectedUserRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const isInitialLoad = useRef(true);
   // const pollIntervalRef = useRef(null);
 
   // Chat background themes
@@ -364,6 +366,7 @@ const Messages = () => {
     
     // Instant scroll when user changes, smooth scroll for new messages
     if (userChanged) {
+      isInitialLoad.current = true;
       scrollToBottom(true); // instant
       prevSelectedUserRef.current = selectedUser?._id;
     } else if (messagesAdded) {
@@ -394,13 +397,18 @@ const Messages = () => {
   }, [onlineUsers, userStatus, selectedUser?._id]);
 
   const scrollToBottom = (instant = false) => {
-    // Use requestAnimationFrame for smoother scroll
     requestAnimationFrame(() => {
-      // Use instant scroll when switching users or initial load, smooth for new messages
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: instant ? 'auto' : 'smooth', 
-        block: 'end' 
-      });
+      if (messagesContainerRef.current && isInitialLoad.current && instant) {
+        // Force instant scroll to bottom on user change
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        isInitialLoad.current = false;
+      } else {
+        // Smooth scroll for new messages
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: instant ? 'auto' : 'smooth', 
+          block: 'end' 
+        });
+      }
     });
   };
 
@@ -488,9 +496,7 @@ const Messages = () => {
         return;
       }
       
-      // No cache - show empty and fetch
-      setMessages([]);
-      
+      // No cache - fetch without clearing messages first
       const response = await getMessages(userId);
       const fetchedMessages = response.data || [];
       
@@ -508,7 +514,7 @@ const Messages = () => {
     }
   };
 
-  const handleSelectUser = (conversation) => {
+  const handleSelectUser = useCallback((conversation) => {
     const otherUser = conversation.participants.find((p) => p._id !== user._id);
     
     // Add online status from socket
@@ -530,7 +536,7 @@ const Messages = () => {
         markAsRead(otherUser._id).catch(err => console.error('Failed to mark as read:', err));
       }, 100);
     }
-  };
+  }, [user._id, onlineUsers, userStatus, isTabVisible]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -622,7 +628,7 @@ const Messages = () => {
     }
   };
 
-  const handleDeleteConversation = async () => {
+  const handleDeleteConversation = useCallback(async () => {
     if (!selectedUser) return;
     
     if (!window.confirm(`Delete entire conversation with ${selectedUser.username}? This action cannot be undone.`)) {
@@ -638,16 +644,16 @@ const Messages = () => {
     } catch (error) {
       toast.error('Failed to delete conversation');
     }
-  };
+  }, [selectedUser]);
 
-  const handleDeleteMessage = async (messageId) => {
+  const handleDeleteMessage = useCallback(async (messageId) => {
     if (!window.confirm('Delete this message? This action cannot be undone.')) {
       return;
     }
 
     try {
       await deleteMessage(messageId);
-      setMessages(messages.filter(msg => msg._id !== messageId));
+      setMessages(prev => prev.filter(msg => msg._id !== messageId));
       toast.success('Message deleted');
       setOpenMessageDropdown(null);
       setContextMenu(null);
@@ -655,7 +661,7 @@ const Messages = () => {
       console.error('Failed to delete message:', error);
       toast.error(error.response?.data?.message || 'Failed to delete message');
     }
-  };
+  }, []);
 
   const handleMessageRightClick = (e, message) => {
     e.preventDefault();
@@ -751,7 +757,7 @@ const Messages = () => {
                 const isSelected = selectedUser?._id === otherUser._id;
                 const hasUnread = conversation.unreadCount > 0;
                 const lastMessageTime = conversation.lastMessage?.createdAt;
-                const baseClasses = "px-5 py-4 cursor-pointer hover:bg-gradient-to-r hover:from-[var(--accent)]/5 hover:to-transparent transition-all duration-300 border-b border-[var(--surface-border)]/30 group relative overflow-hidden";
+                const baseClasses = "px-5 py-4 cursor-pointer hover:bg-gradient-to-r hover:from-[var(--accent)]/5 hover:to-transparent transition-all duration-150 border-b border-[var(--surface-border)]/30 group relative overflow-hidden";
                 const selectedClasses = isSelected ? " bg-gradient-to-r from-[var(--accent)]/15 via-[var(--accent)]/8 to-transparent border-l-4 border-l-[var(--accent)] shadow-lg" : "";
                 
                 return (
@@ -763,14 +769,9 @@ const Messages = () => {
                     style={isSelected ? { backdropFilter: 'blur(8px)' } : {}}
                   >
                     <div className="flex items-start gap-3.5">
-                      {/* Shimmer effect background for selected item */}
+                      {/* Selection indicator */}
                       {isSelected && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" 
-                             style={{ 
-                               backgroundSize: '200% 100%',
-                               animation: 'shimmer 3s infinite linear'
-                             }}
-                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                       )}
                       
                       <div className="relative flex-shrink-0 z-10">
@@ -964,7 +965,10 @@ const Messages = () => {
               )}
 
               {/* Messages List */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y" style={{
+              <div 
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y" 
+                style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
                   ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
@@ -987,14 +991,14 @@ const Messages = () => {
                     return (
                       <div
                         key={message._id}
-                        className={'flex items-end gap-2 ' + (isSent ? 'justify-end' : 'justify-start') + ' animate-fadeIn group'}
+                        className={'flex items-end gap-2 ' + (isSent ? 'justify-end' : 'justify-start') + ' group'}
                         onContextMenu={(e) => handleMessageRightClick(e, message)}
                       >
                         <div className="relative max-w-[75%] sm:max-w-[65%]">
                           {/* Message Bubble */}
                           <div
                             className={
-                              'overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] '
+                              'overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer '
                               + (isSent 
                                 ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-[20px] rounded-br-[6px] backdrop-blur-sm border border-blue-400/30' 
                                 : 'bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white rounded-[20px] rounded-bl-[6px] backdrop-blur-sm border border-white/50 dark:border-gray-700/50')
@@ -1011,13 +1015,13 @@ const Messages = () => {
                                 <img
                                   src={message.image.url}
                                   alt="Message attachment"
-                                  className="w-full h-auto cursor-pointer transition-transform duration-300 group-hover/img:scale-105"
+                                  className="w-full h-auto cursor-pointer transition-transform duration-200"
                                   onClick={() => window.open(message.image.url, '_blank')}
                                   style={{ maxHeight: '400px', objectFit: 'cover' }}
                                 />
                                 {/* Image overlay on hover */}
-                                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-all duration-300 flex items-center justify-center">
-                                  <svg className="w-8 h-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-all duration-200 flex items-center justify-center">
+                                  <svg className="w-8 h-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                                   </svg>
                                 </div>
