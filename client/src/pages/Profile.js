@@ -3,10 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, followUser, unfollowUser, uploadProfilePicture } from '../services/userService';
 import { getUserPosts, deletePost } from '../services/postService';
-import { toast } from 'react-toastify';
-import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2 } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2, FiMapPin, FiLink, FiCalendar } from 'react-icons/fi';
 import ProfilePhotoUpload from '../components/profile/ProfilePhotoUpload';
 import Avatar from '../components/common/Avatar';
+import ConfirmModal from '../components/common/ConfirmModal';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -18,8 +18,8 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
 
-  // Check if viewing own profile - compare as strings to handle both _id and id
   const isOwnProfile = currentUser && userId && (
     currentUser._id === userId || 
     currentUser.id === userId || 
@@ -30,28 +30,21 @@ const Profile = () => {
   useEffect(() => {
     loadProfile();
     loadPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadProfile = async () => {
     try {
       const response = await getUserProfile(userId);
-      console.log('Profile data:', response.data);
-      console.log('Profile picture:', response.data.profilePicture);
-      
-      // Fix local image URLs to include backend base URL
       const profile = response.data;
       if (profile.profilePicture && profile.profilePicture.startsWith('/uploads/')) {
         const apiUrl = process.env.REACT_APP_API_URL || 'https://radsi-backend.onrender.com/api';
         const baseUrl = apiUrl.replace('/api', '');
         profile.profilePicture = baseUrl + profile.profilePicture;
-        console.log('Fixed profile picture URL:', profile.profilePicture);
       }
-      
       setProfile(profile);
       setIsFollowing(profile.isFollowing || false);
     } catch (error) {
-      toast.error('Failed to load profile');
+      console.error('Failed to load profile:', error);
     } finally {
       setLoading(false);
     }
@@ -66,19 +59,22 @@ const Profile = () => {
     }
   };
 
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) {
-      return;
-    }
-
-    try {
-      await deletePost(postId);
-      setPosts(posts.filter(post => post._id !== postId));
-      setOpenDropdown(null);
-      toast.success('Post deleted successfully');
-    } catch (error) {
-      toast.error('Failed to delete post');
-    }
+  const handleDeletePost = (postId) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Post',
+      message: 'Are you sure you want to delete this post? This cannot be undone.',
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        try {
+          await deletePost(postId);
+          setPosts(posts.filter(post => post._id !== postId));
+          setOpenDropdown(null);
+        } catch (error) {
+          console.error('Failed to delete post:', error);
+        }
+      }
+    });
   };
 
   const handleFollow = async () => {
@@ -95,21 +91,11 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Follow error:', error);
-      console.error('Error response:', error.response?.data);
-      
-      // Handle "already following" error by syncing state
       if (error.response?.data?.message?.includes('Already following')) {
         setIsFollowing(true);
-        toast.info('You are already following this user');
       } else if (error.response?.data?.message?.includes('not following')) {
         setIsFollowing(false);
-        toast.info('You are not following this user');
-      } else {
-        const message = error.response?.data?.message || 'Failed to update follow status';
-        toast.error(message);
       }
-      
-      // Reload profile to sync state
       loadProfile();
     } finally {
       setFollowLoading(false);
@@ -123,70 +109,66 @@ const Profile = () => {
   const handlePhotoUpdate = async (formData) => {
     try {
       const response = await uploadProfilePicture(formData);
-      console.log('Upload response:', response);
-      
-      // Handle different response structures
       let newPhotoUrl = response.data?.profilePicture || response.profilePicture;
       
-      // If URL is relative (local storage), prepend API base URL
       if (newPhotoUrl && newPhotoUrl.startsWith('/uploads/')) {
         const apiUrl = process.env.REACT_APP_API_URL || 'https://radsi-backend.onrender.com/api';
         const baseUrl = apiUrl.replace('/api', '');
         newPhotoUrl = baseUrl + newPhotoUrl;
       }
       
-      console.log('New photo URL:', newPhotoUrl);
-      
       if (newPhotoUrl) {
-        // Update profile state with new photo
         setProfile({ ...profile, profilePicture: newPhotoUrl });
-        
-        // Refresh auth context to update navbar and other components
         await loadUser();
-        
-        // Reload profile to ensure fresh data
-        setTimeout(() => {
-          loadProfile();
-        }, 500);
+        setTimeout(() => { loadProfile(); }, 500);
       }
       
       return response;
     } catch (error) {
       console.error('Photo update error:', error);
-      console.error('Error response:', error.response?.data);
       throw error;
     }
   };
 
+  const getInitials = (user) => {
+    if (user.firstName && user.lastName) return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+    if (user.firstName) return user.firstName.charAt(0).toUpperCase();
+    if (user.username) return user.username.charAt(0).toUpperCase();
+    return 'U';
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-600 border-t-transparent"></div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">User not found</p>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="text-center">
+          <p className="text-gray-500 dark:text-gray-400 font-medium">User not found</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      {/* Profile Header Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 overflow-hidden animate-fadeInScale">
-        {/* Cover Photo */}
+    <>
+    <div className="max-w-3xl mx-auto px-4 py-6">
+      {/* Profile Header */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 mb-5 overflow-hidden">
+        {/* Cover */}
         <div 
-          className="h-56 bg-gradient-to-br from-github-blue via-purple-600 to-pink-600"
+          className="h-48 bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600"
           style={profile.coverPhoto ? { backgroundImage: `url(${profile.coverPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
         ></div>
         
-        <div className="px-6 pb-6">
-          {/* Profile Picture and Actions */}
-          <div className="flex items-end justify-between -mt-20 mb-4">
+        <div className="px-5 pb-5">
+          {/* Avatar & Actions */}
+          <div className="flex items-end justify-between -mt-16 mb-4">
             {isOwnProfile ? (
               <ProfilePhotoUpload 
                 key={profile.profilePicture}
@@ -194,27 +176,27 @@ const Profile = () => {
                 onPhotoUpdate={handlePhotoUpdate}
               />
             ) : (
-              <Avatar user={profile} size="2xl" clickable={false} showRing={false} className="border-4 border-white shadow-lg" />
+              <Avatar user={profile} size="2xl" clickable={false} showRing={false} className="border-4 border-white dark:border-gray-900 shadow-md" />
             )}
             
             {!isOwnProfile && (
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2 mb-1">
                 <button
                   onClick={handleFollow}
                   disabled={followLoading}
-                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all transform hover:scale-105 ${
+                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isFollowing
-                      ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                      : 'bg-primary-600 text-white hover:bg-primary-700 shadow-md'
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
                   } disabled:opacity-50`}
                 >
-                  {followLoading ? 'Loading...' : isFollowing ? 'Following' : 'Follow'}
+                  {followLoading ? '...' : isFollowing ? 'Following' : 'Follow'}
                 </button>
                 <button
                   onClick={handleMessage}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-all transform hover:scale-105"
+                  className="flex items-center gap-1.5 px-5 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <FiMail size={18} />
+                  <FiMail size={16} />
                   Message
                 </button>
               </div>
@@ -223,61 +205,61 @@ const Profile = () => {
             {isOwnProfile && (
               <button
                 onClick={() => navigate('/profile/edit')}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-all mb-2"
+                className="flex items-center gap-1.5 px-5 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mb-1"
               >
-                <FiSettings size={18} />
+                <FiSettings size={16} />
                 Edit Profile
               </button>
             )}
           </div>
 
           {/* User Info */}
-          <div className="mt-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+          <div className="mt-3">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {profile.firstName && profile.lastName
                 ? `${profile.firstName} ${profile.lastName}`
                 : profile.username}
             </h2>
-            <p className="text-gray-500 font-medium">@{profile.username}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">@{profile.username}</p>
             
             {profile.bio && (
-              <p className="mt-3 text-gray-700 leading-relaxed">{profile.bio}</p>
+              <p className="mt-3 text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed">{profile.bio}</p>
             )}
 
             {/* Stats */}
-            <div className="flex gap-8 mt-5 text-sm">
-              <div className="text-center transform hover:scale-110 transition-transform animate-fadeIn">
-                <div className="font-bold text-xl text-gray-900">{posts.length}</div>
-                <div className="text-gray-500">Posts</div>
+            <div className="flex gap-6 mt-4">
+              <div className="text-center">
+                <div className="font-bold text-lg text-gray-900 dark:text-white">{posts.length}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Posts</div>
               </div>
-              <div className="text-center cursor-pointer hover:text-primary-600 transition transform hover:scale-110 transition-transform animate-fadeIn delay-100">
-                <div className="font-bold text-xl text-gray-900">{profile.followersCount || 0}</div>
-                <div className="text-gray-500">Followers</div>
+              <div className="text-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                <div className="font-bold text-lg text-gray-900 dark:text-white">{profile.followersCount || 0}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Followers</div>
               </div>
-              <div className="text-center cursor-pointer hover:text-primary-600 transition transform hover:scale-110 transition-transform animate-fadeIn delay-200">
-                <div className="font-bold text-xl text-gray-900">{profile.followingCount || 0}</div>
-                <div className="text-gray-500">Following</div>
+              <div className="text-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                <div className="font-bold text-lg text-gray-900 dark:text-white">{profile.followingCount || 0}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Following</div>
               </div>
             </div>
 
-            {/* Additional Info */}
-            <div className="mt-4 text-sm text-gray-600 space-y-2">
+            {/* Meta Info */}
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
               {profile.location && (
-                <div className="flex items-center gap-2">
-                  <span>📍</span>
+                <div className="flex items-center gap-1.5">
+                  <FiMapPin size={14} className="text-gray-400 dark:text-gray-500" />
                   <span>{profile.location}</span>
                 </div>
               )}
               {profile.website && (
-                <div className="flex items-center gap-2">
-                  <span>🔗</span>
-                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
-                    {profile.website}
+                <div className="flex items-center gap-1.5">
+                  <FiLink size={14} className="text-gray-400 dark:text-gray-500" />
+                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                    {profile.website.replace(/^https?:\/\//, '')}
                   </a>
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <span>📅</span>
+              <div className="flex items-center gap-1.5">
+                <FiCalendar size={14} className="text-gray-400 dark:text-gray-500" />
                 <span>Joined {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
             </div>
@@ -287,37 +269,35 @@ const Profile = () => {
 
       {/* Posts Section */}
       <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-900 px-1">Posts</h3>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white px-1">Posts</h3>
         
         {posts.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200 animate-fadeIn">
-            <div className="text-gray-300 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
-            </div>
-            <p className="text-gray-500 font-medium">No posts yet</p>
-            <p className="text-sm text-gray-400 mt-1">When {isOwnProfile ? 'you post' : `${profile.username} posts`}, they'll appear here</p>
+          <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div className="text-4xl mb-3">📝</div>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">No posts yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              {isOwnProfile ? 'Share something with the world' : `${profile.username} hasn't posted yet`}
+            </p>
           </div>
         ) : (
-          posts.map((post, index) => (
-            <div key={post._id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all transform hover:scale-[1.02] animate-slideInFromBottom">
+          posts.map((post) => (
+            <div key={post._id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
               <div className="flex items-center justify-between p-4">
                 <Link to={`/profile/${profile._id}`} className="flex items-center gap-3">
                   {profile.profilePicture && !profile.profilePicture.includes('ui-avatars.com') ? (
                     <img
                       src={profile.profilePicture}
                       alt={profile.username}
-                      className="w-11 h-11 rounded-full ring-2 ring-gray-100 object-cover"
+                      className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 dark:ring-gray-700"
                     />
                   ) : (
-                    <div className={`w-11 h-11 rounded-full ring-2 ring-gray-100 flex items-center justify-center text-white text-lg font-bold ${getAvatarColor(profile.username)}`}>
+                    <div className="w-10 h-10 rounded-full ring-1 ring-gray-100 dark:ring-gray-700 flex items-center justify-center text-white text-sm font-bold bg-indigo-500">
                       {getInitials(profile)}
                     </div>
                   )}
                   <div>
-                    <h3 className="font-semibold text-gray-900">{profile.username}</h3>
-                    <p className="text-xs text-gray-500">
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white">{profile.username}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -326,23 +306,20 @@ const Profile = () => {
                   <div className="relative">
                     <button 
                       onClick={() => setOpenDropdown(openDropdown === post._id ? null : post._id)}
-                      className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
                     >
-                      <FiMoreHorizontal size={20} />
+                      <FiMoreHorizontal size={18} />
                     </button>
                     
                     {openDropdown === post._id && (
                       <>
-                        <div 
-                          className="fixed inset-0 z-10" 
-                          onClick={() => setOpenDropdown(null)}
-                        ></div>
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
+                        <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
                           <button
                             onClick={() => handleDeletePost(post._id)}
-                            className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition"
+                            className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition"
                           >
-                            <FiTrash2 size={16} />
+                            <FiTrash2 size={14} />
                             Delete Post
                           </button>
                         </div>
@@ -353,11 +330,11 @@ const Profile = () => {
               </div>
               
               <div className="px-4 pb-3">
-                <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                <p className="text-gray-800 dark:text-gray-200 text-[15px] leading-relaxed whitespace-pre-wrap">{post.content}</p>
               </div>
               
               {post.images && post.images.length > 0 && (
-                <div className="px-0">
+                <div>
                   <img
                     src={post.images[0].url}
                     alt="Post"
@@ -366,15 +343,15 @@ const Profile = () => {
                 </div>
               )}
               
-              <div className="px-4 py-3 border-t border-gray-100">
-                <div className="flex items-center gap-5">
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-red-500 transition group">
-                    <FiHeart className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                    <span className="text-sm font-medium">{post.likesCount || 0}</span>
+              <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-4">
+                  <button className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-red-500 transition text-sm">
+                    <FiHeart className="w-4 h-4" />
+                    <span className="font-medium">{post.likesCount || 0}</span>
                   </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition group">
-                    <FiMessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                    <span className="text-sm font-medium">{post.commentsCount || 0}</span>
+                  <button className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition text-sm">
+                    <FiMessageCircle className="w-4 h-4" />
+                    <span className="font-medium">{post.commentsCount || 0}</span>
                   </button>
                 </div>
               </div>
@@ -383,6 +360,17 @@ const Profile = () => {
         )}
       </div>
     </div>
+
+    <ConfirmModal
+      isOpen={confirmModal.isOpen}
+      title={confirmModal.title}
+      message={confirmModal.message}
+      variant="danger"
+      confirmText="Delete"
+      onConfirm={confirmModal.onConfirm}
+      onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+    />
+    </>
   );
 };
 

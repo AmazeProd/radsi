@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
-import { FiUser, FiLock, FiArrowRight } from 'react-icons/fi';
+import { FiUser, FiLock, FiArrowRight, FiAlertCircle } from 'react-icons/fi';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +12,7 @@ const Register = () => {
     lastName: '',
   });
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -27,9 +27,10 @@ const Register = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      setFormError('Passwords do not match');
       return;
     }
+    setFormError('');
 
     setLoading(true);
 
@@ -68,6 +69,12 @@ const Register = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6 animate-slideInFromBottom delay-300" onSubmit={handleSubmit}>
+          {formError && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+              <FiAlertCircle size={16} className="flex-shrink-0" />
+              {formError}
+            </div>
+          )}
           <div className="space-y-5">
             <div className="group">
               <label htmlFor="username" className="block text-sm font-semibold text-github-text mb-2">

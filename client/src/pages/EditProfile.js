@@ -31,32 +31,20 @@ const EditProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    // Clear error for this field when user starts typing
+    setFormData({ ...formData, [name]: value });
     if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: '',
-      });
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate website if provided
     if (formData.website && formData.website.trim()) {
       let websiteUrl = formData.website.trim();
-      
-      // Add https:// if no protocol is specified
       if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
         websiteUrl = 'https://' + websiteUrl;
       }
-      
-      // Basic URL validation
       try {
         new URL(websiteUrl);
       } catch {
@@ -64,22 +52,15 @@ const EditProfile = () => {
       }
     }
 
-    // Validate bio length
     if (formData.bio && formData.bio.length > 500) {
       newErrors.bio = 'Bio cannot exceed 500 characters';
     }
-
-    // Validate firstName length
     if (formData.firstName && formData.firstName.length > 50) {
       newErrors.firstName = 'First name cannot exceed 50 characters';
     }
-
-    // Validate lastName length
     if (formData.lastName && formData.lastName.length > 50) {
       newErrors.lastName = 'Last name cannot exceed 50 characters';
     }
-
-    // Validate location length
     if (formData.location && formData.location.length > 100) {
       newErrors.location = 'Location cannot exceed 100 characters';
     }
@@ -90,17 +71,12 @@ const EditProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate form
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
     setErrors({});
 
     try {
-      // Only send non-empty fields
       const dataToSend = {};
       Object.keys(formData).forEach(key => {
         if (formData[key] && formData[key].trim() !== '') {
@@ -108,13 +84,11 @@ const EditProfile = () => {
         }
       });
 
-      // Add https:// to website if needed
       if (dataToSend.website && !dataToSend.website.startsWith('http://') && !dataToSend.website.startsWith('https://')) {
         dataToSend.website = 'https://' + dataToSend.website;
       }
 
       const response = await updateProfile(dataToSend);
-      // Update user in context and localStorage
       updateUser(response.data);
       navigate(`/profile/${user.id || user._id}`);
     } catch (error) {
@@ -130,30 +104,34 @@ const EditProfile = () => {
     navigate(`/profile/${user.id || user._id}`);
   };
 
+  const inputClass = (field) => `block w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent transition placeholder-gray-400 dark:placeholder-gray-500 ${
+    errors[field] ? 'border-red-300 dark:border-red-700 focus:ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:ring-indigo-500'
+  }`;
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Profile</h2>
           <button
             onClick={handleCancel}
-            className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-full transition"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
           >
-            <FiX size={24} />
+            <FiX size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {errors.general && (
-            <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
-              <FiAlertCircle className="flex-shrink-0" size={20} />
+            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
+              <FiAlertCircle className="flex-shrink-0" size={16} />
               <p className="text-sm">{errors.general}</p>
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 First Name
               </label>
               <input
@@ -162,21 +140,19 @@ const EditProfile = () => {
                 type="text"
                 value={formData.firstName}
                 onChange={handleChange}
-                className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition ${
-                  errors.firstName ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary-500'
-                }`}
-                placeholder="Enter your first name"
+                className={inputClass('firstName')}
+                placeholder="First name"
               />
               {errors.firstName && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <FiAlertCircle size={14} />
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <FiAlertCircle size={12} />
                   {errors.firstName}
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Last Name
               </label>
               <input
@@ -185,14 +161,12 @@ const EditProfile = () => {
                 type="text"
                 value={formData.lastName}
                 onChange={handleChange}
-                className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition ${
-                  errors.lastName ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary-500'
-                }`}
-                placeholder="Enter your last name"
+                className={inputClass('lastName')}
+                placeholder="Last name"
               />
               {errors.lastName && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <FiAlertCircle size={14} />
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                  <FiAlertCircle size={12} />
                   {errors.lastName}
                 </p>
               )}
@@ -200,30 +174,28 @@ const EditProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="bio" className="block text-sm font-semibold text-gray-700 mb-2">
-              Bio {formData.bio && <span className="text-gray-500 text-xs">({formData.bio.length}/500)</span>}
+            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              Bio {formData.bio && <span className="text-gray-400 dark:text-gray-500 text-xs font-normal">({formData.bio.length}/500)</span>}
             </label>
             <textarea
               id="bio"
               name="bio"
-              rows="4"
+              rows="3"
               value={formData.bio}
               onChange={handleChange}
-              className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition resize-none ${
-                errors.bio ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary-500'
-              }`}
+              className={`${inputClass('bio')} resize-none`}
               placeholder="Tell us about yourself..."
             />
             {errors.bio && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <FiAlertCircle size={14} />
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                <FiAlertCircle size={12} />
                 {errors.bio}
               </p>
             )}
           </div>
 
           <div>
-            <label htmlFor="location" className="block text-sm font-semibold text-gray-700 mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Location
             </label>
             <input
@@ -232,21 +204,19 @@ const EditProfile = () => {
               type="text"
               value={formData.location}
               onChange={handleChange}
-              className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition ${
-                errors.location ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary-500'
-              }`}
+              className={inputClass('location')}
               placeholder="City, Country"
             />
             {errors.location && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <FiAlertCircle size={14} />
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                <FiAlertCircle size={12} />
                 {errors.location}
               </p>
             )}
           </div>
 
           <div>
-            <label htmlFor="website" className="block text-sm font-semibold text-gray-700 mb-2">
+            <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Website
             </label>
             <input
@@ -255,32 +225,30 @@ const EditProfile = () => {
               type="url"
               value={formData.website}
               onChange={handleChange}
-              className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:border-transparent transition ${
-                errors.website ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary-500'
-              }`}
+              className={inputClass('website')}
               placeholder="https://example.com"
             />
             {errors.website && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <FiAlertCircle size={14} />
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                <FiAlertCircle size={12} />
                 {errors.website}
               </p>
             )}
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 pt-3">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] shadow-lg"
+              className="flex-1 flex justify-center items-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <FiSave size={18} />
+              <FiSave size={16} />
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="px-8 py-3.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none transition-all"
+              className="px-6 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors"
             >
               Cancel
             </button>

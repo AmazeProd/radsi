@@ -11,8 +11,8 @@ import {
   deleteMessage 
 } from '../services/messageService';
 import { getUserProfile } from '../services/userService';
-import { toast } from 'react-toastify';
 import { debounce } from '../utils/performance';
+import ConfirmModal from '../components/common/ConfirmModal';
 import ConversationList from '../components/messages/ConversationList';
 import ChatWindow from '../components/messages/ChatWindow';
 import ChatInput from '../components/messages/ChatInput';
@@ -36,6 +36,7 @@ const ModernMessages = () => {
     return Math.max(280, Math.min(600, defaultWidth));
   });
   const [isResizing, setIsResizing] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, variant: 'danger' });
   
   // Refs
   const messagesCacheRef = useRef(new Map());
@@ -264,7 +265,7 @@ const ModernMessages = () => {
         await markAsRead(userId);
       }
     } catch (error) {
-      toast.error('Failed to load messages');
+      console.error('Failed to load messages:', error);
       setMessages([]);
     }
   };
@@ -329,7 +330,7 @@ const ModernMessages = () => {
       setMessages(prev => prev.filter(m => m._id !== tempId));
       setSelectedImage(imageToSend);
       setImagePreview(optimisticMessage.image?.url);
-      toast.error('Failed to send message');
+      console.error('Failed to send message:', error);
     }
   };
 
@@ -338,12 +339,10 @@ const ModernMessages = () => {
     if (!file) return;
 
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('Image size should be less than 50MB');
       return;
     }
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
       return;
     }
 
@@ -357,36 +356,45 @@ const ModernMessages = () => {
   };
 
   // Handle delete message with useCallback
-  const handleDeleteMessage = useCallback(async (messageId) => {
-    if (!window.confirm('Delete this message?')) return;
-
-    try {
-      await deleteMessage(messageId);
-      setMessages(prev => prev.filter(msg => msg._id !== messageId));
-      toast.success('Message deleted');
-    } catch (error) {
-      console.error('Failed to delete message:', error);
-      toast.error('Failed to delete message');
-    }
+  const handleDeleteMessage = useCallback((messageId) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Message',
+      message: 'Are you sure you want to delete this message?',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        try {
+          await deleteMessage(messageId);
+          setMessages(prev => prev.filter(msg => msg._id !== messageId));
+        } catch (error) {
+          console.error('Failed to delete message:', error);
+        }
+      }
+    });
   }, []);
 
   // Handle delete conversation with useCallback
-  const handleDeleteConversation = useCallback(async () => {
+  const handleDeleteConversation = useCallback(() => {
     if (!selectedUser) return;
     
-    if (!window.confirm(`Delete conversation with ${selectedUser.username}?`)) {
-      return;
-    }
-
-    try {
-      await deleteConversation(selectedUser._id);
-      toast.success('Conversation deleted');
-      setMessages([]);
-      setSelectedUser(null);
-      loadConversations();
-    } catch (error) {
-      toast.error('Failed to delete conversation');
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Conversation',
+      message: `Delete conversation with ${selectedUser.username}? This cannot be undone.`,
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        try {
+          await deleteConversation(selectedUser._id);
+          setMessages([]);
+          setSelectedUser(null);
+          loadConversations();
+        } catch (error) {
+          console.error('Failed to delete conversation:', error);
+        }
+      }
+    });
   }, [selectedUser]);
 
   // Debounced load conversations
@@ -407,6 +415,7 @@ const ModernMessages = () => {
   }
 
   return (
+    <>
     <div className="h-full bg-white dark:bg-gray-950 overflow-hidden">
       <div className={'h-full w-full mx-auto flex min-h-0 ' + (isResizing ? 'select-none' : '')}>
         {/* Conversation List */}
@@ -471,6 +480,18 @@ const ModernMessages = () => {
         </div>
       </div>
     </div>
+
+    {/* Confirm Modal */}
+    <ConfirmModal
+      isOpen={confirmModal.isOpen}
+      title={confirmModal.title}
+      message={confirmModal.message}
+      variant={confirmModal.variant}
+      confirmText="Delete"
+      onConfirm={confirmModal.onConfirm}
+      onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+    />
+    </>
   );
 };
 

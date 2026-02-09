@@ -4,7 +4,7 @@ import { FiMessageCircle, FiShare2, FiMoreHorizontal, FiTrash2, FiChevronLeft, F
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../common/Avatar';
 
-const REACTION_EMOJIS = ['❤️', '🔥', '👏', '😍', '💯', '🎉', '👍', '🙌'];
+const REACTION_EMOJIS = ['❤️', '🔥', '👏', '🤩', '💯', '🎉', '👍', '🫶'];
 
 const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, onPrevImage }) => {
   const { user } = useAuth();
@@ -20,30 +20,30 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
   const formatTime = (date) => {
     const now = new Date();
     const postDate = new Date(date);
-    const diff = Math.floor((now - postDate) / 1000); // seconds
+    const diff = Math.floor((now - postDate) / 1000);
 
     if (diff < 60) return 'just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
     return postDate.toLocaleDateString();
   };
 
   const userReaction = post.reactions?.find(r => r.user === user?._id || r.user?._id === user?._id);
 
   return (
-    <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 mb-4 overflow-hidden hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-900/20 transition-all duration-300">
-      {/* Post Header */}
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
+      {/* Header */}
       <div className="flex items-start justify-between p-4">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           <Avatar user={post.user} size="md" />
           <div>
-            <Link to={`/profile/${post.user?._id}`} className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+            <Link to={`/profile/${post.user?._id}`} className="font-semibold text-sm text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
               {post.user?.firstName && post.user?.lastName ? 
                 `${post.user.firstName} ${post.user.lastName}` : 
                 post.user?.username}
             </Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               @{post.user?.username} · {formatTime(post.createdAt)}
             </p>
           </div>
@@ -53,37 +53,40 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             >
               <FiMoreHorizontal className="w-5 h-5" />
             </button>
             
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-10">
-                <button
-                  onClick={() => {
-                    onDelete(post._id);
-                    setShowDropdown(false);
-                  }}
-                  className="flex items-center space-x-2 w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors rounded-lg"
-                >
-                  <FiTrash2 className="w-4 h-4" />
-                  <span>Delete Post</span>
-                </button>
-              </div>
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                  <button
+                    onClick={() => {
+                      onDelete(post._id);
+                      setShowDropdown(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <FiTrash2 className="w-4 h-4" />
+                    Delete Post
+                  </button>
+                </div>
+              </>
             )}
           </div>
         )}
       </div>
 
-      {/* Post Content */}
+      {/* Content */}
       <div className="px-4 pb-3">
-        <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
+        <p className="text-gray-800 dark:text-gray-200 text-[15px] whitespace-pre-wrap break-words leading-relaxed">
           {post.content}
         </p>
       </div>
 
-      {/* Post Images */}
+      {/* Images */}
       {post.images && post.images.length > 0 && (
         <div className="relative group">
           <img 
@@ -96,22 +99,22 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
             <>
               <button
                 onClick={() => onPrevImage(post._id, post.images.length)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm"
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm"
               >
-                <FiChevronLeft className="w-6 h-6" />
+                <FiChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={() => onNextImage(post._id, post.images.length)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm"
               >
-                <FiChevronRight className="w-6 h-6" />
+                <FiChevronRight className="w-5 h-5" />
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {post.images.map((_, idx) => (
                   <div 
                     key={idx} 
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      idx === currentIndex ? 'bg-white w-6' : 'bg-white/50'
+                    className={`h-1.5 rounded-full transition-all ${
+                      idx === currentIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'
                     }`}
                   />
                 ))}
@@ -123,17 +126,17 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
 
       {/* Reactions Display */}
       {post.reactions && post.reactions.length > 0 && (
-        <div className="px-4 py-2 flex flex-wrap gap-2">
+        <div className="px-4 py-2 flex flex-wrap gap-1.5">
           {Object.entries(post.reactionCounts || {})
             .filter(([_, count]) => count > 0)
             .sort((a, b) => b[1] - a[1])
             .map(([emoji, count]) => (
               <div
                 key={emoji}
-                className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700"
+                className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-full border border-gray-100 dark:border-gray-700 text-sm"
               >
-                <span className="text-lg">{emoji}</span>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span>{emoji}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300 text-xs">
                   {count}
                 </span>
               </div>
@@ -141,56 +144,59 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-        <div className="flex items-center space-x-1">
+      {/* Actions */}
+      <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+        <div className="flex items-center gap-1">
           <div className="relative">
             <button
               onClick={() => setShowReactions(!showReactions)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
                 userReaction
-                  ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
               }`}
             >
               {userReaction ? (
                 <>
-                  <span className="text-xl">{userReaction.type}</span>
-                  <span className="text-sm font-medium">Reacted</span>
+                  <span className="text-lg">{userReaction.type}</span>
+                  <span className="font-medium">Reacted</span>
                 </>
               ) : (
                 <>
-                  <span className="text-xl">😊</span>
-                  <span className="text-sm font-medium">React</span>
+                  <span className="text-lg">🙂</span>
+                  <span className="font-medium">React</span>
                 </>
               )}
             </button>
 
             {showReactions && (
-              <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-3 flex space-x-2 z-10 animate-scale-in">
-                {REACTION_EMOJIS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    onClick={() => handleReactionClick(emoji)}
-                    className="text-2xl hover:scale-125 transition-transform p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowReactions(false)} />
+                <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-2 flex gap-1 z-20">
+                  {REACTION_EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => handleReactionClick(emoji)}
+                      className="text-2xl hover:scale-125 transition-transform p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
 
-        <div className="flex items-center space-x-1">
-          <button className="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-all">
-            <FiMessageCircle className="w-5 h-5" />
-            <span className="text-sm font-medium">{post.commentsCount || 0}</span>
+        <div className="flex items-center gap-1">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm transition-all">
+            <FiMessageCircle className="w-4 h-4" />
+            <span className="font-medium">{post.commentsCount || 0}</span>
           </button>
 
-          <button className="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-all">
-            <FiShare2 className="w-5 h-5" />
-            <span className="text-sm font-medium">Share</span>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm transition-all">
+            <FiShare2 className="w-4 h-4" />
+            <span className="font-medium">Share</span>
           </button>
         </div>
       </div>

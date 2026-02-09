@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { searchUsers } from '../services/userService';
-import { toast } from 'react-toastify';
 import { FiSearch, FiClock, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 
@@ -27,14 +26,12 @@ const Search = () => {
   const { user: currentUser } = useAuth();
 
   useEffect(() => {
-    // Load recent searches from localStorage
     const saved = localStorage.getItem('recentSearches');
     if (saved) {
       setRecentSearches(JSON.parse(saved));
     }
   }, []);
 
-  // Update recent searches when currentUser changes (e.g., profile picture updated)
   useEffect(() => {
     if (currentUser) {
       const saved = localStorage.getItem('recentSearches');
@@ -52,12 +49,11 @@ const Search = () => {
   }, [currentUser?.profilePicture]);
 
   const saveToHistory = (user) => {
-    // Ensure we save the user with current profile picture
     const userToSave = { ...user };
     const newHistory = [
       userToSave,
       ...recentSearches.filter((u) => u._id !== user._id),
-    ].slice(0, 5); // Keep only 5 recent searches
+    ].slice(0, 5);
     
     setRecentSearches(newHistory);
     localStorage.setItem('recentSearches', JSON.stringify(newHistory));
@@ -66,16 +62,12 @@ const Search = () => {
   const clearHistory = () => {
     setRecentSearches([]);
     localStorage.removeItem('recentSearches');
-    toast.success('Search history cleared');
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     
-    if (!query.trim()) {
-      toast.error('Please enter a search term');
-      return;
-    }
+    if (!query.trim()) return;
 
     setLoading(true);
     setSearched(true);
@@ -84,7 +76,7 @@ const Search = () => {
       const response = await searchUsers(query);
       setUsers(response.data);
     } catch (error) {
-      toast.error('Failed to search users');
+      console.error('Failed to search users:', error);
     } finally {
       setLoading(false);
     }
@@ -99,24 +91,25 @@ const Search = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6">
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 mb-5">
         <form onSubmit={handleSearch}>
           <div className="flex gap-3">
             <div className="flex-1 relative">
-              <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <FiSearch className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
               <input
                 type="text"
-                placeholder="Search for people..."
+                placeholder="Search people..."
                 value={query}
                 onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500 transition"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="bg-primary-600 text-white px-8 py-3 rounded-xl hover:bg-primary-700 disabled:opacity-50 font-semibold transition-all transform hover:scale-105"
+              className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
@@ -124,59 +117,60 @@ const Search = () => {
         </form>
       </div>
 
+      {/* Loading */}
       {loading && (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-600 border-t-transparent"></div>
         </div>
       )}
 
+      {/* No Results */}
       {!loading && searched && users.length === 0 && (
-        <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200">
-          <div className="text-gray-300 mb-4">
-            <FiSearch size={64} className="mx-auto" />
-          </div>
-          <p className="text-gray-600 font-medium">No users found matching "{query}"</p>
-          <p className="text-sm text-gray-400 mt-1">Try searching with a different term</p>
+        <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+          <FiSearch size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+          <p className="text-gray-600 dark:text-gray-400 font-medium">No users found for "{query}"</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try a different search term</p>
         </div>
       )}
 
+      {/* Recent Searches */}
       {!searched && recentSearches.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <FiClock size={20} />
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <FiClock size={16} className="text-gray-400 dark:text-gray-500" />
               Recent Searches
             </h3>
             <button
               onClick={clearHistory}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 font-medium flex items-center gap-1 transition"
             >
-              <FiX size={16} />
-              Clear All
+              <FiX size={14} />
+              Clear
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {recentSearches.map((user) => (
               <Link
                 key={user._id}
                 to={`/profile/${user._id}`}
-                className="flex items-center p-3 hover:bg-gray-50 rounded-xl transition group"
+                className="flex items-center p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition group"
               >
                 {user.profilePicture && !user.profilePicture.includes('ui-avatars.com') ? (
                   <img
                     src={user.profilePicture}
                     alt={user.username}
-                    className="w-12 h-12 rounded-full mr-3 ring-2 ring-gray-100 group-hover:ring-primary-400 transition object-cover"
+                    className="w-10 h-10 rounded-full mr-3 ring-1 ring-gray-100 dark:ring-gray-700 object-cover"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full mr-3 ring-2 ring-gray-100 group-hover:ring-primary-400 transition flex items-center justify-center text-white text-lg font-bold bg-blue-500">
+                  <div className="w-10 h-10 rounded-full mr-3 ring-1 ring-gray-100 dark:ring-gray-700 flex items-center justify-center text-white text-sm font-bold bg-indigo-500">
                     {getInitials(user)}
                   </div>
                 )}
                 <div>
-                  <h4 className="font-semibold text-gray-900 group-hover:text-primary-600 transition">{user.username}</h4>
+                  <h4 className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">{user.username}</h4>
                   {(user.firstName || user.lastName) && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {user.firstName} {user.lastName}
                     </p>
                   )}
@@ -187,10 +181,11 @@ const Search = () => {
         </div>
       )}
 
+      {/* Search Results */}
       {!loading && users.length > 0 && (
         <div className="space-y-3">
           {users.map((user) => (
-            <div key={user._id} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all group">
+            <div key={user._id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-indigo-200 dark:hover:border-indigo-800 transition group">
               <Link 
                 to={`/profile/${user._id}`}
                 onClick={() => saveToHistory(user)}
@@ -200,26 +195,26 @@ const Search = () => {
                   <img
                     src={user.profilePicture}
                     alt={user.username}
-                    className="w-16 h-16 rounded-full mr-4 ring-2 ring-gray-100 group-hover:ring-primary-400 transition object-cover"
+                    className="w-12 h-12 rounded-full mr-3.5 ring-1 ring-gray-100 dark:ring-gray-700 object-cover"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full mr-4 ring-2 ring-gray-100 group-hover:ring-primary-400 transition flex items-center justify-center text-white text-2xl font-bold bg-blue-500">
+                  <div className="w-12 h-12 rounded-full mr-3.5 ring-1 ring-gray-100 dark:ring-gray-700 flex items-center justify-center text-white text-lg font-bold bg-indigo-500">
                     {getInitials(user)}
                   </div>
                 )}
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900 group-hover:text-primary-600 transition">{user.username}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">{user.username}</h3>
                   {(user.firstName || user.lastName) && (
-                    <p className="text-gray-600">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {user.firstName} {user.lastName}
                     </p>
                   )}
                   {user.bio && (
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{user.bio}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-1">{user.bio}</p>
                   )}
-                  <div className="flex gap-5 mt-2 text-sm">
-                    <span className="text-gray-600"><span className="font-semibold text-gray-900">{user.followersCount || 0}</span> followers</span>
-                    <span className="text-gray-600"><span className="font-semibold text-gray-900">{user.followingCount || 0}</span> following</span>
+                  <div className="flex gap-4 mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    <span><span className="font-semibold text-gray-700 dark:text-gray-300">{user.followersCount || 0}</span> followers</span>
+                    <span><span className="font-semibold text-gray-700 dark:text-gray-300">{user.followingCount || 0}</span> following</span>
                   </div>
                 </div>
               </Link>

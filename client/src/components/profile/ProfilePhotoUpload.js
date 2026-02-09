@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { FiCamera, FiX, FiCheck } from 'react-icons/fi';
-import { toast } from 'react-toastify';
 
 const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,13 +25,11 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
       return;
     }
 
     // Validate file size (max 50MB)
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('Image size should be less than 50MB');
       return;
     }
 
@@ -94,14 +91,13 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
       const response = await onPhotoUpdate(formData);
       console.log('Upload complete:', response);
       
-      toast.success('Profile photo updated successfully!');
       setIsModalOpen(false);
       setImageSrc(null);
     } catch (error) {
       console.error('Error uploading photo:', error);
       console.error('Error details:', error.response?.data);
       const errorMsg = error.response?.data?.message || error.message || 'Failed to upload photo';
-      toast.error(errorMsg);
+      console.error('Upload failed:', errorMsg);
     } finally {
       setUploading(false);
     }

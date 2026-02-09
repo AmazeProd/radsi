@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost, deletePost } from '../services/postService';
 import { addReaction, removeReaction } from '../services/reactionService';
-import { toast } from 'react-toastify';
 import { FiImage, FiSmile, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
 import PostCard from '../components/posts/PostCard';
 import CelebrationPost from '../components/posts/CelebrationPost';
+import ConfirmModal from '../components/common/ConfirmModal';
 
 const getInitials = (user) => {
   if (user.firstName && user.firstName.trim() && user.lastName && user.lastName.trim()) {
@@ -23,7 +23,7 @@ const getInitials = (user) => {
 };
 
 const getAvatarColor = (str) => {
-  return 'bg-blue-500';
+  return 'bg-indigo-500';
 };
 
 const Feed = () => {
@@ -35,38 +35,42 @@ const Feed = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState({}); // Track current image index for each post
+  const [currentImageIndex, setCurrentImageIndex] = useState({});
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
+  const [inlineError, setInlineError] = useState('');
   const fileInputRef = useRef(null);
   
-  // Common emojis for quick access
-  const commonEmojis = ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🎉', '🔥', '✨', '💯', '🙌', '👏', '🎊', '💪', '🌟', '😊', '🤗', '😅'];
+  // Better emojis
+  const commonEmojis = ['😄', '😂', '🥹', '😍', '🤩', '😎', '🫡', '🤭', '👍', '❤️', '🔥', '✨', '💯', '🙌', '👏', '🎊', '💪', '🌟', '😊', '🫶'];
 
   useEffect(() => {
     loadPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (openDropdown && !event.target.closest('.dropdown-container')) {
         setOpenDropdown(null);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openDropdown]);
 
+  useEffect(() => {
+    if (inlineError) {
+      const timer = setTimeout(() => setInlineError(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [inlineError]);
+
   const loadPosts = useCallback(async () => {
     try {
       const response = await getPosts(1);
-      console.log('Full response:', response);
-      console.log('Loaded posts:', response.data.map(p => ({ id: p._id, isLiked: p.isLiked, likesCount: p.likesCount })));
       setPosts(response.data);
     } catch (error) {
-      toast.error('Failed to load posts');
+      console.error('Failed to load posts:', error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +78,7 @@ const Feed = () => {
 
   const handleCreatePost = async () => {
     if (!postContent.trim() && selectedImages.length === 0) {
-      toast.error('Post must contain text or images');
+      setInlineError('Add some text or an image to post');
       return;
     }
 
@@ -82,28 +86,19 @@ const Feed = () => {
     try {
       const formData = new FormData();
       formData.append('content', postContent);
-      
-      // Append all selected images
       selectedImages.forEach((image) => {
         formData.append('images', image);
       });
 
-      console.log('Creating post with:');
-      console.log('- Content:', postContent);
-      console.log('- Images:', selectedImages);
-      console.log('- FormData entries:', Array.from(formData.entries()));
-
       const response = await createPost(formData);
-      console.log('Post created:', response);
       setPosts([response.data, ...posts]);
       setPostContent('');
       setSelectedImages([]);
       setImagePreviews([]);
       setShowEmojiPicker(false);
-      toast.success('Post created successfully!');
     } catch (error) {
       console.error('Failed to create post:', error);
-      toast.error(error.response?.data?.message || 'Failed to create post');
+      setInlineError(error.response?.data?.message || 'Failed to create post');
     } finally {
       setPosting(false);
     }
@@ -119,33 +114,27 @@ const Feed = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    
     if (files.length === 0) return;
     
-    // Limit to 4 images
     if (selectedImages.length + files.length > 4) {
-      toast.error('You can only upload up to 4 images per post');
-      e.target.value = ''; // Reset input
+      setInlineError('Maximum 4 images per post');
+      e.target.value = '';
       return;
     }
     
-    // Validate files
     const validFiles = [];
     const previews = [];
     
     for (const file of files) {
       if (file.size > 50 * 1024 * 1024) {
-        toast.error(`${file.name} is too large. Maximum size is 50MB`);
+        setInlineError(`${file.name} is too large (max 50MB)`);
         continue;
       }
       if (!file.type.startsWith('image/')) {
-        toast.error(`${file.name} is not an image file`);
         continue;
       }
       
       validFiles.push(file);
-      
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         previews.push(e.target.result);
@@ -157,7 +146,7 @@ const Feed = () => {
     }
     
     setSelectedImages([...selectedImages, ...validFiles]);
-    e.target.value = ''; // Reset input to allow re-selecting same files
+    e.target.value = '';
   };
 
   const removeImage = (index) => {
@@ -179,20 +168,22 @@ const Feed = () => {
     }));
   };
 
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) {
-      return;
-    }
-
-    try {
-      await deletePost(postId);
-      setPosts(posts.filter(post => post._id !== postId));
-      toast.success('Post deleted successfully');
-      setOpenDropdown(null);
-    } catch (error) {
-      console.error('Failed to delete post:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete post');
-    }
+  const handleDeletePost = (postId) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Post',
+      message: 'Are you sure you want to delete this post? This cannot be undone.',
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        try {
+          await deletePost(postId);
+          setPosts(posts.filter(post => post._id !== postId));
+          setOpenDropdown(null);
+        } catch (error) {
+          console.error('Failed to delete post:', error);
+        }
+      }
+    });
   };
 
   const handleKeyPress = (e) => {
@@ -202,23 +193,19 @@ const Feed = () => {
   };
 
   const handleReaction = async (postId, emoji) => {
-    // Find if user already reacted
     const post = posts.find(p => p._id === postId);
     const userReaction = post?.reactions?.find(r => r.user === user?._id || r.user?._id === user?._id);
     
-    // Optimistically update UI
     setPosts(prevPosts => prevPosts.map(p => {
       if (p._id === postId) {
         let newReactions = [...(p.reactions || [])];
         let newReactionCounts = { ...(p.reactionCounts || {}) };
         
         if (userReaction) {
-          // Remove old reaction
           newReactions = newReactions.filter(r => (r.user !== user._id && r.user?._id !== user._id));
           newReactionCounts[userReaction.type] = Math.max(0, (newReactionCounts[userReaction.type] || 0) - 1);
         }
         
-        // Add new reaction
         newReactions.push({ user: user._id, type: emoji, createdAt: new Date() });
         newReactionCounts[emoji] = (newReactionCounts[emoji] || 0) + 1;
         
@@ -229,21 +216,16 @@ const Feed = () => {
 
     try {
       const response = await addReaction(postId, emoji);
-      // Update with server response
       setPosts(prevPosts => prevPosts.map(p => 
         p._id === postId ? { ...p, ...response.data } : p
       ));
-      toast.success(`Reacted with ${emoji}`);
     } catch (error) {
       console.error('Reaction error:', error);
-      toast.error('Failed to add reaction');
-      // Revert on error
       loadPosts();
     }
   };
 
   const handleLike = async (postId, isLiked) => {
-    // Optimistically update UI first
     setPosts(prevPosts => prevPosts.map(post => {
       if (post._id === postId) {
         return {
@@ -258,19 +240,16 @@ const Feed = () => {
     try {
       if (isLiked) {
         const response = await unlikePost(postId);
-        // Update with server response
         setPosts(prevPosts => prevPosts.map(post => 
           post._id === postId ? { ...post, ...response.data } : post
         ));
       } else {
         const response = await likePost(postId);
-        // Update with server response
         setPosts(prevPosts => prevPosts.map(post => 
           post._id === postId ? { ...post, ...response.data } : post
         ));
       }
     } catch (error) {
-      // Revert on error
       setPosts(prevPosts => prevPosts.map(post => {
         if (post._id === postId) {
           return {
@@ -282,40 +261,48 @@ const Feed = () => {
         return post;
       }));
       console.error('Like error:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || 'Failed to update like');
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-950">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-600 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
+    <>
     <div className="max-w-2xl mx-auto px-4 py-6 min-h-screen">
-      {/* Create Post Card */}
-      <div className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 mb-4 hover:shadow-md transition-all">
+      {/* Create Post */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 mb-5">
         <textarea
-          className="w-full p-3 border-0 resize-none focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent"
+          className="w-full p-3 border-0 resize-none focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent text-[15px]"
           rows="3"
-          placeholder="What's happening?"
+          placeholder="What's on your mind?"
           value={postContent}
           onChange={(e) => setPostContent(e.target.value)}
           onKeyDown={handleKeyPress}
         ></textarea>
         
-        {/* Emoji Picker */}
+        {inlineError && (
+          <div className="mx-1 mb-3 px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400 flex items-center justify-between">
+            <span>{inlineError}</span>
+            <button onClick={() => setInlineError('')} className="ml-2 hover:text-red-800 dark:hover:text-red-300">
+              <FiX className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        
         {showEmojiPicker && (
-          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+            <div className="flex flex-wrap gap-1.5">
               {commonEmojis.map((emoji, index) => (
                 <button
                   key={index}
                   onClick={() => handleEmojiClick(emoji)}
-                  className="text-2xl hover:scale-125 transition-transform p-1"
+                  className="text-2xl hover:scale-110 transition-transform p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                   type="button"
                 >
                   {emoji}
@@ -325,30 +312,29 @@ const Feed = () => {
           </div>
         )}
         
-        {/* Image Previews */}
         {imagePreviews.length > 0 && (
           <div className="mb-3 grid grid-cols-2 gap-2">
             {imagePreviews.map((preview, index) => (
-              <div key={index} className="relative group">
+              <div key={index} className="relative group rounded-lg overflow-hidden">
                 <img 
                   src={preview} 
                   alt={`Preview ${index + 1}`} 
-                  className="w-full h-40 object-cover rounded-lg"
+                  className="w-full h-40 object-cover"
                 />
                 <button
                   onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
                   type="button"
                 >
-                  <FiX className="w-4 h-4" />
+                  <FiX className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}
           </div>
         )}
         
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex gap-1">
             <input
               type="file"
               ref={fileInputRef}
@@ -359,7 +345,7 @@ const Feed = () => {
             />
             <button
               onClick={handleImageClick}
-              className="text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 p-2 rounded-full transition"
+              className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 p-2.5 rounded-lg transition"
               type="button"
               title="Add images"
             >
@@ -367,7 +353,7 @@ const Feed = () => {
             </button>
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 p-2 rounded-full transition"
+              className={`p-2.5 rounded-lg transition ${showEmojiPicker ? 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-900/20' : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}`}
               type="button"
               title="Add emoji"
             >
@@ -377,15 +363,22 @@ const Feed = () => {
           <button 
             onClick={handleCreatePost}
             disabled={posting || (!postContent.trim() && selectedImages.length === 0)}
-            className="bg-primary-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {posting ? 'Posting...' : 'Post'}
           </button>
         </div>
       </div>
 
-      {/* Posts Feed */}
+      {/* Posts */}
       <div className="space-y-4">
+        {posts.length === 0 && (
+          <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div className="text-4xl mb-3">📝</div>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">No posts yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Be the first to share something</p>
+          </div>
+        )}
         {posts.map((post) => (
           post.isCelebration ? (
             <CelebrationPost
@@ -407,6 +400,17 @@ const Feed = () => {
         ))}
       </div>
     </div>
+
+    <ConfirmModal
+      isOpen={confirmModal.isOpen}
+      title={confirmModal.title}
+      message={confirmModal.message}
+      variant="danger"
+      confirmText="Delete"
+      onConfirm={confirmModal.onConfirm}
+      onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+    />
+    </>
   );
 };
 

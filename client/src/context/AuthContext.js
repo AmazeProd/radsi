@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getCurrentUser, login as loginService, register as registerService } from '../services/authService';
-import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -57,12 +56,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setIsAuthenticated(true);
-      toast.success('Login successful!');
       return response;
     } catch (error) {
       console.error('Login error:', error);
       const message = error.response?.data?.message || error.message || 'Login failed';
-      toast.error(message);
       throw error;
     }
   };
@@ -78,7 +75,6 @@ export const AuthProvider = ({ children }) => {
       return response;
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed';
-      toast.error(message);
       throw error;
     }
   };
