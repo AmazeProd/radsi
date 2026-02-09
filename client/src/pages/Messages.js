@@ -968,7 +968,6 @@ const Messages = () => {
                 className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y max-w-full"
                 style={{
                   minHeight: 0,
-                  height: 'auto',
                   background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                   backgroundImage: `
                     ${chatThemes.find(t => t.id === chatTheme)?.background.replace('linear-gradient', 'linear-gradient').replace(/\)$/, ', 0.9)')},
