@@ -767,8 +767,8 @@ const Messages = () => {
                 const isSelected = selectedUser?._id === otherUser._id;
                 const hasUnread = conversation.unreadCount > 0;
                 const lastMessageTime = conversation.lastMessage?.createdAt;
-                const baseClasses = "px-5 py-4 cursor-pointer hover:bg-white/8 transition-all duration-200 border-b border-[var(--surface-border)]/50 group";
-                const selectedClasses = isSelected ? " bg-gradient-to-r from-[var(--accent)]/10 to-transparent border-l-2 border-l-[var(--accent)]" : "";
+                const baseClasses = "px-5 py-4 cursor-pointer hover:bg-gradient-to-r hover:from-[var(--accent)]/5 hover:to-transparent transition-all duration-300 border-b border-[var(--surface-border)]/30 group relative overflow-hidden";
+                const selectedClasses = isSelected ? " bg-gradient-to-r from-[var(--accent)]/15 via-[var(--accent)]/8 to-transparent border-l-4 border-l-[var(--accent)] shadow-lg" : "";
                 
                 return (
                   <div
@@ -776,33 +776,76 @@ const Messages = () => {
                     onClick={() => handleSelectUser(conversation)}
                     onContextMenu={(e) => handleConversationRightClick(e, conversation)}
                     className={baseClasses + selectedClasses}
+                    style={isSelected ? { backdropFilter: 'blur(8px)' } : {}}
                   >
                     <div className="flex items-start gap-3.5">
-                      <div className="relative flex-shrink-0">
+                      {/* Shimmer effect background for selected item */}
+                      {isSelected && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" 
+                             style={{ 
+                               backgroundSize: '200% 100%',
+                               animation: 'shimmer 3s infinite linear'
+                             }}
+                        />
+                      )}
+                      
+                      <div className="relative flex-shrink-0 z-10">
                         {otherUser.profilePicture && !otherUser.profilePicture.includes('ui-avatars.com') ? (
-                          <img
-                            src={otherUser.profilePicture}
-                            alt={otherUser.username}
-                            className="w-14 h-14 rounded-full object-cover ring-2 ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/30 transition-all"
-                          />
+                          <div className="relative">
+                            <img
+                              src={otherUser.profilePicture}
+                              alt={otherUser.username}
+                              className={"w-14 h-14 rounded-full object-cover ring-2 transition-all duration-300 " 
+                                + (isSelected 
+                                  ? "ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-canvas)] shadow-lg" 
+                                  : "ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/40 group-hover:scale-105"
+                                )}
+                            />
+                            {/* Glowing effect for selected */}
+                            {isSelected && (
+                              <div className="absolute inset-0 rounded-full bg-[var(--accent)] opacity-20 blur-md animate-pulse" />
+                            )}
+                          </div>
                         ) : (
-                          <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-base font-bold bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] ring-2 ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/50 transition-all shadow-lg">
-                            {getInitials(otherUser)}
+                          <div className="relative">
+                            <div className={"w-14 h-14 rounded-full flex items-center justify-center text-white text-base font-bold transition-all duration-300 "
+                              + (isSelected
+                                ? "bg-gradient-to-br from-[var(--accent)] via-[var(--accent-strong)] to-purple-600 ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-canvas)] shadow-lg scale-105"
+                                : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] ring-2 ring-[var(--surface-border)] group-hover:ring-[var(--accent)]/50 group-hover:scale-105 shadow-md"
+                              )}
+                            >
+                              {getInitials(otherUser)}
+                            </div>
+                            {isSelected && (
+                              <div className="absolute inset-0 rounded-full bg-[var(--accent)] opacity-20 blur-lg animate-pulse" />
+                            )}
                           </div>
                         )}
+                        {/* Online Status Badge */}
                         {(onlineUsers.includes(otherUser._id) || otherUser.isOnline) && (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-[var(--bg-canvas)] shadow-lg">
-                            <div className="w-full h-full rounded-full bg-green-400 animate-ping opacity-75"></div>
+                          <div className="absolute -bottom-0.5 -right-0.5 z-20">
+                            <div className="relative w-4 h-4 bg-green-500 rounded-full border-2 border-[var(--bg-canvas)] shadow-lg">
+                              <div className="absolute inset-0 w-full h-full rounded-full bg-green-400 animate-ping opacity-75"></div>
+                            </div>
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex-1 min-w-0 pt-0.5 relative z-10">
                         <div className="flex items-baseline justify-between gap-2 mb-1">
-                          <h3 className={"font-semibold truncate " + (hasUnread ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]/90")}>
+                          <h3 className={"font-semibold truncate transition-colors duration-200 " 
+                            + (hasUnread 
+                              ? "text-[var(--text-primary)] font-bold" 
+                              : isSelected 
+                                ? "text-[var(--accent)]"
+                                : "text-[var(--text-primary)]/90"
+                            )}
+                          >
                             {otherUser.username}
                           </h3>
                           {lastMessageTime && (
-                            <span className="text-xs text-[var(--text-muted)] flex-shrink-0 font-medium">
+                            <span className={"text-xs flex-shrink-0 font-medium transition-colors duration-200 "
+                              + (hasUnread ? "text-[var(--accent)] font-bold" : "text-[var(--text-muted)]")}
+                            >
                               {new Date(lastMessageTime).toLocaleDateString() === new Date().toLocaleDateString()
                                 ? new Date(lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                 : new Date(lastMessageTime).toLocaleDateString([], { month: 'short', day: 'numeric' })}
@@ -811,14 +854,23 @@ const Messages = () => {
                         </div>
                         <div className="flex items-center justify-between gap-2">
                           {conversation.lastMessage && (
-                            <p className={"text-sm truncate " + (hasUnread ? "text-[var(--text-primary)] font-medium" : "text-[var(--text-muted)]")}>
+                            <p className={"text-sm truncate transition-colors duration-200 " 
+                              + (hasUnread 
+                                ? "text-[var(--text-primary)] font-semibold" 
+                                : "text-[var(--text-muted)]"
+                              )}
+                            >
                               {conversation.lastMessage.content || '📷 Photo'}
                             </p>
                           )}
                           {hasUnread && (
-                            <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 bg-[var(--accent)] text-[#07101f] rounded-full text-xs font-bold flex items-center justify-center">
-                              {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
-                            </span>
+                            <div className="flex-shrink-0 relative">
+                              <span className="min-w-[22px] h-[22px] px-2 bg-gradient-to-br from-[var(--accent)] via-[var(--accent-strong)] to-purple-600 text-white rounded-full text-xs font-bold flex items-center justify-center shadow-lg animate-bounce-subtle ring-2 ring-[var(--accent)]/30">
+                                {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                              </span>
+                              {/* Pulse ring effect */}
+                              <span className="absolute inset-0 rounded-full bg-[var(--accent)] opacity-30 blur-sm animate-pulse" />
+                            </div>
                           )}
                         </div>
                       </div>
@@ -986,39 +1038,122 @@ const Messages = () => {
                   messages.map((message, index) => {
                     const senderId = message.sender?._id || message.sender;
                     const isSent = senderId === user._id || senderId === user.id;
+                    const isRead = message.read;
+                    const showAvatar = !isSent && (index === 0 || messages[index - 1]?.sender?._id !== message.sender?._id);
                     
                     return (
                       <div
                         key={message._id}
-                        className={'flex ' + (isSent ? 'justify-end' : 'justify-start') + ' animate-fadeIn group'}
+                        className={'flex items-end gap-2 ' + (isSent ? 'justify-end' : 'justify-start') + ' animate-fadeIn group'}
                         onContextMenu={(e) => handleMessageRightClick(e, message)}
                       >
-                        <div className="relative max-w-[85%] sm:max-w-[70%]">
-                          <div
-                            className={'overflow-hidden select-none transition-shadow cursor-pointer bg-[#182533] text-white rounded-tl-lg rounded-tr-lg rounded-br-lg'}
-                          >
-                            {message.image && (
-                              <img
-                                src={message.image.url}
-                                alt="Message attachment"
-                                className="w-full h-auto cursor-pointer hover:opacity-90 transition rounded-t-lg"
-                                onClick={() => window.open(message.image.url, '_blank')}
-                              />
+                        {/* Avatar for received messages */}
+                        {!isSent && (
+                          <div className="w-8 h-8 flex-shrink-0" style={{ opacity: showAvatar ? 1 : 0 }}>
+                            {showAvatar && (
+                              selectedUser.profilePicture && !selectedUser.profilePicture.includes('ui-avatars.com') ? (
+                                <img
+                                  src={selectedUser.profilePicture}
+                                  alt={selectedUser.username}
+                                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-gradient-to-br from-blue-400 to-blue-600 ring-2 ring-white/20">
+                                  {getInitials(selectedUser)}
+                                </div>
+                              )
                             )}
-                            {message.content && (
-                              <p className={'break-words select-text text-sm leading-relaxed ' + (message.image ? 'px-3 pt-2 pb-1' : 'px-3 py-2')}>{message.content}</p>
-                            )}
-                            <div className="flex items-center justify-end gap-2 text-xs px-3 pb-2 text-gray-400">
-                              <span>
-                                {new Date(message.createdAt).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true
-                              })}
-                            </span>
                           </div>
+                        )}
+                        
+                        <div className="relative max-w-[75%] sm:max-w-[65%]">
+                          {/* Message Bubble */}
+                          <div
+                            className={
+                              'overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] '
+                              + (isSent 
+                                ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-[20px] rounded-br-[6px] backdrop-blur-sm border border-blue-400/30' 
+                                : 'bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white rounded-[20px] rounded-bl-[6px] backdrop-blur-sm border border-white/50 dark:border-gray-700/50')
+                            }
+                            style={{
+                              boxShadow: isSent 
+                                ? '0 4px 12px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255,255,255,0.1) inset'
+                                : '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }}
+                          >
+                            {/* Image Message */}
+                            {message.image && (
+                              <div className="relative overflow-hidden rounded-t-[20px] group/img">
+                                <img
+                                  src={message.image.url}
+                                  alt="Message attachment"
+                                  className="w-full h-auto cursor-pointer transition-transform duration-300 group-hover/img:scale-105"
+                                  onClick={() => window.open(message.image.url, '_blank')}
+                                  style={{ maxHeight: '400px', objectFit: 'cover' }}
+                                />
+                                {/* Image overlay on hover */}
+                                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                                  <svg className="w-8 h-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                  </svg>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Text Content */}
+                            {message.content && (
+                              <p className={
+                                'break-words select-text text-[15px] leading-relaxed font-normal '
+                                + (message.image ? 'px-4 pt-3 pb-2' : 'px-4 py-3')
+                                + (isSent ? ' text-white' : ' text-gray-800 dark:text-gray-100')
+                              }>
+                                {message.content}
+                              </p>
+                            )}
+                            
+                            {/* Timestamp & Status */}
+                            <div className={'flex items-center gap-1.5 text-[11px] px-4 pb-2 ' + (isSent ? 'justify-end text-blue-100' : 'justify-end text-gray-500 dark:text-gray-400')}>
+                              <span className="font-medium">
+                                {new Date(message.createdAt).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })}
+                              </span>
+                              {isSent && (
+                                <div className="flex items-center">
+                                  {isRead ? (
+                                    <svg className="w-4 h-4 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                      <path fillRule="evenodd" d="M14.707 5.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L8 10.586l5.293-5.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-3.5 h-3.5 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Delete button - shown on hover */}
+                          {isSent && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteMessage(message._id);
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600 hover:scale-110 shadow-lg"
+                              title="Delete message"
+                            >
+                              <FiTrash2 size={12} />
+                            </button>
+                          )}
                         </div>
-                      </div>
+                        
+                        {/* Spacer for sent messages */}
+                        {isSent && <div className="w-8" />}
                       </div>
                     );
                   })
@@ -1026,19 +1161,19 @@ const Messages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-[var(--surface-border)] bg-transparent backdrop-blur-md flex-shrink-0 transition-colors z-20">
+              <form onSubmit={handleSendMessage} className="px-4 py-4 border-t border-[var(--surface-border)] bg-[#0e1621]/95 backdrop-blur-lg flex-shrink-0 transition-colors z-20 shadow-lg">
                 {/* Image Preview */}
                 {imagePreview && (
-                  <div className="mb-3 relative inline-block">
+                  <div className="mb-3 relative inline-block animate-fadeIn">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-32 h-32 object-cover rounded-xl shadow-md border-2 border-white dark:border-gray-800"
+                      className="w-32 h-32 object-cover rounded-2xl shadow-xl border-2 border-blue-400/50 ring-2 ring-blue-500/20"
                     />
                     <button
                       onClick={removeImage}
                       type="button"
-                      className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition"
+                      className="absolute -top-2 -right-2 bg-gradient-to-br from-red-500 to-red-600 text-white p-2 rounded-full hover:scale-110 transition-transform shadow-xl"
                     >
                       <FiX size={16} />
                     </button>
@@ -1047,13 +1182,13 @@ const Messages = () => {
                 
                 {/* Emoji Picker */}
                 {showEmojiPicker && (
-                  <div className="mb-3 p-3 bg-[var(--bg-soft)] rounded-lg border border-[var(--surface-border)] transition-colors">
-                    <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 sm:max-h-40 overflow-y-auto">
+                  <div className="mb-3 p-4 bg-[var(--bg-elevated)]/95 rounded-xl border border-[var(--surface-border)] transition-colors shadow-lg backdrop-blur-sm animate-fadeIn">
+                    <div className="flex flex-wrap gap-2 max-h-32 sm:max-h-40 overflow-y-auto custom-scrollbar">
                       {commonEmojis.map((emoji, index) => (
                         <button
                           key={index}
                           onClick={() => handleEmojiClick(emoji)}
-                          className="text-xl sm:text-2xl hover:scale-125 transition-transform p-1"
+                          className="text-2xl hover:scale-125 transition-transform p-2 rounded-lg hover:bg-white/5"
                           type="button"
                         >
                           {emoji}
@@ -1063,7 +1198,7 @@ const Messages = () => {
                   </div>
                 )}
                 
-                <div className="flex gap-2 sm:gap-3">
+                <div className="flex gap-2 sm:gap-3 items-center">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -1071,38 +1206,49 @@ const Messages = () => {
                     onChange={handleImageSelect}
                     className="hidden"
                   />
+                  
+                  {/* Image Upload Button */}
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--accent)] p-2 rounded-lg transition flex-shrink-0"
+                    className="text-[var(--text-muted)] hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-purple-500/10 hover:text-[var(--accent)] p-2.5 rounded-xl transition-all duration-300 flex-shrink-0 group border border-transparent hover:border-[var(--accent)]/30"
                     title="Attach image"
                   >
-                    <FiImage className="w-5 h-5" />
+                    <FiImage className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   </button>
+                  
+                  {/* Emoji Button */}
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={(showEmojiPicker ? 'bg-white/8 text-[var(--accent)]' : 'text-[var(--text-muted)]') + ' hover:bg-white/5 hover:text-[var(--accent)] p-2 rounded-lg transition flex-shrink-0'}
+                    className={(showEmojiPicker 
+                        ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20 text-[var(--accent)] border-[var(--accent)]/30' 
+                        : 'text-[var(--text-muted)] border-transparent'
+                      ) + ' hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-purple-500/10 hover:text-[var(--accent)] p-2.5 rounded-xl transition-all duration-300 flex-shrink-0 group border hover:border-[var(--accent)]/30'}
                     title="Add emoji"
                   >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </button>
+                  
+                  {/* Message Input */}
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2 border-0 bg-[var(--bg-soft)] text-[var(--text-primary)] placeholder-[var(--text-muted)] rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)] text-sm transition-colors"
+                    className="flex-1 px-5 py-3 border-0 bg-[var(--bg-soft)] text-[var(--text-primary)] placeholder-[var(--text-muted)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 text-sm transition-all shadow-inner"
                   />
+                  
+                  {/* Send Button */}
                   <button
                     type="submit"
                     disabled={!newMessage.trim() && !selectedImage}
-                    className="pill-button p-2.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                    className="bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 hover:from-blue-600 hover:via-blue-700 hover:to-purple-700 text-white p-3 rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center shadow-lg disabled:shadow-none hover:shadow-xl hover:scale-105 active:scale-95 group"
                     onMouseDown={(e) => e.preventDefault()}
                   >
-                    <FiSend className="w-5 h-5" />
+                    <FiSend className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </button>
                 </div>
               </form>
