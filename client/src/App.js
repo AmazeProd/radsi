@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './components/messages/ModernMessages.css';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -24,6 +25,7 @@ const EditProfile = lazy(() => import('./pages/EditProfile'));
 const Feed = lazy(() => import('./pages/Feed'));
 const Post = lazy(() => import('./pages/Post'));
 const Messages = lazy(() => import('./pages/Messages'));
+const ModernMessages = lazy(() => import('./pages/ModernMessages'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const Search = lazy(() => import('./pages/Search'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -124,12 +126,21 @@ function App() {
                 path="/messages"
                 element={
                   <PrivateRoute>
-                    <Messages />
+                    <ModernMessages />
                   </PrivateRoute>
                 }
               />
               <Route
                 path="/messages/:userId"
+                element={
+                  <PrivateRoute>
+                    <ModernMessages />
+                  </PrivateRoute>
+                }
+              />
+              {/* Old Messages UI (backup) */}
+              <Route
+                path="/messages-old"
                 element={
                   <PrivateRoute>
                     <Messages />
