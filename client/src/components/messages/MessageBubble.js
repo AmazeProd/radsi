@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { FiCheck, FiCheckCircle, FiTrash2, FiCopy, FiDownload } from 'react-icons/fi';
 
-const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, currentUser }) => {
+const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, currentUser, skipAnimation }) => {
   const [showActions, setShowActions] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -35,10 +35,10 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      initial={skipAnimation ? false : { opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+      transition={skipAnimation ? { duration: 0 } : { duration: 0.15, ease: "easeOut" }}
       className={`flex items-end gap-2 group ${isSent ? 'justify-end' : 'justify-start'}`}
       onContextMenu={handleContextMenu}
     >

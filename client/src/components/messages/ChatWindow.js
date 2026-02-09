@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef, memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiArrowLeft, 
@@ -26,6 +26,7 @@ const ChatWindow = memo(({
   const messagesContainerRef = useRef(null);
   const isInitialLoad = useRef(true);
   const prevSelectedUserRef = useRef(null);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   useEffect(() => {
     // Instant scroll on user change, smooth scroll on new messages
@@ -34,7 +35,12 @@ const ChatWindow = memo(({
     if (userChanged) {
       prevSelectedUserRef.current = selectedUser?._id;
       isInitialLoad.current = true;
-      scrollToBottom(true); // Instant scroll
+      setInitialLoadDone(false);
+      // Instant scroll then mark initial load done after a tick
+      scrollToBottom(true);
+      requestAnimationFrame(() => {
+        setInitialLoadDone(true);
+      });
     } else if (messages.length > 0) {
       scrollToBottom(false); // Smooth scroll for new messages
     }
@@ -220,7 +226,7 @@ const ChatWindow = memo(({
             </p>
           </motion.div>
         ) : (
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence initial={false}>
             {messages.map((message, index) => {
               const senderId = message.sender?._id || message.sender;
               const isSent = senderId === currentUser._id || senderId === currentUser.id;
@@ -233,6 +239,7 @@ const ChatWindow = memo(({
                   isRead={message.isRead || message.read}
                   onDelete={onDeleteMessage}
                   currentUser={currentUser}
+                  skipAnimation={!initialLoadDone}
                 />
               );
             })}
