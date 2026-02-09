@@ -850,20 +850,18 @@ const Messages = () => {
             </div>
           </div>
 
-          {/* Resizable Divider */}
-          {selectedUser && (
-            <div
-              className="hidden md:block w-1 bg-[var(--surface-border)] hover:bg-[var(--accent)] cursor-col-resize transition-colors relative group"
-              onMouseDown={handleMouseDown}
-            >
-              <div className="absolute inset-0 w-4 -mx-1.5" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 rounded-full p-1">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                </svg>
-              </div>
+          {/* Resizable Divider - Always visible on desktop */}
+          <div
+            className="hidden md:block w-1 bg-[var(--surface-border)] hover:bg-[var(--accent)] cursor-col-resize transition-colors relative group flex-shrink-0"
+            onMouseDown={handleMouseDown}
+          >
+            <div className="absolute inset-0 w-4 -mx-1.5" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 rounded-full p-1.5">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+              </svg>
             </div>
-          )}
+          </div>
 
         {/* Messages Area */}
         <div 

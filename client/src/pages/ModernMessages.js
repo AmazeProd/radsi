@@ -31,10 +31,46 @@ const ModernMessages = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isTabVisible, setIsTabVisible] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const defaultWidth = Math.floor(window.innerWidth * 0.3);
+    return Math.max(280, Math.min(600, defaultWidth));
+  });
+  const [isResizing, setIsResizing] = useState(false);
   
   // Refs
   const messagesCacheRef = useRef(new Map());
   const prevSelectedUserRef = useRef(null);
+
+  // Handle resizing sidebar
+  const handleMouseDown = (e) => {
+    setIsResizing(true);
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing) return;
+      
+      const newWidth = e.clientX;
+      if (newWidth >= 280 && newWidth <= 600) {
+        setSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   // Track tab visibility
   useEffect(() => {
@@ -369,13 +405,18 @@ const ModernMessages = () => {
 
   return (
     <div className="h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
-      <div className="h-full w-full mx-auto flex">
+      <div className={'h-full w-full mx-auto flex ' + (isResizing ? 'select-none' : '')}>
         {/* Conversation List */}
         <div 
           className={`
             ${selectedUser ? 'hidden md:flex' : 'flex'} 
-            w-full md:w-96 flex-shrink-0 border-r border-gray-200 dark:border-gray-800
+            flex-shrink-0 border-r border-gray-200 dark:border-gray-800
           `}
+          style={{
+            width: window.innerWidth < 768 ? '100%' : `${sidebarWidth}px`,
+            minWidth: window.innerWidth < 768 ? '100%' : '280px',
+            maxWidth: window.innerWidth < 768 ? '100%' : '600px'
+          }}
         >
           <ConversationList
             conversations={conversations}
@@ -386,6 +427,19 @@ const ModernMessages = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
+        </div>
+
+        {/* Resizable Divider */}
+        <div
+          className="hidden md:block w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 cursor-col-resize transition-colors relative group flex-shrink-0"
+          onMouseDown={handleMouseDown}
+        >
+          <div className="absolute inset-0 w-4 -mx-1.5" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 rounded-full p-1.5">
+            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+            </svg>
+          </div>
         </div>
 
         {/* Chat Window */}
