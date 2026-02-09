@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiSend, 
@@ -9,7 +9,7 @@ import {
   FiPaperclip 
 } from 'react-icons/fi';
 
-const ChatInput = ({ 
+const ChatInput = memo(({ 
   onSendMessage, 
   onImageSelect, 
   selectedImage, 
@@ -222,6 +222,6 @@ const ChatInput = ({
       </form>
     </div>
   );
-};
+});
 
 export default ChatInput;

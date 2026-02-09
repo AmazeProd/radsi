@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Avatar from '../common/Avatar';
 import { FiMail, FiSearch, FiMoreVertical } from 'react-icons/fi';
 
-const ConversationList = ({ 
+const ConversationList = React.memo(({ 
   conversations, 
   selectedUser, 
   onSelectUser, 
@@ -85,7 +85,7 @@ const ConversationList = ({
             </p>
           </motion.div>
         ) : (
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {filteredConversations.map((conversation, index) => {
               const otherUser = conversation.participants?.find(p => p._id !== currentUser._id);
               if (!otherUser) return null;
@@ -97,14 +97,14 @@ const ConversationList = ({
               return (
                 <motion.div
                   key={conversation._id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ delay: index * 0.05 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
                   onClick={() => onSelectUser(conversation)}
                   onContextMenu={(e) => onContextMenu(e, conversation)}
                   className={`
-                    relative px-6 py-4 cursor-pointer transition-all duration-300
+                    relative px-6 py-4 cursor-pointer transition-all duration-150
                     ${isSelected 
                       ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border-l-4 border-l-blue-600' 
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
@@ -113,11 +113,7 @@ const ConversationList = ({
                 >
                   {/* Selection Indicator */}
                   {isSelected && (
-                    <motion.div
-                      layoutId="selectedConversation"
-                      className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5" />
                   )}
 
                   <div className="relative flex items-start gap-4">
@@ -187,6 +183,6 @@ const ConversationList = ({
       </div>
     </div>
   );
-};
+});
 
 export default ConversationList;

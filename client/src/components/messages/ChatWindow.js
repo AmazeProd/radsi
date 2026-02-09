@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiArrowLeft, 
@@ -11,7 +11,7 @@ import {
 import Avatar from '../common/Avatar';
 import MessageBubble from './MessageBubble';
 
-const ChatWindow = ({ 
+const ChatWindow = memo(({ 
   selectedUser, 
   messages, 
   onBack, 
@@ -24,13 +24,36 @@ const ChatWindow = ({
 }) => {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const isInitialLoad = useRef(true);
+  const prevSelectedUserRef = useRef(null);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Instant scroll on user change, smooth scroll on new messages
+    const userChanged = prevSelectedUserRef.current !== selectedUser?._id;
+    
+    if (userChanged) {
+      prevSelectedUserRef.current = selectedUser?._id;
+      isInitialLoad.current = true;
+      scrollToBottom(true); // Instant scroll
+    } else if (messages.length > 0) {
+      scrollToBottom(false); // Smooth scroll for new messages
+    }
+  }, [messages, selectedUser?._id]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  const scrollToBottom = (instant = false) => {
+    requestAnimationFrame(() => {
+      if (messagesContainerRef.current && isInitialLoad.current) {
+        // Instant scroll to bottom for initial load
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        isInitialLoad.current = false;
+      } else {
+        // Smooth scroll for new messages
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: instant ? 'auto' : 'smooth', 
+          block: 'end' 
+        });
+      }
+    });
   };
 
   const formatLastSeen = (lastSeenTime) => {
@@ -197,7 +220,7 @@ const ChatWindow = ({
             </p>
           </motion.div>
         ) : (
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {messages.map((message, index) => {
               const senderId = message.sender?._id || message.sender;
               const isSent = senderId === currentUser._id || senderId === currentUser.id;
@@ -219,6 +242,6 @@ const ChatWindow = ({
       </div>
     </div>
   );
-};
+});
 
 export default ChatWindow;

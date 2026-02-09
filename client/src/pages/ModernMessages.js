@@ -194,13 +194,15 @@ const ModernMessages = () => {
     }
   };
 
-  // Load messages
+  // Load messages with instant display and scroll
   const loadMessages = async (userId, skipCache = false) => {
     try {
+      // Check cache for instant display
       if (!skipCache && messagesCacheRef.current.has(userId)) {
         const cachedMessages = messagesCacheRef.current.get(userId);
         setMessages(cachedMessages);
         
+        // Background refresh without blocking UI
         getMessages(userId).then(response => {
           const freshMessages = response.data || [];
           if (JSON.stringify(freshMessages) !== JSON.stringify(cachedMessages)) {
@@ -215,7 +217,7 @@ const ModernMessages = () => {
         return;
       }
       
-      setMessages([]);
+      // No cache - fetch fresh
       const response = await getMessages(userId);
       const fetchedMessages = response.data || [];
       
@@ -231,8 +233,8 @@ const ModernMessages = () => {
     }
   };
 
-  // Handle select user
-  const handleSelectUser = (conversation) => {
+  // Handle select user with useCallback
+  const handleSelectUser = useCallback((conversation) => {
     const otherUser = conversation.participants.find(p => p._id !== user._id);
     
     const userWithStatus = {
@@ -251,7 +253,7 @@ const ModernMessages = () => {
         );
       }, 100);
     }
-  };
+  }, [user._id, onlineUsers, userStatus, isTabVisible]);
 
   // Handle send message
   const handleSendMessage = async (messageText) => {
@@ -318,22 +320,22 @@ const ModernMessages = () => {
     reader.readAsDataURL(file);
   };
 
-  // Handle delete message
-  const handleDeleteMessage = async (messageId) => {
+  // Handle delete message with useCallback
+  const handleDeleteMessage = useCallback(async (messageId) => {
     if (!window.confirm('Delete this message?')) return;
 
     try {
       await deleteMessage(messageId);
-      setMessages(messages.filter(msg => msg._id !== messageId));
+      setMessages(prev => prev.filter(msg => msg._id !== messageId));
       toast.success('Message deleted');
     } catch (error) {
       console.error('Failed to delete message:', error);
       toast.error('Failed to delete message');
     }
-  };
+  }, []);
 
-  // Handle delete conversation
-  const handleDeleteConversation = async () => {
+  // Handle delete conversation with useCallback
+  const handleDeleteConversation = useCallback(async () => {
     if (!selectedUser) return;
     
     if (!window.confirm(`Delete conversation with ${selectedUser.username}?`)) {
@@ -349,7 +351,7 @@ const ModernMessages = () => {
     } catch (error) {
       toast.error('Failed to delete conversation');
     }
-  };
+  }, [selectedUser]);
 
   // Debounced load conversations
   const debouncedLoadConversations = useCallback(

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { FiCheck, FiCheckCircle, FiTrash2, FiCopy, FiDownload } from 'react-icons/fi';
 
-const MessageBubble = ({ message, isSent, isRead, onDelete, onCopy, currentUser }) => {
+const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, currentUser }) => {
   const [showActions, setShowActions] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -35,19 +35,18 @@ const MessageBubble = ({ message, isSent, isRead, onDelete, onCopy, currentUser 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
       className={`flex items-end gap-2 group ${isSent ? 'justify-end' : 'justify-start'}`}
       onContextMenu={handleContextMenu}
     >
       <div className={`relative max-w-[75%] sm:max-w-[65%] ${isSent ? 'order-2' : 'order-1'}`}>
         {/* Message Bubble */}
-        <motion.div
-          whileHover={{ scale: 1.02 }}
+        <div
           className={`
-            relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300
+            relative overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200
             ${isSent 
               ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 text-white rounded-[20px] rounded-br-md' 
               : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-[20px] rounded-bl-md border border-gray-200 dark:border-gray-700'
@@ -115,7 +114,7 @@ const MessageBubble = ({ message, isSent, isRead, onDelete, onCopy, currentUser 
               </motion.div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Actions */}
         <motion.div
@@ -152,6 +151,6 @@ const MessageBubble = ({ message, isSent, isRead, onDelete, onCopy, currentUser 
       </div>
     </motion.div>
   );
-};
+});
 
 export default MessageBubble;
