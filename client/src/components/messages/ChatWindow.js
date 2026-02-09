@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useLayoutEffect, memo, useState, useMemo } from 'react';
+import React, { useEffect, useRef, memo, useState, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { 
   FiArrowLeft, 
@@ -25,34 +25,28 @@ const ChatWindow = memo(({
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const prevSelectedUserRef = useRef(null);
+  const prevMsgCountRef = useRef(0);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
 
-  // Synchronous scroll after DOM updates — prevents visible scroll-from-top
-  useLayoutEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-    }
+  // Reset animation flag when switching users
+  useEffect(() => {
+    prevSelectedUserRef.current = selectedUser?._id;
+    setInitialLoadDone(false);
+    prevMsgCountRef.current = 0;
+    // After messages render, enable animations for future messages
+    const timer = requestAnimationFrame(() => setInitialLoadDone(true));
+    return () => cancelAnimationFrame(timer);
   }, [selectedUser?._id]);
 
-  useLayoutEffect(() => {
-    if (!messages.length) return;
-    const userChanged = prevSelectedUserRef.current !== selectedUser?._id;
-    
-    if (userChanged) {
-      prevSelectedUserRef.current = selectedUser?._id;
-      setInitialLoadDone(false);
-      // Instant scroll
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-      }
-      // Allow animations for subsequent messages after this frame
-      requestAnimationFrame(() => setInitialLoadDone(true));
-    } else if (initialLoadDone) {
-      // Smooth scroll for new messages only
+  // Smooth scroll only for NEW messages after initial load
+  useEffect(() => {
+    if (!initialLoadDone) return;
+    if (messages.length > prevMsgCountRef.current && prevMsgCountRef.current > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
-  }, [messages, selectedUser?._id]);
+    prevMsgCountRef.current = messages.length;
+  }, [messages.length, initialLoadDone]);
 
   // Close header menu on outside click
   useEffect(() => {
@@ -204,10 +198,10 @@ const ChatWindow = memo(({
         </div>
       </div>
 
-      {/* Messages Area */}
+      {/* Messages Area — column-reverse anchors scroll to bottom natively */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden msg-scrollbar"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden msg-scrollbar flex flex-col-reverse"
       >
         <div className="px-4 sm:px-6 py-4 space-y-1 max-w-3xl mx-auto w-full">
           {isLoading ? (
