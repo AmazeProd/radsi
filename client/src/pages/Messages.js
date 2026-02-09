@@ -21,9 +21,7 @@ const formatTime = (date) => {
 
 const formatLastSeen = (lastSeen) => {
   if (!lastSeen) return 'Offline';
-  const now = new Date();
-  const lastSeenDate = new Date(lastSeen);
-  const diffMins = Math.floor((now - lastSeenDate) / 60000);
+  const diffMins = Math.floor((Date.now() - new Date(lastSeen)) / 60000);
   const diffHours = Math.floor(diffMins / 60);
   
   if (diffMins < 1) return 'just now';
@@ -51,9 +49,7 @@ const Messages = () => {
   const messagesCacheRef = useRef(new Map());
 
   const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
   const loadConversations = useCallback(async () => {
@@ -84,7 +80,6 @@ const Messages = () => {
       messagesCacheRef.current.set(userId, fetchedMessages);
       setMessages(fetchedMessages);
       setTimeout(scrollToBottom, 100);
-      
       await markAsRead(userId);
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -265,9 +260,12 @@ const Messages = () => {
   }
 
   return (
-    <div className="fixed inset-0 flex bg-gray-50 dark:bg-gray-900">
+    <div className="flex bg-gray-50 dark:bg-gray-900" style={{ height: '100vh' }}>
       {/* Conversations Sidebar */}
-      <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800`}>
+      <div 
+        className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800`}
+        style={{ height: '100vh' }}
+      >
         <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Messages</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -275,7 +273,7 @@ const Messages = () => {
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="overflow-y-scroll" style={{ height: 'calc(100vh - 80px)' }}>
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
               <FiMail className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
@@ -340,11 +338,11 @@ const Messages = () => {
       </div>
 
       {/* Chat Area */}
-      <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-w-0`}>
+      <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
         {selectedUser ? (
           <>
             {/* Header */}
-            <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between">
+            <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between" style={{ height: '64px' }}>
               <div className="flex items-center gap-3 min-w-0">
                 <button onClick={() => setSelectedUser(null)} className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                   <FiArrowLeft className="w-5 h-5" />
@@ -371,8 +369,12 @@ const Messages = () => {
               </button>
             </div>
 
-            {/* Messages */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
+            {/* Messages - EXPLICIT HEIGHT */}
+            <div 
+              ref={messagesContainerRef}
+              className="overflow-y-scroll p-4 space-y-4 bg-gray-50 dark:bg-gray-900"
+              style={{ height: imagePreview ? 'calc(100vh - 64px - 180px)' : 'calc(100vh - 64px - 80px)' }}
+            >
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-gray-400">No messages yet</p>
@@ -409,7 +411,7 @@ const Messages = () => {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSendMessage} className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
               {imagePreview && (
                 <div className="mb-3 relative inline-block">
                   <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border-2 border-blue-500" />
@@ -419,7 +421,7 @@ const Messages = () => {
                 </div>
               )}
 
-              <div className="flex gap-2">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
                 <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition" title="Attach image">
                   <FiImage className="w-5 h-5" />
@@ -428,8 +430,8 @@ const Messages = () => {
                 <button type="submit" disabled={!newMessage.trim() && !selectedImage} className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <FiSend className="w-5 h-5" />
                 </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
