@@ -404,8 +404,8 @@ const ModernMessages = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
-      <div className={'h-full w-full mx-auto flex ' + (isResizing ? 'select-none' : '')}>
+    <div className="h-full bg-gradient-to-br from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 overflow-hidden">
+      <div className={'h-full w-full mx-auto flex min-h-0 ' + (isResizing ? 'select-none' : '')}>
         {/* Conversation List */}
         <div 
           className={`
@@ -443,7 +443,7 @@ const ModernMessages = () => {
         </div>
 
         {/* Chat Window */}
-        <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex flex-col min-w-0`}>
+        <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden`}>
           <ChatWindow
             selectedUser={selectedUser}
             messages={messages}

@@ -99,7 +99,7 @@ const ChatWindow = memo(({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       {/* Chat Header */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
@@ -185,7 +185,7 @@ const ChatWindow = memo(({
       {/* Messages Area */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4 space-y-4 custom-scrollbar max-w-full"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4 space-y-4 custom-scrollbar max-w-full"
         style={{
           backgroundImage: `
             radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
