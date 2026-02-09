@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useLayoutEffect, memo, useState, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { 
   FiArrowLeft, 
@@ -24,49 +24,43 @@ const ChatWindow = memo(({
 }) => {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
-  const isInitialLoad = useRef(true);
   const prevSelectedUserRef = useRef(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
 
-  useEffect(() => {
+  // Synchronous scroll after DOM updates — prevents visible scroll-from-top
+  useLayoutEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [selectedUser?._id]);
+
+  useLayoutEffect(() => {
+    if (!messages.length) return;
     const userChanged = prevSelectedUserRef.current !== selectedUser?._id;
     
     if (userChanged) {
       prevSelectedUserRef.current = selectedUser?._id;
-      isInitialLoad.current = true;
       setInitialLoadDone(false);
-      setShowHeaderMenu(false);
-      scrollToBottom(true);
-      requestAnimationFrame(() => {
-        setInitialLoadDone(true);
-      });
-    } else if (messages.length > 0) {
-      scrollToBottom(false);
+      // Instant scroll
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
+      // Allow animations for subsequent messages after this frame
+      requestAnimationFrame(() => setInitialLoadDone(true));
+    } else if (initialLoadDone) {
+      // Smooth scroll for new messages only
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [messages, selectedUser?._id]);
 
-  // Close menu on click outside
+  // Close header menu on outside click
   useEffect(() => {
     if (!showHeaderMenu) return;
     const close = () => setShowHeaderMenu(false);
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
   }, [showHeaderMenu]);
-
-  const scrollToBottom = (instant = false) => {
-    requestAnimationFrame(() => {
-      if (messagesContainerRef.current && isInitialLoad.current) {
-        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-        isInitialLoad.current = false;
-      } else {
-        messagesEndRef.current?.scrollIntoView({ 
-          behavior: instant ? 'auto' : 'smooth', 
-          block: 'end' 
-        });
-      }
-    });
-  };
 
   const formatLastSeen = (lastSeenTime) => {
     if (!lastSeenTime) return 'Offline';
