@@ -874,7 +874,7 @@ const Messages = () => {
           {selectedUser ? (
             <>
               {/* Sticky Chat Header */}
-              <div className="px-4 sm:px-6 py-4 border-b border-gray-700/50 flex items-center justify-between bg-[#0e1621]/95 backdrop-blur-sm flex-shrink-0 sticky top-0 z-20 overflow-hidden">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-700/50 flex items-center justify-between bg-[#0e1621]/95 backdrop-blur-sm flex-shrink-0 z-20 overflow-hidden">
                 <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
                   {/* Back Button - Mobile Only */}
                   <button
