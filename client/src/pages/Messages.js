@@ -726,9 +726,9 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-[var(--bg-canvas)] transition-colors overflow-hidden">
-      <div className="h-full w-full max-w-full overflow-hidden">
-        <div className={"panel-surface h-full flex overflow-hidden transition-colors " + (isResizing ? 'select-none' : '')}>
+    <div className="h-screen bg-[var(--bg-canvas)] transition-colors overflow-hidden flex flex-col">
+      <div className="flex-1 w-full max-w-full overflow-hidden flex">
+        <div className={"panel-surface flex-1 flex overflow-hidden transition-colors " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
             className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-transparent transition-colors flex-shrink-0 md:relative backdrop-blur-md overflow-hidden'}
@@ -865,7 +865,7 @@ const Messages = () => {
 
         {/* Messages Area */}
         <div 
-          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative min-w-0'}
+          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative min-w-0 h-full'}
           style={{
             backgroundColor: '#0e1621',
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
