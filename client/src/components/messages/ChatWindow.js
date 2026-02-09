@@ -104,7 +104,7 @@ const ChatWindow = memo(({
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex items-center justify-between"
+        className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl flex items-center justify-between overflow-hidden"
       >
         <div className="flex items-center gap-4 flex-1 min-w-0">
           {/* Back Button - Mobile */}
@@ -118,7 +118,7 @@ const ChatWindow = memo(({
           </motion.button>
 
           {/* User Info */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
             <div className="relative">
               <Avatar user={selectedUser} size="md" clickable={false} />
               {isOnline && (
@@ -185,7 +185,7 @@ const ChatWindow = memo(({
       {/* Messages Area */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto px-6 py-4 space-y-4 custom-scrollbar"
+        className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4 space-y-4 custom-scrollbar max-w-full"
         style={{
           backgroundImage: `
             radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),

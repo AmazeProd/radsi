@@ -726,12 +726,12 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-[var(--bg-canvas)] transition-colors">
-      <div className="h-full w-full">
+    <div className="h-screen bg-[var(--bg-canvas)] transition-colors overflow-hidden">
+      <div className="h-full w-full max-w-full overflow-hidden">
         <div className={"panel-surface h-full flex overflow-hidden transition-colors " + (isResizing ? 'select-none' : '')}>
           {/* Conversations List */}
           <div 
-            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-transparent transition-colors flex-shrink-0 md:relative backdrop-blur-md'}
+            className={(selectedUser ? 'hidden md:flex' : 'flex') + ' border-r border-[var(--surface-border)] flex-col bg-transparent transition-colors flex-shrink-0 md:relative backdrop-blur-md overflow-hidden'}
             style={{ 
               width: window.innerWidth < 768 ? '100%' : (selectedUser ? `${sidebarWidth}px` : `${sidebarWidth}px`),
               minWidth: window.innerWidth < 768 ? '100%' : '280px',
@@ -865,7 +865,7 @@ const Messages = () => {
 
         {/* Messages Area */}
         <div 
-          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative'}
+          className={(selectedUser ? 'flex' : 'hidden md:flex') + ' flex-1 flex-col overflow-hidden relative min-w-0'}
           style={{
             backgroundColor: '#0e1621',
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -874,8 +874,8 @@ const Messages = () => {
           {selectedUser ? (
             <>
               {/* Sticky Chat Header */}
-              <div className="px-6 py-4 border-b border-gray-700/50 flex items-center justify-between bg-[#0e1621]/95 backdrop-blur-sm flex-shrink-0 sticky top-0 z-20">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-700/50 flex items-center justify-between bg-[#0e1621]/95 backdrop-blur-sm flex-shrink-0 sticky top-0 z-20 overflow-hidden">
+                <div className="flex items-center gap-3 flex-1 min-w-0 overflow-hidden">
                   {/* Back Button - Mobile Only */}
                   <button
                     onClick={() => setSelectedUser(null)}
@@ -886,7 +886,7 @@ const Messages = () => {
                     </svg>
                   </button>
                   <Avatar user={selectedUser} size="sm" clickable={false} />
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <h3 className="font-semibold text-[var(--text-primary)] truncate text-base">{selectedUser.username}</h3>
                     {onlineUsers.includes(selectedUser._id) ? (
                       <p className="text-xs text-[var(--accent-strong)] flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span>Online</p>
@@ -899,7 +899,7 @@ const Messages = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => setShowThemeSelector(!showThemeSelector)}
                     className="text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-white/5 p-2 rounded-lg transition"
@@ -965,7 +965,7 @@ const Messages = () => {
               {/* Messages List */}
               <div 
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y" 
+                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-3 sm:p-4 space-y-3 touch-action-pan-y max-w-full" 
                 style={{
                 background: chatThemes.find(t => t.id === chatTheme)?.background || chatThemes[0].background,
                 backgroundImage: `
@@ -989,14 +989,14 @@ const Messages = () => {
                     return (
                       <div
                         key={message._id}
-                        className={'flex items-end gap-2 ' + (isSent ? 'justify-end' : 'justify-start') + ' group'}
+                        className={'flex items-end gap-2 ' + (isSent ? 'justify-end' : 'justify-start') + ' group max-w-full'}
                         onContextMenu={(e) => handleMessageRightClick(e, message)}
                       >
-                        <div className="relative max-w-[75%] sm:max-w-[65%]">
+                        <div className="relative max-w-[85%] sm:max-w-[75%] md:max-w-[65%] break-words">
                           {/* Message Bubble */}
                           <div
                             className={
-                              'overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer '
+                              'overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer max-w-full '
                               + (isSent 
                                 ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-[20px] rounded-br-[6px] backdrop-blur-sm border border-blue-400/30' 
                                 : 'bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white rounded-[20px] rounded-bl-[6px] backdrop-blur-sm border border-white/50 dark:border-gray-700/50')
@@ -1029,7 +1029,7 @@ const Messages = () => {
                             {/* Text Content */}
                             {message.content && (
                               <p className={
-                                'break-words select-text text-[15px] leading-relaxed font-normal '
+                                'break-words overflow-wrap-anywhere select-text text-[15px] leading-relaxed font-normal '
                                 + (message.image ? 'px-4 pt-3 pb-2' : 'px-4 py-3')
                                 + (isSent ? ' text-white' : ' text-gray-800 dark:text-gray-100')
                               }>

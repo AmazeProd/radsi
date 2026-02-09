@@ -42,11 +42,11 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
       className={`flex items-end gap-2 group ${isSent ? 'justify-end' : 'justify-start'}`}
       onContextMenu={handleContextMenu}
     >
-      <div className={`relative max-w-[75%] sm:max-w-[65%] ${isSent ? 'order-2' : 'order-1'}`}>
+      <div className={`relative max-w-[85%] sm:max-w-[75%] md:max-w-[65%] ${isSent ? 'order-2' : 'order-1'}`}>
         {/* Message Bubble */}
         <div
           className={`
-            relative overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200
+            relative overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 max-w-full break-words
             ${isSent 
               ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 text-white rounded-[20px] rounded-br-md' 
               : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-[20px] rounded-bl-md border border-gray-200 dark:border-gray-700'
@@ -87,9 +87,9 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
           {/* Text Content */}
           {message.content && (
             <div className={message.image ? 'px-4 pt-3 pb-2' : 'px-4 py-3'}>
-              <p className={`text-[15px] leading-relaxed break-words select-text ${
+              <p className={`text-[15px] leading-relaxed break-words select-text overflow-wrap-anywhere ${
                 isSent ? 'text-white' : 'text-gray-800 dark:text-gray-100'
-              }`}>
+              }`} style={{ overflowWrap: 'anywhere' }}>
                 {message.content}
               </p>
             </div>
