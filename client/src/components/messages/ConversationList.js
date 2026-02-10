@@ -43,20 +43,20 @@ const ConversationList = React.memo(({
   }, [conversations, currentUser._id, searchQuery]);
 
   return (
-    <div className="h-full flex flex-col w-full" style={{ background: 'var(--bg-elevated)' }}>
+    <div className="h-full flex flex-col bg-white dark:bg-gray-950 w-full">
       {/* Header */}
       <div className="px-5 pt-5 pb-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
               Messages
             </h1>
-            <p className="text-[11px] text-[var(--text-muted)] mt-0.5 font-medium uppercase tracking-wider">
+            <p className="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5 font-medium uppercase tracking-wider">
               {conversations.length} conversation{conversations.length !== 1 ? 's' : ''}
             </p>
           </div>
           <button
-            className="w-9 h-9 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center shadow-md shadow-[var(--accent)]/25 hover:shadow-lg hover:brightness-110 transition-all active:scale-95"
+            className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30 hover:bg-indigo-700 transition-all active:scale-95"
           >
             <FiEdit size={15} />
           </button>
@@ -64,31 +64,31 @@ const ConversationList = React.memo(({
         
         {/* Search Bar */}
         <div className="relative">
-          <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={15} />
+          <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={15} />
           <input
             type="text"
             placeholder="Search messages..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="input-glass w-full pl-10 pr-4 py-2.5 text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/30 transition-all"
           />
         </div>
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-[var(--surface-border)] mx-5" />
+      <div className="h-px bg-gray-100 dark:bg-gray-800/80 mx-5" />
 
       {/* Conversations */}
       <div className="flex-1 overflow-y-auto msg-scrollbar min-h-0 pt-2">
         {filteredConversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-6 text-center py-16">
-            <div className="empty-state-icon mx-auto mb-4">
-              <FiMessageCircle size={24} />
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center mb-4">
+              <FiMessageCircle className="text-gray-300 dark:text-gray-700" size={24} />
             </div>
-            <h3 className="text-sm font-semibold text-[var(--text-muted)] mb-1">
+            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">
               {searchQuery ? 'No results found' : 'No conversations'}
             </h3>
-            <p className="text-xs text-[var(--text-muted)] opacity-60 max-w-[200px]">
+            <p className="text-xs text-gray-400 dark:text-gray-600 max-w-[200px]">
               {searchQuery ? 'Try a different search term' : 'Visit a profile to start chatting'}
             </p>
           </div>
@@ -110,21 +110,21 @@ const ConversationList = React.memo(({
                   className={`
                     relative flex items-center gap-3.5 px-3.5 py-3 rounded-xl cursor-pointer transition-all duration-150
                     ${isSelected 
-                      ? 'bg-[var(--accent)]/10 shadow-sm' 
-                      : 'hover:bg-white/5 active:bg-white/[0.08]'
+                      ? 'bg-indigo-50 dark:bg-indigo-950/30 shadow-sm shadow-indigo-100 dark:shadow-indigo-950/50' 
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-900/50 active:bg-gray-100 dark:active:bg-gray-900'
                     }
                   `}
                 >
                   {/* Active indicator */}
                   {isSelected && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 bg-[var(--accent)] rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 bg-indigo-600 rounded-r-full" />
                   )}
 
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
                     <Avatar user={otherUser} size="md" clickable={false} />
                     {isOnline && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-[2.5px] border-[var(--bg-elevated)] rounded-full" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-[2.5px] border-white dark:border-gray-950 rounded-full" />
                     )}
                   </div>
 
@@ -133,16 +133,16 @@ const ConversationList = React.memo(({
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <h3 className={`text-[14px] leading-tight truncate ${
                         hasUnread 
-                          ? 'font-bold text-[var(--text-primary)]' 
-                          : 'font-semibold text-[var(--text-secondary)]'
+                          ? 'font-bold text-gray-900 dark:text-white' 
+                          : 'font-semibold text-gray-700 dark:text-gray-300'
                       }`}>
                         {otherUser.username}
                       </h3>
                       {lastMsg?.createdAt && (
                         <span className={`text-[11px] flex-shrink-0 tabular-nums ${
                           hasUnread 
-                            ? 'text-[var(--accent)] font-semibold' 
-                            : 'text-[var(--text-muted)]'
+                            ? 'text-indigo-600 dark:text-indigo-400 font-semibold' 
+                            : 'text-gray-400 dark:text-gray-600'
                         }`}>
                           {formatTime(lastMsg.createdAt)}
                         </span>
@@ -152,14 +152,14 @@ const ConversationList = React.memo(({
                     <div className="flex items-center justify-between gap-3">
                       <p className={`text-[13px] truncate leading-snug ${
                         hasUnread 
-                          ? 'text-[var(--text-secondary)] font-medium' 
-                          : 'text-[var(--text-muted)]'
+                          ? 'text-gray-600 dark:text-gray-300 font-medium' 
+                          : 'text-gray-400 dark:text-gray-500'
                       }`}>
                         {lastMsg?.image && !lastMsg?.content ? '📷 Photo' : lastMsg?.content || 'Start a conversation'}
                       </p>
                       
                       {hasUnread && (
-                        <span className="flex-shrink-0 min-w-[20px] h-[20px] px-1.5 bg-[var(--accent)] text-white text-[11px] font-bold rounded-full inline-flex items-center justify-center shadow-sm shadow-[var(--accent)]/30">
+                        <span className="flex-shrink-0 min-w-[20px] h-[20px] px-1.5 bg-indigo-600 text-white text-[11px] font-bold rounded-full inline-flex items-center justify-center shadow-sm shadow-indigo-500/30">
                           {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
                         </span>
                       )}

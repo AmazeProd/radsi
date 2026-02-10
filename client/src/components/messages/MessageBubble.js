@@ -51,18 +51,18 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
           {message.content && (
             <button
               onClick={handleCopyText}
-              className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+              className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
               title="Copy"
             >
-              <FiCopy size={12} className="text-[var(--text-muted)]" />
+              <FiCopy size={12} className="text-gray-500 dark:text-gray-400" />
             </button>
           )}
           <button
             onClick={() => { onDelete?.(message._id); setShowActions(false); }}
-            className="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+            className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-950/40 flex items-center justify-center transition-colors"
             title="Delete"
           >
-            <FiTrash2 size={12} className="text-[var(--text-muted)] hover:text-red-400" />
+            <FiTrash2 size={12} className="text-gray-500 dark:text-gray-400 hover:text-red-500" />
           </button>
         </div>
       )}
@@ -73,8 +73,8 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
           className={`
             relative overflow-hidden transition-shadow duration-200 max-w-full
             ${isSent 
-              ? 'bg-[var(--accent)] text-white rounded-2xl rounded-br-md shadow-sm shadow-[var(--accent)]/10' 
-              : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-2xl rounded-bl-md border border-[var(--surface-border)] shadow-sm'
+              ? 'bg-indigo-600 text-white rounded-2xl rounded-br-md shadow-sm shadow-indigo-500/10' 
+              : 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-md border border-gray-100 dark:border-gray-800 shadow-sm'
             }
           `}
         >
@@ -92,14 +92,14 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
               <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-all duration-200 flex items-center justify-center">
                 <button
                   onClick={handleDownloadImage}
-                  className="opacity-0 group-hover/img:opacity-100 bg-black/50 backdrop-blur-sm p-2.5 rounded-xl shadow-lg transition-all duration-200 hover:scale-105"
+                  className="opacity-0 group-hover/img:opacity-100 bg-white/90 dark:bg-gray-900/90 p-2.5 rounded-xl shadow-lg transition-all duration-200 hover:scale-105"
                 >
-                  <FiDownload className="text-white" size={16} />
+                  <FiDownload className="text-gray-700 dark:text-gray-300" size={16} />
                 </button>
               </div>
               {!imageLoaded && (
-                <div className="w-full h-48 flex items-center justify-center" style={{ background: 'var(--bg-canvas)' }}>
-                  <div className="mini-spinner" />
+                <div className="w-full h-48 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                  <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-700 border-t-indigo-500 rounded-full animate-spin" />
                 </div>
               )}
             </div>
@@ -109,7 +109,7 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
           {message.content && (
             <div className={`${message.image ? 'px-3.5 pt-2.5 pb-1' : 'px-3.5 py-2.5'}`}>
               <p className={`text-[14px] leading-[1.5] break-words select-text ${
-                isSent ? 'text-white' : 'text-[var(--text-primary)]'
+                isSent ? 'text-white' : 'text-gray-800 dark:text-gray-200'
               }`} style={{ overflowWrap: 'anywhere' }}>
                 {message.content}
               </p>
@@ -123,16 +123,16 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
             isSent ? 'justify-end' : 'justify-end'
           }`}>
             <span className={`text-[10px] font-medium tabular-nums ${
-              isSent ? 'text-white/60' : 'text-[var(--text-muted)]'
+              isSent ? 'text-indigo-200' : 'text-gray-400 dark:text-gray-500'
             }`}>
               {formatTime(message.createdAt)}
             </span>
             {isSent && (
               <span className="flex items-center">
                 {isRead ? (
-                  <FiCheckCircle size={12} className="text-white/60" />
+                  <FiCheckCircle size={12} className="text-indigo-200" />
                 ) : (
-                  <FiCheck size={12} className="text-white/70" />
+                  <FiCheck size={12} className="text-indigo-300" />
                 )}
               </span>
             )}
@@ -146,10 +146,10 @@ const MessageBubble = memo(({ message, isSent, isRead, onDelete, onCopy, current
           {message.content && (
             <button
               onClick={handleCopyText}
-              className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+              className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
               title="Copy"
             >
-              <FiCopy size={12} className="text-[var(--text-muted)]" />
+              <FiCopy size={12} className="text-gray-500 dark:text-gray-400" />
             </button>
           )}
         </div>

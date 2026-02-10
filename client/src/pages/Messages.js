@@ -260,15 +260,15 @@ const Messages = () => {
   }
 
   return (
-    <div className="flex" style={{ height: '100vh', background: 'var(--bg-canvas)' }}>
+    <div className="flex bg-gray-50 dark:bg-gray-900" style={{ height: '100vh' }}>
       {/* Conversations Sidebar */}
       <div 
-        className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-col border-r border-[var(--surface-border)]`}
-        style={{ height: '100vh', background: 'var(--bg-elevated)' }}
+        className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800`}
+        style={{ height: '100vh' }}
       >
-        <div className="flex-shrink-0 p-4 border-b border-[var(--surface-border)]">
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">Messages</h2>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
+        <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Messages</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {conversations.length} conversation{conversations.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -276,8 +276,8 @@ const Messages = () => {
         <div className="overflow-y-scroll" style={{ height: 'calc(100vh - 80px)' }}>
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-              <FiMail className="w-16 h-16 text-[var(--text-muted)] opacity-40 mb-4" />
-              <p className="text-[var(--text-muted)]">No conversations yet</p>
+              <FiMail className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">No conversations yet</p>
             </div>
           ) : (
             conversations.map((conversation) => {
@@ -294,36 +294,36 @@ const Messages = () => {
                   onClick={() => handleSelectUser(conversation)}
                   className={`p-4 cursor-pointer transition-colors ${
                     isSelected 
-                      ? 'bg-[var(--accent)]/10 border-l-4 border-l-[var(--accent)]' 
-                      : 'hover:bg-white/5'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-600' 
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
                       <Avatar user={otherUser} size="lg" clickable={false} />
                       {isOnline && (
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[var(--bg-elevated)] rounded-full" />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <h3 className={`font-semibold truncate ${hasUnread ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
+                        <h3 className={`font-semibold truncate ${hasUnread ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                           {otherUser.username}
                         </h3>
                         {conversation.lastMessage?.createdAt && (
-                          <span className="text-xs text-[var(--text-muted)] flex-shrink-0">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
                             {formatTime(conversation.lastMessage.createdAt)}
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center justify-between gap-2">
-                        <p className={`text-sm truncate ${hasUnread ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-muted)]'}`}>
+                        <p className={`text-sm truncate ${hasUnread ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                           {conversation.lastMessage?.content || 'No messages yet'}
                         </p>
                         {hasUnread && (
-                          <span className="flex-shrink-0 bg-[var(--accent)] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          <span className="flex-shrink-0 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                             {conversation.unreadCount}
                           </span>
                         )}
@@ -342,29 +342,29 @@ const Messages = () => {
         {selectedUser ? (
           <>
             {/* Header */}
-            <div className="flex-shrink-0 px-4 py-3 border-b border-[var(--surface-border)] flex items-center justify-between" style={{ height: '64px', background: 'var(--bg-elevated)' }}>
+            <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between" style={{ height: '64px' }}>
               <div className="flex items-center gap-3 min-w-0">
-                <button onClick={() => setSelectedUser(null)} className="md:hidden p-2 hover:bg-white/5 rounded-lg">
-                  <FiArrowLeft className="w-5 h-5 text-[var(--text-muted)]" />
+                <button onClick={() => setSelectedUser(null)} className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                  <FiArrowLeft className="w-5 h-5" />
                 </button>
                 
                 <Avatar user={selectedUser} size="sm" clickable={false} />
                 
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-[var(--text-primary)] truncate">{selectedUser.username}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white truncate">{selectedUser.username}</h3>
                   {onlineUsers.includes(selectedUser._id) ? (
-                    <p className="text-xs text-emerald-400 flex items-center gap-1">
+                    <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
                       <span className="w-2 h-2 bg-green-500 rounded-full"></span>Online
                     </p>
                   ) : selectedUser.lastSeen ? (
-                    <p className="text-xs text-[var(--text-muted)]">{formatLastSeen(selectedUser.lastSeen)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{formatLastSeen(selectedUser.lastSeen)}</p>
                   ) : (
-                    <p className="text-xs text-[var(--text-muted)]">Offline</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Offline</p>
                   )}
                 </div>
               </div>
 
-              <button onClick={handleDeleteConversation} className="flex-shrink-0 p-2 text-red-400 hover:bg-red-500/10 rounded-lg" title="Delete conversation">
+              <button onClick={handleDeleteConversation} className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg" title="Delete conversation">
                 <FiTrash2 className="w-5 h-5" />
               </button>
             </div>
@@ -372,12 +372,12 @@ const Messages = () => {
             {/* Messages - EXPLICIT HEIGHT */}
             <div 
               ref={messagesContainerRef}
-              className="overflow-y-scroll p-4 space-y-4"
-              style={{ height: imagePreview ? 'calc(100vh - 64px - 180px)' : 'calc(100vh - 64px - 80px)', background: 'var(--bg-canvas)' }}
+              className="overflow-y-scroll p-4 space-y-4 bg-gray-50 dark:bg-gray-900"
+              style={{ height: imagePreview ? 'calc(100vh - 64px - 180px)' : 'calc(100vh - 64px - 80px)' }}
             >
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <p className="text-[var(--text-muted)]">No messages yet</p>
+                  <p className="text-gray-400">No messages yet</p>
                 </div>
               ) : (
                 messages.map((message) => {
@@ -387,7 +387,7 @@ const Messages = () => {
                   return (
                     <div key={message._id} className={`flex ${isSent ? 'justify-end' : 'justify-start'} group`}>
                       <div className="relative max-w-[70%]">
-                        <div className={`rounded-2xl px-4 py-2 shadow ${isSent ? 'bg-[var(--accent)] text-white rounded-br-sm' : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-sm border border-[var(--surface-border)]'}`}>
+                        <div className={`rounded-2xl px-4 py-2 shadow ${isSent ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-sm border border-gray-200 dark:border-gray-700'}`}>
                           {message.image && (
                             <img src={message.image.url} alt="attachment" className="rounded-lg mb-2 max-w-full cursor-pointer" onClick={() => window.open(message.image.url, '_blank')} />
                           )}
@@ -411,7 +411,7 @@ const Messages = () => {
             </div>
 
             {/* Input */}
-            <div className="flex-shrink-0 p-4 border-t border-[var(--surface-border)]" style={{ background: 'var(--bg-elevated)' }}>
+            <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
               {imagePreview && (
                 <div className="mb-3 relative inline-block">
                   <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border-2 border-blue-500" />
@@ -423,21 +423,21 @@ const Messages = () => {
 
               <form onSubmit={handleSendMessage} className="flex gap-2">
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 p-2.5 text-[var(--text-muted)] hover:bg-white/5 rounded-lg transition" title="Attach image">
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0 p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition" title="Attach image">
                   <FiImage className="w-5 h-5" />
                 </button>
-                <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." className="input-glass flex-1" />
-                <button type="submit" disabled={!newMessage.trim() && !selectedImage} className="flex-shrink-0 px-4 py-2 bg-[var(--accent)] text-white rounded-lg hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <button type="submit" disabled={!newMessage.trim() && !selectedImage} className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <FiSend className="w-5 h-5" />
                 </button>
               </form>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)]">
-            <FiMessageCircle className="w-16 h-16 mb-4 opacity-40" />
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+            <FiMessageCircle className="w-16 h-16 mb-4" />
             <p className="text-lg font-medium">Select a conversation</p>
-            <p className="text-sm opacity-60">Choose a conversation to start messaging</p>
+            <p className="text-sm">Choose a conversation to start messaging</p>
           </div>
         )}
       </div>

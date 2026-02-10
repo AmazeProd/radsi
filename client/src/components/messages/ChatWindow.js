@@ -108,15 +108,15 @@ const ChatWindow = memo(({
   // Empty state - no user selected
   if (!selectedUser) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8" style={{ background: 'var(--bg-canvas)' }}>
+      <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 p-8">
         <div className="text-center max-w-xs">
-          <div className="empty-state-icon mx-auto mb-5">
-            <FiMessageCircle size={32} />
+          <div className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center shadow-sm">
+            <FiMessageCircle size={32} className="text-gray-300 dark:text-gray-700" />
           </div>
-          <h2 className="text-lg font-bold text-[var(--text-primary)] mb-2">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">
             Your messages
           </h2>
-          <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+          <p className="text-sm text-gray-400 dark:text-gray-600 leading-relaxed">
             Select a conversation to start messaging
           </p>
         </div>
@@ -125,16 +125,16 @@ const ChatWindow = memo(({
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-canvas)' }}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50 dark:bg-gray-950">
       {/* Chat Header */}
-      <div className="flex-shrink-0 px-4 sm:px-5 h-[64px] border-b border-[var(--surface-border)] flex items-center justify-between" style={{ background: 'var(--bg-elevated)' }}>
+      <div className="flex-shrink-0 px-4 sm:px-5 h-[64px] border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-gray-950 flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Back Button - Mobile */}
           <button
             onClick={onBack}
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/5 transition-colors"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
           >
-            <FiArrowLeft size={18} className="text-[var(--text-muted)]" />
+            <FiArrowLeft size={18} className="text-gray-600 dark:text-gray-400" />
           </button>
 
           {/* User Info */}
@@ -142,16 +142,16 @@ const ChatWindow = memo(({
             <div className="relative flex-shrink-0">
               <Avatar user={selectedUser} size="sm" clickable={false} />
               {isOnline && (
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[var(--bg-elevated)] rounded-full" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-gray-950 rounded-full" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-[14px] font-semibold text-[var(--text-primary)] truncate leading-tight">
+              <h3 className="text-[14px] font-semibold text-gray-900 dark:text-white truncate leading-tight">
                 {selectedUser.username}
               </h3>
-              <p className="text-[12px] text-[var(--text-muted)] truncate leading-tight mt-0.5">
+              <p className="text-[12px] text-gray-400 dark:text-gray-500 truncate leading-tight mt-0.5">
                 {isOnline ? (
-                  <span className="text-emerald-400 font-medium">Online</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Online</span>
                 ) : (
                   formatLastSeen(lastSeen)
                 )}
@@ -163,13 +163,13 @@ const ChatWindow = memo(({
         {/* Action Buttons */}
         <div className="flex items-center gap-1">
           <button
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             title="Audio call"
           >
             <FiPhone size={16} />
           </button>
           <button
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             title="Video call"
           >
             <FiVideo size={16} />
@@ -177,16 +177,16 @@ const ChatWindow = memo(({
           <div className="relative">
             <button
               onClick={(e) => { e.stopPropagation(); setShowHeaderMenu(!showHeaderMenu); }}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             >
               <FiMoreHorizontal size={16} />
             </button>
             {/* Dropdown */}
             {showHeaderMenu && (
-              <div className="dropdown-glass absolute right-0 top-11 w-48 z-50">
+              <div className="absolute right-0 top-11 w-48 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-black/5 dark:shadow-black/30 py-1.5 z-50">
                 <button
                   onClick={() => { setShowHeaderMenu(false); onDeleteConversation(); }}
-                  className="dropdown-glass-item w-full flex items-center gap-2.5 text-red-400 hover:bg-red-500/10"
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                 >
                   <FiTrash2 size={15} />
                   Delete conversation
@@ -205,20 +205,20 @@ const ChatWindow = memo(({
         <div className="px-4 sm:px-6 py-4 space-y-1 max-w-3xl mx-auto w-full">
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="flex items-center gap-3 text-[var(--text-muted)]">
-                <div className="mini-spinner" />
+              <div className="flex items-center gap-3 text-gray-400 dark:text-gray-600">
+                <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-700 border-t-indigo-500 rounded-full animate-spin" />
                 <span className="text-sm font-medium">Loading messages...</span>
               </div>
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[var(--accent)]/10 flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-3">
                 <span className="text-2xl">👋</span>
               </div>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                 Start the conversation
               </h3>
-              <p className="text-xs text-[var(--text-muted)]">
+              <p className="text-xs text-gray-400 dark:text-gray-600">
                 Say hello to {selectedUser.username}
               </p>
             </div>
@@ -228,7 +228,7 @@ const ChatWindow = memo(({
                 if (item.type === 'date') {
                   return (
                     <div key={item.key} className="flex items-center justify-center py-3">
-                      <span className="px-3 py-1 text-[11px] font-semibold text-[var(--text-muted)] bg-[var(--bg-elevated)] border border-[var(--surface-border)] rounded-full shadow-sm uppercase tracking-wider">
+                      <span className="px-3 py-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-full shadow-sm uppercase tracking-wider">
                         {item.label}
                       </span>
                     </div>
