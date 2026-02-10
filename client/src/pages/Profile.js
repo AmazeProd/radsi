@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, followUser, unfollowUser, uploadProfilePicture } from '../services/userService';
-import { getUserPosts, deletePost } from '../services/postService';
+import { getUserPosts, deletePost, likePost, unlikePost } from '../services/postService';
 import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2, FiMapPin, FiLink, FiCalendar } from 'react-icons/fi';
+import { FaHeart } from 'react-icons/fa';
 import ProfilePhotoUpload from '../components/profile/ProfilePhotoUpload';
 import Avatar from '../components/common/Avatar';
 import ConfirmModal from '../components/common/ConfirmModal';
@@ -345,8 +346,17 @@ const Profile = () => {
               
               <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-red-500 transition text-sm">
-                    <FiHeart className="w-4 h-4" />
+                  <button
+                    onClick={() => handleLike(post._id, post.isLiked)}
+                    className={`flex items-center gap-1.5 text-sm transition-all duration-200 ${
+                      post.isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400 hover:text-red-400'
+                    }`}
+                  >
+                    {post.isLiked ? (
+                      <FaHeart className="w-4 h-4 text-red-500 animate-like-pop" />
+                    ) : (
+                      <FiHeart className="w-4 h-4" />
+                    )}
                     <span className="font-medium">{post.likesCount || 0}</span>
                   </button>
                   <button className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition text-sm">

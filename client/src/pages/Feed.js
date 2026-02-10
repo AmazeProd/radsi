@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getPosts, createPost, likePost, unlikePost, deletePost } from '../services/postService';
-import { addReaction, removeReaction } from '../services/reactionService';
 import { FiImage, FiSmile, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { debounce } from '../utils/performance';
@@ -192,39 +191,6 @@ const Feed = () => {
     }
   };
 
-  const handleReaction = async (postId, emoji) => {
-    const post = posts.find(p => p._id === postId);
-    const userReaction = post?.reactions?.find(r => r.user === user?._id || r.user?._id === user?._id);
-    
-    setPosts(prevPosts => prevPosts.map(p => {
-      if (p._id === postId) {
-        let newReactions = [...(p.reactions || [])];
-        let newReactionCounts = { ...(p.reactionCounts || {}) };
-        
-        if (userReaction) {
-          newReactions = newReactions.filter(r => (r.user !== user._id && r.user?._id !== user._id));
-          newReactionCounts[userReaction.type] = Math.max(0, (newReactionCounts[userReaction.type] || 0) - 1);
-        }
-        
-        newReactions.push({ user: user._id, type: emoji, createdAt: new Date() });
-        newReactionCounts[emoji] = (newReactionCounts[emoji] || 0) + 1;
-        
-        return { ...p, reactions: newReactions, reactionCounts: newReactionCounts };
-      }
-      return p;
-    }));
-
-    try {
-      const response = await addReaction(postId, emoji);
-      setPosts(prevPosts => prevPosts.map(p => 
-        p._id === postId ? { ...p, ...response.data } : p
-      ));
-    } catch (error) {
-      console.error('Reaction error:', error);
-      loadPosts();
-    }
-  };
-
   const handleLike = async (postId, isLiked) => {
     setPosts(prevPosts => prevPosts.map(post => {
       if (post._id === postId) {
@@ -384,13 +350,13 @@ const Feed = () => {
             <CelebrationPost
               key={post._id}
               post={post}
-              onReaction={handleReaction}
+              onLike={handleLike}
             />
           ) : (
             <PostCard
               key={post._id}
               post={post}
-              onReaction={handleReaction}
+              onLike={handleLike}
               onDelete={handleDeletePost}
               currentImageIndex={currentImageIndex[post._id] || 0}
               onNextImage={nextImage}

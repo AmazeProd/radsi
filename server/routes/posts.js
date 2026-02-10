@@ -11,7 +11,7 @@ const {
   getUserPosts,
   getTrendingPosts,
 } = require('../controllers/postController');
-const { protect } = require('../middleware/auth');
+const { protect, optionalProtect } = require('../middleware/auth');
 const { validate } = require('../middleware/validator');
 const upload = require('../middleware/upload');
 const { postLimiter, uploadLimiter } = require('../middleware/rateLimiter');
@@ -30,7 +30,7 @@ const updatePostValidation = [
 // Routes
 router.get('/', getPosts);
 router.get('/trending', getTrendingPosts);
-router.get('/user/:userId', getUserPosts);
+router.get('/user/:userId', optionalProtect, getUserPosts);
 router.get('/:id', getPost);
 router.post(
   '/',

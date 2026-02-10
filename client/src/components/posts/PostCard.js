@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMessageCircle, FiShare2, FiMoreHorizontal, FiTrash2, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiMessageCircle, FiShare2, FiMoreHorizontal, FiTrash2, FiChevronLeft, FiChevronRight, FiHeart } from 'react-icons/fi';
+import { FaHeart } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../common/Avatar';
 
-const REACTION_EMOJIS = ['❤️', '🔥', '👏', '🤩', '💯', '🎉', '👍', '🫶'];
-
-const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, onPrevImage }) => {
+const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPrevImage }) => {
   const { user } = useAuth();
-  const [showReactions, setShowReactions] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const currentIndex = currentImageIndex || 0;
-
-  const handleReactionClick = (emoji) => {
-    onReaction(post._id, emoji);
-    setShowReactions(false);
-  };
 
   const formatTime = (date) => {
     const now = new Date();
@@ -29,7 +22,7 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
     return postDate.toLocaleDateString();
   };
 
-  const userReaction = post.reactions?.find(r => r.user === user?._id || r.user?._id === user?._id);
+  const isLiked = post.isLiked;
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
@@ -124,68 +117,24 @@ const PostCard = ({ post, onReaction, onDelete, currentImageIndex, onNextImage, 
         </div>
       )}
 
-      {/* Reactions Display */}
-      {post.reactions && post.reactions.length > 0 && (
-        <div className="px-4 py-2 flex flex-wrap gap-1.5">
-          {Object.entries(post.reactionCounts || {})
-            .filter(([_, count]) => count > 0)
-            .sort((a, b) => b[1] - a[1])
-            .map(([emoji, count]) => (
-              <div
-                key={emoji}
-                className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-full border border-gray-100 dark:border-gray-700 text-sm"
-              >
-                <span>{emoji}</span>
-                <span className="font-medium text-gray-600 dark:text-gray-300 text-xs">
-                  {count}
-                </span>
-              </div>
-            ))}
-        </div>
-      )}
-
       {/* Actions */}
       <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <div className="relative">
-            <button
-              onClick={() => setShowReactions(!showReactions)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                userReaction
-                  ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
-              }`}
-            >
-              {userReaction ? (
-                <>
-                  <span className="text-lg">{userReaction.type}</span>
-                  <span className="font-medium">Reacted</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-lg">🙂</span>
-                  <span className="font-medium">React</span>
-                </>
-              )}
-            </button>
-
-            {showReactions && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowReactions(false)} />
-                <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-2 flex gap-1 z-20">
-                  {REACTION_EMOJIS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      onClick={() => handleReactionClick(emoji)}
-                      className="text-2xl hover:scale-125 transition-transform p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </>
+          <button
+            onClick={() => onLike && onLike(post._id, isLiked)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+              isLiked
+                ? 'text-red-500'
+                : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-red-400'
+            }`}
+          >
+            {isLiked ? (
+              <FaHeart className="w-[18px] h-[18px] text-red-500 animate-like-pop" />
+            ) : (
+              <FiHeart className="w-[18px] h-[18px]" />
             )}
-          </div>
+            <span className="font-medium">{post.likesCount || 0}</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-1">

@@ -295,15 +295,28 @@ exports.getUserPosts = asyncHandler(async (req, res, next) => {
     .limit(limit)
     .skip(startIndex);
 
+  // Add isLiked field for authenticated user
+  const postsWithLikeStatus = posts.map(post => {
+    const postObj = post.toObject();
+    if (req.user) {
+      const userIdStr = req.user.id.toString();
+      const likesArray = post.likes || [];
+      postObj.isLiked = likesArray.some(likeId => likeId.toString() === userIdStr);
+    } else {
+      postObj.isLiked = false;
+    }
+    return postObj;
+  });
+
   const total = await Post.countDocuments({ user: req.params.userId, isDeleted: false });
 
   res.status(200).json({
     success: true,
-    count: posts.length,
+    count: postsWithLikeStatus.length,
     total,
     totalPages: Math.ceil(total / limit),
     currentPage: page,
-    data: posts,
+    data: postsWithLikeStatus,
   });
 });
 

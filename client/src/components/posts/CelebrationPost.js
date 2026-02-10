@@ -1,16 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiMessageCircle, FiShare2 } from 'react-icons/fi';
+import { FiMessageCircle, FiShare2, FiHeart } from 'react-icons/fi';
+import { FaHeart } from 'react-icons/fa';
 
-const REACTION_EMOJIS = ['❤️', '🔥', '👏', '😍', '💯', '🎉', '👍', '🙌'];
-
-const CelebrationPost = ({ post, onReaction }) => {
-  const [showReactions, setShowReactions] = useState(false);
-
-  const handleReactionClick = (emoji) => {
-    onReaction(post._id, emoji);
-    setShowReactions(false);
-  };
+const CelebrationPost = ({ post, onLike }) => {
 
   const formatTime = (date) => {
     const now = new Date();
@@ -126,51 +119,23 @@ const CelebrationPost = ({ post, onReaction }) => {
         </div>
       </div>
 
-      {/* Reactions Display */}
-      {post.reactions && post.reactions.length > 0 && (
-        <div className="px-4 py-3 flex flex-wrap gap-2 bg-black/20">
-          {Object.entries(post.reactionCounts || {})
-            .filter(([_, count]) => count > 0)
-            .sort((a, b) => b[1] - a[1])
-            .map(([emoji, count]) => (
-              <div
-                key={emoji}
-                className="flex items-center space-x-1 bg-purple-900/40 backdrop-blur-sm px-3 py-1.5 rounded-full border border-purple-500/30"
-              >
-                <span className="text-lg">{emoji}</span>
-                <span className="text-sm font-medium text-white">
-                  {count}
-                </span>
-              </div>
-            ))}
-        </div>
-      )}
-
-      {/* Action Buttons */}
+      {/* Actions */}
       <div className="px-4 py-3 border-t border-purple-500/20 bg-black/20 backdrop-blur-sm flex items-center justify-between">
-        <div className="relative">
-          <button
-            onClick={() => setShowReactions(!showReactions)}
-            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-900/40 hover:bg-purple-800/60 text-purple-300 hover:text-white transition-all"
-          >
-            <span className="text-xl">😊</span>
-            <span className="text-sm font-medium">React</span>
-          </button>
-
-          {showReactions && (
-            <div className="absolute bottom-full left-0 mb-2 bg-gray-900 rounded-2xl shadow-2xl border border-purple-500/50 p-3 flex space-x-2 z-10 animate-scale-in backdrop-blur-lg">
-              {REACTION_EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => handleReactionClick(emoji)}
-                  className="text-2xl hover:scale-125 transition-transform p-2 rounded-full hover:bg-purple-900/50"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
+        <button
+          onClick={() => onLike && onLike(post._id, post.isLiked)}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 ${
+            post.isLiked
+              ? 'text-red-500 bg-red-500/10'
+              : 'text-purple-300 hover:text-red-400 hover:bg-purple-900/40'
+          }`}
+        >
+          {post.isLiked ? (
+            <FaHeart className="w-5 h-5 text-red-500 animate-like-pop" />
+          ) : (
+            <FiHeart className="w-5 h-5" />
           )}
-        </div>
+          <span className="text-sm font-medium">{post.likesCount || 0}</span>
+        </button>
 
         <div className="flex items-center space-x-1">
           <button className="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-purple-900/40 text-purple-300 hover:text-white transition-all">
