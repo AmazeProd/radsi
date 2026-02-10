@@ -7,8 +7,8 @@ const AdminRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div>
+      <div className="flex justify-center items-center min-h-screen bg-[var(--bg-canvas)]">
+        <div className="mini-spinner" />
       </div>
     );
   }

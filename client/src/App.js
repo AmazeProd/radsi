@@ -31,23 +31,10 @@ const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminPosts = lazy(() => import('./pages/admin/Posts'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Loading fallback component — branded splash
+// Loading fallback component — simple white spinner
 const LoadingSpinner = () => (
-  <div className="splash-screen">
-    <div className="splash-content">
-      {/* Logo */}
-      <div className="splash-logo-wrap">
-        <img src="/assets/logotext.png" alt="Radsi" className="splash-logo" />
-      </div>
-      {/* Animated dots */}
-      <div className="splash-dots">
-        <span className="splash-dot" style={{ animationDelay: '0s' }} />
-        <span className="splash-dot" style={{ animationDelay: '0.15s' }} />
-        <span className="splash-dot" style={{ animationDelay: '0.3s' }} />
-      </div>
-    </div>
-    {/* Subtle tagline */}
-    <p className="splash-tagline">Your Social Connection Hub</p>
+  <div className="flex justify-center items-center min-h-screen bg-[var(--bg-canvas)]">
+    <div className="mini-spinner" />
   </div>
 );
 
