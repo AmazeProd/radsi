@@ -31,25 +31,36 @@ const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminPosts = lazy(() => import('./pages/admin/Posts'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Loading fallback component
+// Loading fallback component — branded splash
 const LoadingSpinner = () => (
-  <div className="flex justify-center items-center min-h-screen bg-white dark:bg-gray-950">
-    <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-800 border-t-indigo-600 rounded-full animate-spin" />
-      <span className="text-xs font-medium text-gray-400 dark:text-gray-600">Loading...</span>
+  <div className="splash-screen">
+    <div className="splash-content">
+      {/* Logo */}
+      <div className="splash-logo-wrap">
+        <img src="/assets/logotext.png" alt="Radsi" className="splash-logo" />
+      </div>
+      {/* Animated dots */}
+      <div className="splash-dots">
+        <span className="splash-dot" style={{ animationDelay: '0s' }} />
+        <span className="splash-dot" style={{ animationDelay: '0.15s' }} />
+        <span className="splash-dot" style={{ animationDelay: '0.3s' }} />
+      </div>
     </div>
+    {/* Subtle tagline */}
+    <p className="splash-tagline">Your Social Connection Hub</p>
   </div>
 );
 
 // Layout wrapper to conditionally show navbar and footer
 const Layout = ({ children }) => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const hideNavbar = location.pathname.startsWith('/messages');
   
   return (
     <>
       {!hideNavbar && <Navbar />}
-      <main className={`${hideNavbar ? 'h-screen' : 'flex-grow'} main-shell`}>
+      <main className={`${hideNavbar ? 'h-screen' : 'flex-grow'} main-shell ${isAuthenticated && !hideNavbar ? 'pb-20 md:pb-0' : ''}`}>
         {children}
       </main>
     </>

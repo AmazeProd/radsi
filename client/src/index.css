@@ -624,3 +624,92 @@ textarea:focus {
   width: 24px !important;
   margin-right: 12px !important;
 }
+
+/* ═══════════════════════════════════════════
+   SPLASH / LOADING SCREEN
+   ═══════════════════════════════════════════ */
+.splash-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg-canvas);
+  background-image:
+    radial-gradient(circle at 30% 30%, rgba(124, 245, 210, 0.06), transparent 40%),
+    radial-gradient(circle at 70% 20%, rgba(77, 208, 255, 0.10), transparent 35%);
+  position: relative;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  animation: splashFadeIn 0.8s ease-out;
+}
+
+.splash-logo-wrap {
+  position: relative;
+}
+
+.splash-logo {
+  height: 56px;
+  width: auto;
+  animation: splashPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(77, 208, 255, 0.3));
+}
+
+.splash-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.splash-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: splashBounce 1.2s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(77, 208, 255, 0.4);
+}
+
+.splash-tagline {
+  position: absolute;
+  bottom: 48px;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  opacity: 0;
+  animation: splashFadeIn 0.8s ease-out 0.4s forwards;
+}
+
+@keyframes splashFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.85; }
+}
+
+@keyframes splashBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE BOTTOM TAB BAR
+   ═══════════════════════════════════════════ */
+.mobile-bottom-bar {
+  background: linear-gradient(180deg, rgba(11, 18, 32, 0.92), rgba(11, 18, 32, 0.98));
+  border-top: 1px solid var(--surface-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.h-safe-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
