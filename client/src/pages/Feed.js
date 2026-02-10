@@ -207,12 +207,12 @@ const Feed = () => {
       if (isLiked) {
         const response = await unlikePost(postId);
         setPosts(prevPosts => prevPosts.map(post => 
-          post._id === postId ? { ...post, ...response.data } : post
+          post._id === postId ? { ...post, ...response.data, isLiked: false } : post
         ));
       } else {
         const response = await likePost(postId);
         setPosts(prevPosts => prevPosts.map(post => 
-          post._id === postId ? { ...post, ...response.data } : post
+          post._id === postId ? { ...post, ...response.data, isLiked: true } : post
         ));
       }
     } catch (error) {

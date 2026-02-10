@@ -28,7 +28,7 @@ const updatePostValidation = [
 ];
 
 // Routes
-router.get('/', getPosts);
+router.get('/', optionalProtect, getPosts);
 router.get('/trending', getTrendingPosts);
 router.get('/user/:userId', optionalProtect, getUserPosts);
 router.get('/:id', getPost);
