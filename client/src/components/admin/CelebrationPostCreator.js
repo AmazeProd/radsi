@@ -65,7 +65,7 @@ const CelebrationPostCreator = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div className="card-glass-static overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
           <div className="flex items-center space-x-3">
@@ -83,7 +83,7 @@ const CelebrationPostCreator = () => {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Milestone Selection */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-semibold text-[var(--text-muted)] mb-3">
               <FiUsers className="inline w-4 h-4 mr-2" />
               Select Milestone
             </label>
@@ -95,12 +95,12 @@ const CelebrationPostCreator = () => {
                   onClick={() => setFormData({ ...formData, count: milestone.value })}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     formData.count === milestone.value
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 scale-105'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600'
+                      ? 'border-purple-500 bg-purple-500/10 scale-105'
+                      : 'border-[var(--surface-border)] hover:border-purple-500/50'
                   }`}
                 >
                   <div className="text-3xl mb-2">{milestone.icon}</div>
-                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <div className="text-sm font-semibold text-[var(--text-secondary)]">
                     {milestone.label}
                   </div>
                 </button>
@@ -110,28 +110,28 @@ const CelebrationPostCreator = () => {
 
           {/* Custom Count */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-[var(--text-muted)] mb-2">
               Or Enter Custom Count
             </label>
             <input
               type="number"
               value={formData.count}
               onChange={(e) => setFormData({ ...formData, count: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="input-glass w-full"
               min="1"
             />
           </div>
 
           {/* Community Type */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-[var(--text-muted)] mb-2">
               <FiTrendingUp className="inline w-4 h-4 mr-2" />
               Community Name
             </label>
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="input-glass w-full"
             >
               {communityTypes.map((type) => (
                 <option key={type} value={type}>{type}</option>
@@ -141,7 +141,7 @@ const CelebrationPostCreator = () => {
 
           {/* Custom Message */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-[var(--text-muted)] mb-2">
               Custom Message (Optional)
             </label>
             <textarea
@@ -149,13 +149,13 @@ const CelebrationPostCreator = () => {
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               placeholder="Leave empty for default celebration message..."
               rows="4"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              className="input-glass w-full resize-none"
             />
           </div>
 
           {/* Preview */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border-2 border-purple-200 dark:border-purple-800">
-            <div className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">
+          <div className="bg-purple-500/10 p-6 rounded-xl border-2 border-purple-500/30">
+            <div className="text-sm font-semibold text-purple-400 mb-2">
               Preview:
             </div>
             <div className="text-center space-y-2">
@@ -164,10 +164,10 @@ const CelebrationPostCreator = () => {
                   ? `${(formData.count / 1000).toFixed(1)}K` 
                   : formData.count}
               </div>
-              <div className="text-2xl font-bold text-gray-800 dark:text-white">
+              <div className="text-2xl font-bold text-[var(--text-primary)]">
                 MEMBER FAMILY
               </div>
-              <div className="text-purple-600 dark:text-purple-400 font-medium">
+              <div className="text-purple-400 font-medium">
                 {formData.type}
               </div>
             </div>
@@ -198,9 +198,9 @@ const CelebrationPostCreator = () => {
         </form>
 
         {/* Tips */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-6 border-t border-gray-200 dark:border-gray-700">
-          <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">💡 Tips:</h3>
-          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+        <div className="p-6 border-t border-[var(--surface-border)]" style={{ background: 'var(--bg-canvas)' }}>
+          <h3 className="font-semibold text-[var(--text-secondary)] mb-3">💡 Tips:</h3>
+          <ul className="space-y-2 text-sm text-[var(--text-muted)]">
             <li>• Choose significant milestones to keep them special</li>
             <li>• Custom messages can include emojis for extra flair</li>
             <li>• The post will appear with special celebration UI on the feed</li>

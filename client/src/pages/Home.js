@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiUsers, FiMessageCircle, FiImage, FiTrendingUp, FiZap, FiShield, FiGlobe, FiAward, FiCheckCircle } from 'react-icons/fi';
+import { FiUsers, FiMessageCircle, FiImage, FiTrendingUp, FiZap, FiShield, FiGlobe, FiAward, FiCheckCircle, FiArrowRight } from 'react-icons/fi';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -11,18 +11,18 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen" style={{ background: 'var(--bg-canvas)' }}>
       {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-sm z-50 border-b border-gray-100 dark:border-gray-800">
+      <nav className="fixed top-0 left-0 right-0 nav-glass z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 sm:gap-3">
             <img src="/assets/logotext.png" alt="Radsi Corp" className="h-16 sm:h-20 md:h-22 lg:h-24 w-auto" />
           </div>
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-            <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium px-3 sm:px-4 md:px-6 py-2 transition text-sm sm:text-base">
+            <Link to="/login" className="btn-ghost px-4 sm:px-5 py-2 text-sm sm:text-base">
               Sign In
             </Link>
-            <Link to="/register" className="bg-blue-600 text-white px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-600/30 text-sm sm:text-base">
+            <Link to="/register" className="btn-accent px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 text-sm sm:text-base">
               Get Started
             </Link>
           </div>
@@ -30,74 +30,78 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 md:px-8 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-28 sm:pt-32 md:pt-40 pb-16 sm:pb-20 md:pb-28 px-4 sm:px-6 md:px-8 relative overflow-hidden">
+        {/* Background glows */}
+        <div className="absolute top-20 left-1/4 w-[500px] h-[500px] bg-[var(--accent)]/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[var(--accent-strong)]/8 rounded-full blur-[100px] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto relative">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
-                <FiZap size={14} className="sm:w-4 sm:h-4" />
+            <div className="animate-fadeIn">
+              <div className="inline-flex items-center gap-2 bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] px-4 py-2 rounded-full text-xs sm:text-sm font-semibold mb-6">
+                <FiZap size={14} />
                 <span>Next-generation social platform</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-gray-900 dark:text-white mb-4 sm:mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-[var(--text-primary)] mb-6 leading-tight">
                 The Future of
-                <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-[var(--accent)] to-[var(--accent-strong)] bg-clip-text text-transparent">
                   Social Connection
                 </span>
               </h1>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[var(--text-muted)] mb-8 leading-relaxed max-w-xl">
                 Enterprise-grade social networking platform designed for modern teams and communities. 
                 Connect, collaborate, and grow with cutting-edge technology.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
                 <Link
                   to="/register"
-                  className="bg-blue-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-blue-700 transition shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2"
+                  className="btn-accent px-8 sm:px-10 py-3.5 sm:py-4 text-base sm:text-lg flex items-center justify-center gap-2"
                 >
                   Start Free Trial
-                  <FiZap size={18} className="sm:w-5 sm:h-5" />
+                  <FiArrowRight size={18} />
                 </Link>
                 <Link
                   to="/login"
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2"
+                  className="btn-ghost px-8 py-3.5 sm:py-4 text-base sm:text-lg flex items-center justify-center gap-2"
                 >
-                  <FiUsers size={18} className="sm:w-5 sm:h-5" />
+                  <FiUsers size={18} />
                   Sign In
                 </Link>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 text-xs sm:text-sm text-[var(--text-muted)]">
                 <div className="flex items-center gap-2">
-                  <FiCheckCircle className="text-green-500 w-4 h-4" />
+                  <FiCheckCircle className="text-[var(--accent-strong)] w-4 h-4" />
                   <span>No credit card required</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <FiCheckCircle className="text-green-500 w-4 h-4" />
+                  <FiCheckCircle className="text-[var(--accent-strong)] w-4 h-4" />
                   <span>Free forever plan</span>
                 </div>
               </div>
             </div>
-            <div className="relative mt-8 lg:mt-0">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-3xl blur-3xl opacity-20 animate-pulse"></div>
-              <div className="relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 border border-gray-100 dark:border-gray-800">
-                <div className="grid grid-cols-2 gap-3 sm:gap-6">
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
-                    <FiUsers size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3" />
-                    <p className="text-2xl sm:text-3xl font-bold mb-1">Unlimited</p>
-                    <p className="text-blue-100 text-xs sm:text-sm">Connections</p>
+            <div className="relative mt-8 lg:mt-0 animate-fadeIn" style={{animationDelay: '0.2s'}}>
+              <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/20 to-[var(--accent-strong)]/15 rounded-3xl blur-3xl animate-pulse" />
+              <div className="relative card-glass-static p-6 sm:p-8 rounded-2xl sm:rounded-3xl">
+                <div className="grid grid-cols-2 gap-3 sm:gap-5">
+                  <div className="bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent)]/5 border border-[var(--accent)]/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 group hover:border-[var(--accent)]/40 transition-all">
+                    <FiUsers size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3 text-[var(--accent)]" />
+                    <p className="text-2xl sm:text-3xl font-bold mb-1 text-[var(--text-primary)]">Unlimited</p>
+                    <p className="text-[var(--text-muted)] text-xs sm:text-sm">Connections</p>
                   </div>
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
-                    <FiMessageCircle size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3" />
-                    <p className="text-2xl sm:text-3xl font-bold mb-1">Instant</p>
-                    <p className="text-purple-100 text-xs sm:text-sm">Messaging</p>
+                  <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 group hover:border-purple-500/40 transition-all">
+                    <FiMessageCircle size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3 text-purple-400" />
+                    <p className="text-2xl sm:text-3xl font-bold mb-1 text-[var(--text-primary)]">Instant</p>
+                    <p className="text-[var(--text-muted)] text-xs sm:text-sm">Messaging</p>
                   </div>
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
-                    <FiGlobe size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3" />
-                    <p className="text-2xl sm:text-3xl font-bold mb-1">Global</p>
-                    <p className="text-green-100 text-xs sm:text-sm">Platform</p>
+                  <div className="bg-gradient-to-br from-[var(--accent-strong)]/20 to-[var(--accent-strong)]/5 border border-[var(--accent-strong)]/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 group hover:border-[var(--accent-strong)]/40 transition-all">
+                    <FiGlobe size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3 text-[var(--accent-strong)]" />
+                    <p className="text-2xl sm:text-3xl font-bold mb-1 text-[var(--text-primary)]">Global</p>
+                    <p className="text-[var(--text-muted)] text-xs sm:text-sm">Platform</p>
                   </div>
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white">
-                    <FiTrendingUp size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3" />
-                    <p className="text-2xl sm:text-3xl font-bold mb-1">99.9%</p>
-                    <p className="text-orange-100 text-xs sm:text-sm">Uptime</p>
+                  <div className="bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 group hover:border-amber-500/40 transition-all">
+                    <FiTrendingUp size={24} className="sm:w-8 sm:h-8 mb-2 sm:mb-3 text-amber-400" />
+                    <p className="text-2xl sm:text-3xl font-bold mb-1 text-[var(--text-primary)]">99.9%</p>
+                    <p className="text-[var(--text-muted)] text-xs sm:text-sm">Uptime</p>
                   </div>
                 </div>
               </div>
@@ -107,189 +111,144 @@ const Home = () => {
       </section>
 
       {/* Trust Badges */}
-      <section className="py-6 sm:py-10 md:py-12 bg-gray-50 dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800">
+      <section className="py-8 sm:py-12 border-y border-[var(--surface-border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <p className="text-center text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-semibold uppercase tracking-wide mb-6 sm:mb-8">
+          <p className="text-center text-[var(--text-muted)] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-6 sm:mb-8">
             Built with cutting-edge technology
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-50">
-            <div className="text-lg sm:text-2xl font-bold text-gray-400 dark:text-gray-600">REACT</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-400 dark:text-gray-600">NODE.JS</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-400 dark:text-gray-600">MONGODB</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-400 dark:text-gray-600">SOCKET.IO</div>
-            <div className="text-lg sm:text-2xl font-bold text-gray-400 dark:text-gray-600">AWS</div>
+          <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-40">
+            <div className="text-lg sm:text-2xl font-bold text-[var(--text-muted)]">REACT</div>
+            <div className="text-lg sm:text-2xl font-bold text-[var(--text-muted)]">NODE.JS</div>
+            <div className="text-lg sm:text-2xl font-bold text-[var(--text-muted)]">MONGODB</div>
+            <div className="text-lg sm:text-2xl font-bold text-[var(--text-muted)]">SOCKET.IO</div>
+            <div className="text-lg sm:text-2xl font-bold text-[var(--text-muted)]">AWS</div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 bg-white dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-8 relative">
+        <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-4">
               Enterprise Solutions for Modern Teams
             </h2>
-            <p className="text-base sm:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4">
+            <p className="text-base sm:text-xl text-[var(--text-muted)] max-w-3xl mx-auto px-4">
               Comprehensive features designed to power your organization's social collaboration
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-600 hover:shadow-xl transition group">
-              <div className="bg-blue-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 group-hover:bg-blue-100 transition">
-                <FiUsers className="text-blue-600 w-6 h-6 sm:w-7 sm:h-7" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { icon: FiUsers, title: 'Team Collaboration', desc: 'Build and manage teams with advanced permission controls and role-based access', color: 'var(--accent)' },
+              { icon: FiMessageCircle, title: 'Real-Time Messaging', desc: 'Instant messaging with enterprise-grade encryption and compliance features', color: '#a78bfa' },
+              { icon: FiShield, title: 'Security First', desc: 'Bank-level security with end-to-end encryption and SOC 2 Type II compliance', color: 'var(--accent-strong)' },
+              { icon: FiImage, title: 'Media Management', desc: 'Share and organize multimedia content with AI-powered tagging and search', color: '#fb923c' },
+              { icon: FiTrendingUp, title: 'Analytics & Insights', desc: 'Comprehensive analytics dashboard with real-time engagement metrics', color: '#60a5fa' },
+              { icon: FiGlobe, title: 'Global Scale', desc: 'Multi-region deployment with CDN integration for optimal performance', color: '#f472b6' },
+            ].map((feature, i) => (
+              <div 
+                key={i}
+                className="card-glass p-6 sm:p-8 group cursor-default"
+              >
+                <div 
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 transition-all group-hover:scale-110"
+                  style={{ background: `linear-gradient(135deg, ${feature.color}20, ${feature.color}08)`, border: `1px solid ${feature.color}25` }}
+                >
+                  <feature.icon className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: feature.color }} />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-[var(--text-primary)]">{feature.title}</h3>
+                <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed mb-4">
+                  {feature.desc}
+                </p>
+                <Link to="/register" className="text-sm sm:text-base font-semibold inline-flex items-center gap-2 transition-all group-hover:gap-3" style={{ color: feature.color }}>
+                  Learn more <FiArrowRight size={14} />
+                </Link>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">Team Collaboration</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-3 sm:mb-4">
-                Build and manage teams with advanced permission controls and role-based access
-              </p>
-              <Link to="/register" className="text-blue-600 font-semibold hover:text-blue-700 inline-flex items-center gap-2 text-sm sm:text-base">
-                Learn more →
-              </Link>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-100 dark:border-gray-800 hover:border-purple-200 dark:hover:border-purple-600 hover:shadow-xl transition group">
-              <div className="bg-purple-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 group-hover:bg-purple-100 transition">
-                <FiMessageCircle className="text-purple-600 w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">Real-Time Messaging</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-3 sm:mb-4">
-                Instant messaging with enterprise-grade encryption and compliance features
-              </p>
-              <Link to="/register" className="text-purple-600 font-semibold hover:text-purple-700 inline-flex items-center gap-2 text-sm sm:text-base">
-                Learn more →
-              </Link>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-600 hover:shadow-xl transition group">
-              <div className="bg-green-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 group-hover:bg-green-100 transition">
-                <FiShield className="text-green-600 w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">Security First</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-3 sm:mb-4">
-                Bank-level security with end-to-end encryption and SOC 2 Type II compliance
-              </p>
-              <Link to="/register" className="text-green-600 font-semibold hover:text-green-700 inline-flex items-center gap-2 text-sm sm:text-base">
-                Learn more →
-              </Link>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-100 dark:border-gray-800 hover:border-orange-200 dark:hover:border-orange-600 hover:shadow-xl transition group">
-              <div className="bg-orange-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 group-hover:bg-orange-100 transition">
-                <FiImage className="text-orange-600 w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">Media Management</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-3 sm:mb-4">
-                Share and organize multimedia content with AI-powered tagging and search
-              </p>
-              <Link to="/register" className="text-orange-600 font-semibold hover:text-orange-700 inline-flex items-center gap-2 text-sm sm:text-base">
-                Learn more →
-              </Link>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-600 hover:shadow-xl transition group">
-              <div className="bg-indigo-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 group-hover:bg-indigo-100 transition">
-                <FiTrendingUp className="text-indigo-600 w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">Analytics & Insights</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-3 sm:mb-4">
-                Comprehensive analytics dashboard with real-time engagement metrics
-              </p>
-              <Link to="/register" className="text-indigo-600 font-semibold hover:text-indigo-700 inline-flex items-center gap-2 text-sm sm:text-base">
-                Learn more →
-              </Link>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-100 dark:border-gray-800 hover:border-pink-200 dark:hover:border-pink-600 hover:shadow-xl transition group">
-              <div className="bg-pink-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-5 group-hover:bg-pink-100 transition">
-                <FiGlobe className="text-pink-600 w-6 h-6 sm:w-7 sm:h-7" />
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">Global Scale</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-3 sm:mb-4">
-                Multi-region deployment with CDN integration for optimal performance
-              </p>
-              <Link to="/register" className="text-pink-600 font-semibold hover:text-pink-700 inline-flex items-center gap-2 text-sm sm:text-base">
-                Learn more →
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Social Proof Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-950">
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-8 border-t border-[var(--surface-border)]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-4">
               Why Choose Radsi
             </h2>
-            <p className="text-base sm:text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-base sm:text-xl text-[var(--text-muted)]">
               The most advanced social platform for your organization
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg border border-gray-100 dark:border-gray-800">
-              <FiAward className="text-blue-600 mb-3 sm:mb-4 w-8 h-8 sm:w-10 sm:h-10" />
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Innovation</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">Latest technology stack and features</p>
-              <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">Cutting-edge platform</div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="card-glass-static p-6 sm:p-8">
+              <FiAward className="text-[var(--accent)] mb-4 w-8 h-8 sm:w-10 sm:h-10" />
+              <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-2">Innovation</h3>
+              <p className="text-sm sm:text-base text-[var(--text-muted)] mb-3">Latest technology stack and features</p>
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] opacity-60">Cutting-edge platform</div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg border border-gray-100 dark:border-gray-800">
-              <FiShield className="text-green-600 mb-3 sm:mb-4 w-8 h-8 sm:w-10 sm:h-10" />
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">99.9% Uptime</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">Enterprise reliability with 24/7 support</p>
-              <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">Always available</div>
+            <div className="card-glass-static p-6 sm:p-8">
+              <FiShield className="text-[var(--accent-strong)] mb-4 w-8 h-8 sm:w-10 sm:h-10" />
+              <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-2">99.9% Uptime</h3>
+              <p className="text-sm sm:text-base text-[var(--text-muted)] mb-3">Enterprise reliability with 24/7 support</p>
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] opacity-60">Always available</div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 sm:p-6 md:p-8 shadow-lg sm:col-span-2 lg:col-span-1 border border-gray-100 dark:border-gray-800">
-              <FiGlobe className="text-purple-600 mb-3 sm:mb-4 w-8 h-8 sm:w-10 sm:h-10" />
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Global Ready</h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">Multi-language, worldwide platform</p>
-              <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">Built for everyone</div>
+            <div className="card-glass-static p-6 sm:p-8 sm:col-span-2 lg:col-span-1">
+              <FiGlobe className="text-purple-400 mb-4 w-8 h-8 sm:w-10 sm:h-10" />
+              <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-2">Global Ready</h3>
+              <p className="text-sm sm:text-base text-[var(--text-muted)] mb-3">Multi-language, worldwide platform</p>
+              <div className="text-xs sm:text-sm text-[var(--text-muted)] opacity-60">Built for everyone</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 md:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/10 to-[var(--accent-strong)]/10" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent opacity-30" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-strong)] to-transparent opacity-30" />
+        
+        <div className="max-w-4xl mx-auto text-center relative">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-base sm:text-xl text-blue-100 mb-8 sm:mb-10">
+          <p className="text-base sm:text-xl text-[var(--text-muted)] mb-10">
             Be among the first to experience the future of social networking
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
             <Link
               to="/register"
-              className="bg-white text-blue-600 px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 rounded-xl text-base sm:text-lg font-bold hover:bg-gray-50 transition shadow-2xl inline-flex items-center justify-center gap-2"
+              className="btn-accent px-8 sm:px-10 py-3.5 sm:py-4 text-base sm:text-lg inline-flex items-center justify-center gap-2"
             >
               Start Free Trial
-              <FiZap size={18} className="sm:w-5 sm:h-5" />
+              <FiZap size={18} />
             </Link>
             <Link
               to="/login"
-              className="bg-transparent border-2 border-white text-white px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 rounded-xl text-base sm:text-lg font-bold hover:bg-white/10 transition inline-flex items-center justify-center gap-2"
+              className="btn-ghost px-8 sm:px-10 py-3.5 sm:py-4 text-base sm:text-lg inline-flex items-center justify-center gap-2"
             >
               Sign In
             </Link>
           </div>
-          <p className="text-blue-100 text-xs sm:text-sm mt-4 sm:mt-6">
-            No credit card required • Free forever plan • Cancel anytime
+          <p className="text-[var(--text-muted)] text-xs sm:text-sm mt-6 opacity-60">
+            No credit card required · Free forever plan · Cancel anytime
           </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 sm:py-12 px-4 sm:px-6">
+      <footer className="border-t border-[var(--surface-border)] py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="flex justify-center items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex justify-center items-center gap-3 mb-4">
             <img src="/assets/logotext.png" alt="Radsi" className="h-20 sm:h-24 w-auto" />
           </div>
-          <p className="text-xs sm:text-sm">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] opacity-60">
             © 2025 Radsi Corporation. All rights reserved.
           </p>
         </div>

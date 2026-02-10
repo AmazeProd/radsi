@@ -232,7 +232,7 @@ const Feed = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-[var(--bg-canvas)]">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="mini-spinner" />
       </div>
     );
@@ -242,33 +242,44 @@ const Feed = () => {
     <>
     <div className="max-w-2xl mx-auto px-4 py-6 min-h-screen">
       {/* Create Post */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 mb-5">
-        <textarea
-          className="w-full p-3 border-0 resize-none focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent text-[15px]"
-          rows="3"
-          placeholder="What's on your mind?"
-          value={postContent}
-          onChange={(e) => setPostContent(e.target.value)}
-          onKeyDown={handleKeyPress}
-        ></textarea>
+      <div className="card-glass-static p-4 mb-5">
+        <div className="flex items-start gap-3">
+          {user && (
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)] flex items-center justify-center text-[#07101f] text-sm font-bold shadow-lg shadow-[var(--accent)]/20">
+                {user.firstName ? user.firstName.charAt(0).toUpperCase() : user.username?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            </div>
+          )}
+          <div className="flex-1">
+            <textarea
+              className="w-full p-2 border-0 resize-none focus:outline-none text-[var(--text-primary)] placeholder-[var(--text-muted)]/50 bg-transparent text-[15px] leading-relaxed"
+              rows="3"
+              placeholder="What's on your mind?"
+              value={postContent}
+              onChange={(e) => setPostContent(e.target.value)}
+              onKeyDown={handleKeyPress}
+            ></textarea>
+          </div>
+        </div>
         
         {inlineError && (
-          <div className="mx-1 mb-3 px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400 flex items-center justify-between">
+          <div className="mx-1 mb-3 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 flex items-center justify-between">
             <span>{inlineError}</span>
-            <button onClick={() => setInlineError('')} className="ml-2 hover:text-red-800 dark:hover:text-red-300">
+            <button onClick={() => setInlineError('')} className="ml-2 hover:text-red-300">
               <FiX className="w-4 h-4" />
             </button>
           </div>
         )}
         
         {showEmojiPicker && (
-          <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+          <div className="mb-3 p-3 bg-white/[0.03] rounded-xl border border-[var(--surface-border)]">
             <div className="flex flex-wrap gap-1.5">
               {commonEmojis.map((emoji, index) => (
                 <button
                   key={index}
                   onClick={() => handleEmojiClick(emoji)}
-                  className="text-2xl hover:scale-110 transition-transform p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="text-2xl hover:scale-125 transition-transform p-1.5 rounded-lg hover:bg-white/5"
                   type="button"
                 >
                   {emoji}
@@ -281,7 +292,7 @@ const Feed = () => {
         {imagePreviews.length > 0 && (
           <div className="mb-3 grid grid-cols-2 gap-2">
             {imagePreviews.map((preview, index) => (
-              <div key={index} className="relative group rounded-lg overflow-hidden">
+              <div key={index} className="relative group rounded-xl overflow-hidden border border-[var(--surface-border)]">
                 <img 
                   src={preview} 
                   alt={`Preview ${index + 1}`} 
@@ -289,7 +300,7 @@ const Feed = () => {
                 />
                 <button
                   onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                  className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm"
                   type="button"
                 >
                   <FiX className="w-3.5 h-3.5" />
@@ -299,8 +310,8 @@ const Feed = () => {
           </div>
         )}
         
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
-          <div className="flex gap-1">
+        <div className="flex items-center justify-between pt-3 border-t border-[var(--surface-border)]">
+          <div className="flex gap-0.5">
             <input
               type="file"
               ref={fileInputRef}
@@ -311,7 +322,7 @@ const Feed = () => {
             />
             <button
               onClick={handleImageClick}
-              className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 p-2.5 rounded-lg transition"
+              className="text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/10 p-2.5 rounded-xl transition-all"
               type="button"
               title="Add images"
             >
@@ -319,7 +330,7 @@ const Feed = () => {
             </button>
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className={`p-2.5 rounded-lg transition ${showEmojiPicker ? 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-900/20' : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}`}
+              className={`p-2.5 rounded-xl transition-all ${showEmojiPicker ? 'text-[var(--accent)] bg-[var(--accent)]/10' : 'text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/10'}`}
               type="button"
               title="Add emoji"
             >
@@ -329,9 +340,14 @@ const Feed = () => {
           <button 
             onClick={handleCreatePost}
             disabled={posting || (!postContent.trim() && selectedImages.length === 0)}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="btn-accent px-6 py-2 text-sm"
           >
-            {posting ? 'Posting...' : 'Post'}
+            {posting ? (
+              <span className="flex items-center gap-2">
+                <span className="mini-spinner" style={{width: '14px', height: '14px', borderWidth: '2px'}} />
+                Posting
+              </span>
+            ) : 'Post'}
           </button>
         </div>
       </div>
@@ -339,10 +355,12 @@ const Feed = () => {
       {/* Posts */}
       <div className="space-y-4">
         {posts.length === 0 && (
-          <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-            <div className="text-4xl mb-3">📝</div>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">No posts yet</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Be the first to share something</p>
+          <div className="card-glass-static text-center py-16">
+            <div className="empty-state-icon">
+              <FiImage className="w-7 h-7" />
+            </div>
+            <p className="text-[var(--text-primary)] font-medium">No posts yet</p>
+            <p className="text-sm text-[var(--text-muted)] mt-1">Be the first to share something</p>
           </div>
         )}
         {posts.map((post) => (

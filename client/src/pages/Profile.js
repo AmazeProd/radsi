@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile, followUser, unfollowUser, uploadProfilePicture } from '../services/userService';
 import { getUserPosts, deletePost, likePost, unlikePost } from '../services/postService';
-import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2, FiMapPin, FiLink, FiCalendar } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiMoreHorizontal, FiMail, FiSettings, FiTrash2, FiMapPin, FiLink, FiCalendar, FiImage } from 'react-icons/fi';
 import { FaHeart } from 'react-icons/fa';
 import ProfilePhotoUpload from '../components/profile/ProfilePhotoUpload';
 import Avatar from '../components/common/Avatar';
@@ -148,36 +148,73 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400 font-medium">User not found</p>
+          <p className="text-[var(--text-muted)] font-medium">User not found</p>
         </div>
       </div>
     );
   }
 
+  const handleLike = async (postId, isLiked) => {
+    setPosts(prevPosts => prevPosts.map(post => {
+      if (post._id === postId) {
+        return {
+          ...post,
+          isLiked: !isLiked,
+          likesCount: isLiked ? (post.likesCount - 1) : (post.likesCount + 1)
+        };
+      }
+      return post;
+    }));
+    try {
+      if (isLiked) {
+        await unlikePost(postId);
+      } else {
+        await likePost(postId);
+      }
+    } catch (error) {
+      setPosts(prevPosts => prevPosts.map(post => {
+        if (post._id === postId) {
+          return { ...post, isLiked, likesCount: isLiked ? (post.likesCount + 1) : (post.likesCount - 1) };
+        }
+        return post;
+      }));
+    }
+  };
+
   return (
     <>
     <div className="max-w-3xl mx-auto px-4 py-6">
       {/* Profile Header */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 mb-5 overflow-hidden">
+      <div className="card-glass-static mb-5 overflow-hidden">
         {/* Cover */}
         <div 
-          className="h-48 bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600"
-          style={profile.coverPhoto ? { backgroundImage: `url(${profile.coverPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-        ></div>
+          className="h-48 relative"
+          style={profile.coverPhoto 
+            ? { backgroundImage: `url(${profile.coverPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } 
+            : { background: 'linear-gradient(135deg, rgba(77, 208, 255, 0.2), rgba(124, 245, 210, 0.15), rgba(99, 102, 241, 0.2))' }
+          }
+        >
+          {/* Gradient overlay on cover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)]/80 to-transparent" />
+        </div>
         
-        <div className="px-5 pb-5">
+        <div className="px-5 pb-5 relative">
           {/* Avatar & Actions */}
           <div className="flex items-end justify-between -mt-16 mb-4">
             {isOwnProfile ? (
-              <ProfilePhotoUpload 
-                key={profile.profilePicture}
-                currentPhoto={profile.profilePicture}
-                onPhotoUpdate={handlePhotoUpdate}
-              />
+              <div className="relative z-10">
+                <ProfilePhotoUpload 
+                  key={profile.profilePicture}
+                  currentPhoto={profile.profilePicture}
+                  onPhotoUpdate={handlePhotoUpdate}
+                />
+              </div>
             ) : (
-              <Avatar user={profile} size="2xl" clickable={false} showRing={false} className="border-4 border-white dark:border-gray-900 shadow-md" />
+              <div className="relative z-10">
+                <Avatar user={profile} size="2xl" clickable={false} showRing={false} className="border-4 border-[var(--bg-canvas)] shadow-xl" />
+              </div>
             )}
             
             {!isOwnProfile && (
@@ -185,17 +222,17 @@ const Profile = () => {
                 <button
                   onClick={handleFollow}
                   disabled={followLoading}
-                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${
                     isFollowing
-                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      ? 'btn-ghost'
+                      : 'btn-accent'
                   } disabled:opacity-50`}
                 >
                   {followLoading ? '...' : isFollowing ? 'Following' : 'Follow'}
                 </button>
                 <button
                   onClick={handleMessage}
-                  className="flex items-center gap-1.5 px-5 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="btn-ghost flex items-center gap-1.5"
                 >
                   <FiMail size={16} />
                   Message
@@ -206,7 +243,7 @@ const Profile = () => {
             {isOwnProfile && (
               <button
                 onClick={() => navigate('/profile/edit')}
-                className="flex items-center gap-1.5 px-5 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mb-1"
+                className="btn-ghost flex items-center gap-1.5 mb-1"
               >
                 <FiSettings size={16} />
                 Edit Profile
@@ -216,51 +253,51 @@ const Profile = () => {
 
           {/* User Info */}
           <div className="mt-3">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">
               {profile.firstName && profile.lastName
                 ? `${profile.firstName} ${profile.lastName}`
                 : profile.username}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">@{profile.username}</p>
+            <p className="text-sm text-[var(--text-muted)]">@{profile.username}</p>
             
             {profile.bio && (
-              <p className="mt-3 text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed">{profile.bio}</p>
+              <p className="mt-3 text-[15px] text-[var(--text-primary)]/80 leading-relaxed">{profile.bio}</p>
             )}
 
             {/* Stats */}
-            <div className="flex gap-6 mt-4">
-              <div className="text-center">
-                <div className="font-bold text-lg text-gray-900 dark:text-white">{posts.length}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Posts</div>
+            <div className="flex gap-3 mt-4">
+              <div className="stat-badge">
+                <div className="stat-num">{posts.length}</div>
+                <div className="stat-label">Posts</div>
               </div>
-              <div className="text-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                <div className="font-bold text-lg text-gray-900 dark:text-white">{profile.followersCount || 0}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Followers</div>
+              <div className="stat-badge cursor-pointer">
+                <div className="stat-num">{profile.followersCount || 0}</div>
+                <div className="stat-label">Followers</div>
               </div>
-              <div className="text-center cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                <div className="font-bold text-lg text-gray-900 dark:text-white">{profile.followingCount || 0}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Following</div>
+              <div className="stat-badge cursor-pointer">
+                <div className="stat-num">{profile.followingCount || 0}</div>
+                <div className="stat-label">Following</div>
               </div>
             </div>
 
             {/* Meta Info */}
-            <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <div className="mt-4 flex flex-wrap gap-4 text-sm text-[var(--text-muted)]">
               {profile.location && (
                 <div className="flex items-center gap-1.5">
-                  <FiMapPin size={14} className="text-gray-400 dark:text-gray-500" />
+                  <FiMapPin size={14} className="text-[var(--accent)]" />
                   <span>{profile.location}</span>
                 </div>
               )}
               {profile.website && (
                 <div className="flex items-center gap-1.5">
-                  <FiLink size={14} className="text-gray-400 dark:text-gray-500" />
-                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                  <FiLink size={14} className="text-[var(--accent)]" />
+                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
                     {profile.website.replace(/^https?:\/\//, '')}
                   </a>
                 </div>
               )}
               <div className="flex items-center gap-1.5">
-                <FiCalendar size={14} className="text-gray-400 dark:text-gray-500" />
+                <FiCalendar size={14} className="text-[var(--accent)]" />
                 <span>Joined {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
             </div>
@@ -270,35 +307,40 @@ const Profile = () => {
 
       {/* Posts Section */}
       <div className="space-y-4">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white px-1">Posts</h3>
+        <div className="flex items-center gap-3 px-1 mb-2">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wider">Posts</h3>
+          <div className="flex-1 glow-line" />
+        </div>
         
         {posts.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-            <div className="text-4xl mb-3">📝</div>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">No posts yet</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+          <div className="card-glass-static text-center py-16">
+            <div className="empty-state-icon">
+              <FiImage size={28} />
+            </div>
+            <p className="text-[var(--text-primary)] font-medium">No posts yet</p>
+            <p className="text-sm text-[var(--text-muted)] mt-1">
               {isOwnProfile ? 'Share something with the world' : `${profile.username} hasn't posted yet`}
             </p>
           </div>
         ) : (
           posts.map((post) => (
-            <div key={post._id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
+            <div key={post._id} className="card-glass overflow-hidden">
               <div className="flex items-center justify-between p-4">
                 <Link to={`/profile/${profile._id}`} className="flex items-center gap-3">
                   {profile.profilePicture && !profile.profilePicture.includes('ui-avatars.com') ? (
                     <img
                       src={profile.profilePicture}
                       alt={profile.username}
-                      className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 dark:ring-gray-700"
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-[var(--surface-border)]"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full ring-1 ring-gray-100 dark:ring-gray-700 flex items-center justify-center text-white text-sm font-bold bg-indigo-500">
+                    <div className="w-10 h-10 rounded-full ring-2 ring-[var(--surface-border)] flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br from-[var(--accent)] to-[var(--accent-strong)]">
                       {getInitials(profile)}
                     </div>
                   )}
                   <div>
-                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white">{profile.username}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <h3 className="font-semibold text-sm text-[var(--text-primary)]">{profile.username}</h3>
+                    <p className="text-xs text-[var(--text-muted)]">
                       {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -307,7 +349,7 @@ const Profile = () => {
                   <div className="relative">
                     <button 
                       onClick={() => setOpenDropdown(openDropdown === post._id ? null : post._id)}
-                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1.5 hover:bg-white/5 rounded-lg transition"
                     >
                       <FiMoreHorizontal size={18} />
                     </button>
@@ -315,10 +357,10 @@ const Profile = () => {
                     {openDropdown === post._id && (
                       <>
                         <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
-                        <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                        <div className="absolute right-0 mt-1 w-44 dropdown-glass z-20">
                           <button
                             onClick={() => handleDeletePost(post._id)}
-                            className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition"
+                            className="dropdown-glass-item danger w-full"
                           >
                             <FiTrash2 size={14} />
                             Delete Post
@@ -331,11 +373,11 @@ const Profile = () => {
               </div>
               
               <div className="px-4 pb-3">
-                <p className="text-gray-800 dark:text-gray-200 text-[15px] leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                <p className="text-[var(--text-primary)] text-[15px] leading-relaxed whitespace-pre-wrap">{post.content}</p>
               </div>
               
               {post.images && post.images.length > 0 && (
-                <div>
+                <div className="mx-4 mb-3 rounded-xl overflow-hidden">
                   <img
                     src={post.images[0].url}
                     alt="Post"
@@ -344,12 +386,12 @@ const Profile = () => {
                 </div>
               )}
               
-              <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800">
+              <div className="px-4 py-2.5 border-t border-[var(--surface-border)]">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleLike(post._id, post.isLiked)}
                     className={`flex items-center gap-1.5 text-sm transition-all duration-200 ${
-                      post.isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400 hover:text-red-400'
+                      post.isLiked ? 'text-red-500' : 'text-[var(--text-muted)] hover:text-red-400'
                     }`}
                   >
                     {post.isLiked ? (
@@ -359,7 +401,7 @@ const Profile = () => {
                     )}
                     <span className="font-medium">{post.likesCount || 0}</span>
                   </button>
-                  <button className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition text-sm">
+                  <button className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--accent)] transition text-sm">
                     <FiMessageCircle className="w-4 h-4" />
                     <span className="font-medium">{post.commentsCount || 0}</span>
                   </button>

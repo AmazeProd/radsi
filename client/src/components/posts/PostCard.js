@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMessageCircle, FiShare2, FiMoreHorizontal, FiTrash2, FiChevronLeft, FiChevronRight, FiHeart } from 'react-icons/fi';
+import { FiMessageCircle, FiShare2, FiMoreHorizontal, FiTrash2, FiChevronLeft, FiChevronRight, FiHeart, FiBookmark } from 'react-icons/fi';
 import { FaHeart } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../common/Avatar';
@@ -25,18 +25,18 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
   const isLiked = post.isLiked;
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
+    <div className="card-glass overflow-hidden animate-fadeIn">
       {/* Header */}
-      <div className="flex items-start justify-between p-4">
+      <div className="flex items-start justify-between p-4 pb-3">
         <div className="flex items-center gap-3">
           <Avatar user={post.user} size="md" />
           <div>
-            <Link to={`/profile/${post.user?._id}`} className="font-semibold text-sm text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+            <Link to={`/profile/${post.user?._id}`} className="font-semibold text-sm text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors">
               {post.user?.firstName && post.user?.lastName ? 
                 `${post.user.firstName} ${post.user.lastName}` : 
                 post.user?.username}
             </Link>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-[var(--text-muted)]">
               @{post.user?.username} · {formatTime(post.createdAt)}
             </p>
           </div>
@@ -46,7 +46,7 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1.5 rounded-lg hover:bg-white/5 transition"
             >
               <FiMoreHorizontal className="w-5 h-5" />
             </button>
@@ -54,13 +54,13 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
             {showDropdown && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
-                <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                <div className="absolute right-0 mt-1 w-44 dropdown-glass z-20">
                   <button
                     onClick={() => {
                       onDelete(post._id);
                       setShowDropdown(false);
                     }}
-                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="dropdown-glass-item danger w-full"
                   >
                     <FiTrash2 className="w-4 h-4" />
                     Delete Post
@@ -74,19 +74,22 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
 
       {/* Content */}
       <div className="px-4 pb-3">
-        <p className="text-gray-800 dark:text-gray-200 text-[15px] whitespace-pre-wrap break-words leading-relaxed">
+        <p className="text-[var(--text-primary)] text-[15px] whitespace-pre-wrap break-words leading-relaxed">
           {post.content}
         </p>
       </div>
 
       {/* Images */}
       {post.images && post.images.length > 0 && (
-        <div className="relative group">
+        <div className="relative group mx-4 mb-3 rounded-xl overflow-hidden">
           <img 
             src={post.images[currentIndex]?.url} 
             alt="Post content"
             className="w-full max-h-[500px] object-cover"
           />
+          
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
           {post.images.length > 1 && (
             <>
@@ -107,7 +110,7 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
                   <div 
                     key={idx} 
                     className={`h-1.5 rounded-full transition-all ${
-                      idx === currentIndex ? 'bg-white w-5' : 'bg-white/50 w-1.5'
+                      idx === currentIndex ? 'bg-[var(--accent)] w-5' : 'bg-white/50 w-1.5'
                     }`}
                   />
                 ))}
@@ -118,14 +121,14 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
       )}
 
       {/* Actions */}
-      <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <div className="px-4 py-2.5 border-t border-[var(--surface-border)] flex items-center justify-between">
         <div className="flex items-center gap-1">
           <button
             onClick={() => onLike && onLike(post._id, isLiked)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
               isLiked
                 ? 'text-red-500'
-                : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-red-400'
+                : 'hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400'
             }`}
           >
             {isLiked ? (
@@ -138,14 +141,17 @@ const PostCard = ({ post, onLike, onDelete, currentImageIndex, onNextImage, onPr
         </div>
 
         <div className="flex items-center gap-1">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm transition-all">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[var(--accent)]/10 text-[var(--text-muted)] hover:text-[var(--accent)] text-sm transition-all">
             <FiMessageCircle className="w-4 h-4" />
             <span className="font-medium">{post.commentsCount || 0}</span>
           </button>
 
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm transition-all">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[var(--accent)]/10 text-[var(--text-muted)] hover:text-[var(--accent)] text-sm transition-all">
             <FiShare2 className="w-4 h-4" />
-            <span className="font-medium">Share</span>
+          </button>
+
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-amber-500/10 text-[var(--text-muted)] hover:text-amber-400 text-sm transition-all">
+            <FiBookmark className="w-4 h-4" />
           </button>
         </div>
       </div>

@@ -405,13 +405,13 @@ const ModernMessages = () => {
 
   return (
     <>
-    <div className="h-full bg-white dark:bg-gray-950 overflow-hidden">
+    <div className="h-full overflow-hidden" style={{ background: 'var(--bg-canvas)' }}>
       <div className={'h-full w-full mx-auto flex min-h-0 ' + (isResizing ? 'select-none' : '')}>
         {/* Conversation List */}
         <div 
           className={`
             ${selectedUser ? 'hidden md:flex' : 'flex'} 
-            flex-shrink-0 border-r border-gray-100 dark:border-gray-800/80
+            flex-shrink-0 border-r border-[var(--surface-border)]
           `}
           style={{
             width: window.innerWidth < 768 ? '100%' : `${sidebarWidth}px`,
@@ -432,7 +432,7 @@ const ModernMessages = () => {
 
         {/* Resizable Divider */}
         <div
-          className="hidden md:block w-[3px] bg-gray-100 dark:bg-gray-800/80 hover:bg-indigo-500 dark:hover:bg-indigo-600 cursor-col-resize transition-colors duration-200 relative group flex-shrink-0"
+          className="hidden md:block w-[3px] bg-[var(--surface-border)] hover:bg-[var(--accent)] cursor-col-resize transition-colors duration-200 relative group flex-shrink-0"
           onMouseDown={handleMouseDown}
         >
           <div className="absolute inset-0 w-3 -mx-[5px]" />

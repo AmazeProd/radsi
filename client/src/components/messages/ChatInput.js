@@ -88,7 +88,7 @@ const ChatInput = memo(({
   const hasContent = message.trim() || selectedImage;
 
   return (
-    <div className="flex-shrink-0 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800/80">
+    <div className="flex-shrink-0 border-t border-[var(--surface-border)]" style={{ background: 'var(--bg-elevated)' }}>
       {/* Image Preview */}
       <AnimatePresence>
         {imagePreview && (
@@ -102,11 +102,11 @@ const ChatInput = memo(({
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-gray-800"
+                className="w-20 h-20 object-cover rounded-xl border border-[var(--surface-border)]"
               />
               <button
                 onClick={onRemoveImage}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full flex items-center justify-center hover:bg-red-600 dark:hover:bg-red-500 dark:hover:text-white transition-colors shadow-sm"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-sm"
               >
                 <FiX size={11} />
               </button>
@@ -124,13 +124,13 @@ const ChatInput = memo(({
             exit={{ opacity: 0, height: 0 }}
             className="px-4 pt-3 overflow-hidden emoji-picker-container"
           >
-            <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
+            <div className="p-3 bg-white/[0.03] rounded-xl border border-[var(--surface-border)]">
               <div className="flex flex-wrap gap-1">
                 {commonEmojis.map((emoji, index) => (
                   <button
                     key={index}
                     onClick={() => handleEmojiClick(emoji)}
-                    className="text-xl w-9 h-9 flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-colors active:scale-90"
+                    className="text-xl w-9 h-9 flex items-center justify-center hover:bg-white/5 rounded-lg transition-colors active:scale-90"
                   >
                     {emoji}
                   </button>
@@ -158,7 +158,7 @@ const ChatInput = memo(({
               type="button"
               onClick={handleImageClick}
               disabled={disabled}
-              className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 transition-all disabled:opacity-40"
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5 transition-all disabled:opacity-40"
               title="Attach image"
             >
               <FiImage size={18} />
@@ -170,8 +170,8 @@ const ChatInput = memo(({
               disabled={disabled}
               className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all disabled:opacity-40 ${
                 showEmojiPicker
-                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900'
+                  ? 'text-[var(--accent)] bg-[var(--accent)]/10'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5'
               }`}
               title="Emoji"
             >
@@ -189,7 +189,7 @@ const ChatInput = memo(({
               placeholder="Type a message..."
               disabled={disabled}
               rows={1}
-              className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-[14px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/30 resize-none transition-all disabled:opacity-40"
+              className="input-glass w-full text-[14px] resize-none disabled:opacity-40"
               style={{ maxHeight: '120px' }}
             />
           </div>
@@ -201,8 +201,8 @@ const ChatInput = memo(({
               disabled={disabled || !hasContent}
               className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90 ${
                 hasContent
-                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/25 hover:bg-indigo-700 hover:shadow-md hover:shadow-indigo-500/30'
-                  : 'bg-gray-100 dark:bg-gray-900 text-gray-300 dark:text-gray-700 cursor-not-allowed'
+                  ? 'bg-[var(--accent)] text-white shadow-sm shadow-[var(--accent)]/25 hover:brightness-110 hover:shadow-md'
+                  : 'bg-white/5 text-[var(--text-muted)] cursor-not-allowed'
               }`}
             >
               <FiSend size={16} className={hasContent ? '' : ''} />

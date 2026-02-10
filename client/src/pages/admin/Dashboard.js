@@ -141,7 +141,7 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">Admin Dashboard</h1>
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -187,17 +187,17 @@ const Dashboard = () => {
       </div>
 
       {/* User Management */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="card-glass-static p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)]">User Management</h2>
           <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-muted)]" />
             <input
               type="text"
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="input-glass pl-10 pr-4 py-2"
             />
           </div>
         </div>
@@ -205,25 +205,25 @@ const Dashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">User</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Email</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Role</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Joined</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Posts</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
+              <tr className="border-b border-[var(--surface-border)]">
+                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--text-muted)]">User</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--text-muted)]">Email</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--text-muted)]">Role</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--text-muted)]">Joined</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--text-muted)]">Posts</th>
+                <th className="text-center py-3 px-4 text-sm font-semibold text-[var(--text-muted)]">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
+                  <td colSpan="6" className="text-center py-8 text-[var(--text-muted)]">
                     No users found
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
-                  <tr key={user._id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                  <tr key={user._id} className="border-b border-[var(--surface-border)] hover:bg-white/5 transition">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         {user.profilePicture && !user.profilePicture.includes('ui-avatars.com') ? (
@@ -238,14 +238,14 @@ const Dashboard = () => {
                           </div>
                         )}
                         <div>
-                          <p className="font-semibold text-gray-900">{user.username}</p>
+                          <p className="font-semibold text-[var(--text-primary)]">{user.username}</p>
                           {(user.firstName || user.lastName) && (
-                            <p className="text-sm text-gray-500">{user.firstName} {user.lastName}</p>
+                            <p className="text-sm text-[var(--text-muted)]">{user.firstName} {user.lastName}</p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{user.email || 'N/A'}</td>
+                    <td className="py-3 px-4 text-sm text-[var(--text-muted)]">{user.email || 'N/A'}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                         user.role === 'admin' 
@@ -255,28 +255,28 @@ const Dashboard = () => {
                         {user.role}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">
+                    <td className="py-3 px-4 text-sm text-[var(--text-muted)]">
                       {new Date(user.createdAt).toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric', 
                         year: 'numeric' 
                       })}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{user.postsCount || 0}</td>
+                    <td className="py-3 px-4 text-sm text-[var(--text-muted)]">{user.postsCount || 0}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-center gap-2">
                         {user.role !== 'admin' && (
                           <>
                             <button
                               onClick={() => handleDeleteUser(user._id, user.username)}
-                              className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 p-2 rounded-lg transition"
+                              className="text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10 p-2 rounded-lg transition"
                               title="Suspend user (can be reactivated)"
                             >
                               <FiUserX size={18} />
                             </button>
                             <button
                               onClick={() => handlePermanentDelete(user._id, user.username)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg transition"
                               title="Permanently delete user and all data"
                             >
                               <FiTrash2 size={18} />
@@ -292,7 +292,7 @@ const Dashboard = () => {
           </table>
         </div>
 
-        <div className="mt-4 text-sm text-gray-500">
+        <div className="mt-4 text-sm text-[var(--text-muted)]">
           Showing {filteredUsers.length} of {users.length} users
         </div>
       </div>

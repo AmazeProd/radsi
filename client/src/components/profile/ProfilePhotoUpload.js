@@ -139,13 +139,13 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
           <img
             src={currentPhoto || 'https://via.placeholder.com/150'}
             alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+            className="w-32 h-32 rounded-full object-cover border-4 border-[var(--bg-canvas)] shadow-lg"
           />
           
           {/* Camera Icon Overlay */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 bg-primary-600 text-white p-3 rounded-full shadow-lg hover:bg-primary-700 transition-all transform hover:scale-110"
+            className="absolute bottom-0 right-0 bg-[var(--accent)] text-white p-3 rounded-full shadow-lg hover:brightness-110 transition-all transform hover:scale-110"
             title="Change profile photo"
           >
             <FiCamera className="w-5 h-5" />
@@ -165,13 +165,13 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
       {/* Crop Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+          <div className="card-glass-static max-w-2xl w-full max-h-[90vh] overflow-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900">Crop Profile Photo</h3>
+            <div className="flex items-center justify-between p-4 border-b border-[var(--surface-border)]">
+              <h3 className="text-xl font-bold text-[var(--text-primary)]">Crop Profile Photo</h3>
               <button
                 onClick={handleCancel}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition"
               >
                 <FiX className="w-6 h-6" />
               </button>
@@ -179,7 +179,7 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
 
             {/* Crop Area */}
             <div className="p-6">
-              <div className="flex justify-center items-center bg-gray-100 rounded-lg overflow-hidden">
+              <div className="flex justify-center items-center rounded-lg overflow-hidden" style={{ background: 'var(--bg-canvas)' }}>
                 {imageSrc && (
                   <ReactCrop
                     crop={crop}
@@ -199,24 +199,24 @@ const ProfilePhotoUpload = ({ currentPhoto, onPhotoUpdate }) => {
                 )}
               </div>
               
-              <p className="text-sm text-gray-500 text-center mt-4">
+              <p className="text-sm text-[var(--text-muted)] text-center mt-4">
                 Drag to adjust the crop area. Your photo will be cropped to a circle.
               </p>
             </div>
 
             {/* Modal Footer */}
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-[var(--surface-border)]">
               <button
                 onClick={handleCancel}
                 disabled={uploading}
-                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
+                className="btn-ghost px-6 py-2 text-sm disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCropComplete}
                 disabled={uploading || !completedCrop}
-                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-accent px-6 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {uploading ? (
                   <>

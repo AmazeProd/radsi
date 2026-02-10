@@ -104,18 +104,18 @@ const EditProfile = () => {
     navigate(`/profile/${user.id || user._id}`);
   };
 
-  const inputClass = (field) => `block w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:border-transparent transition placeholder-gray-400 dark:placeholder-gray-500 ${
-    errors[field] ? 'border-red-300 dark:border-red-700 focus:ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:ring-indigo-500'
+  const inputClass = (field) => `input-glass w-full ${
+    errors[field] ? 'border-red-500/50 focus:ring-red-500/30' : ''
   }`;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+      <div className="card-glass-static p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Profile</h2>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">Edit Profile</h2>
           <button
             onClick={handleCancel}
-            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1.5 hover:bg-white/5 rounded-lg transition"
           >
             <FiX size={20} />
           </button>
@@ -123,7 +123,7 @@ const EditProfile = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {errors.general && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
+            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
               <FiAlertCircle className="flex-shrink-0" size={16} />
               <p className="text-sm">{errors.general}</p>
             </div>
@@ -131,7 +131,7 @@ const EditProfile = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label htmlFor="firstName" className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">
                 First Name
               </label>
               <input
@@ -144,7 +144,7 @@ const EditProfile = () => {
                 placeholder="First name"
               />
               {errors.firstName && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                   <FiAlertCircle size={12} />
                   {errors.firstName}
                 </p>
@@ -152,7 +152,7 @@ const EditProfile = () => {
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label htmlFor="lastName" className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">
                 Last Name
               </label>
               <input
@@ -165,7 +165,7 @@ const EditProfile = () => {
                 placeholder="Last name"
               />
               {errors.lastName && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                   <FiAlertCircle size={12} />
                   {errors.lastName}
                 </p>
@@ -174,8 +174,8 @@ const EditProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-              Bio {formData.bio && <span className="text-gray-400 dark:text-gray-500 text-xs font-normal">({formData.bio.length}/500)</span>}
+            <label htmlFor="bio" className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">
+              Bio {formData.bio && <span className="text-[var(--text-muted)] opacity-60 text-xs font-normal">({formData.bio.length}/500)</span>}
             </label>
             <textarea
               id="bio"
@@ -187,7 +187,7 @@ const EditProfile = () => {
               placeholder="Tell us about yourself..."
             />
             {errors.bio && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+              <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                 <FiAlertCircle size={12} />
                 {errors.bio}
               </p>
@@ -195,7 +195,7 @@ const EditProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label htmlFor="location" className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">
               Location
             </label>
             <input
@@ -208,7 +208,7 @@ const EditProfile = () => {
               placeholder="City, Country"
             />
             {errors.location && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+              <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                 <FiAlertCircle size={12} />
                 {errors.location}
               </p>
@@ -216,7 +216,7 @@ const EditProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label htmlFor="website" className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">
               Website
             </label>
             <input
@@ -229,7 +229,7 @@ const EditProfile = () => {
               placeholder="https://example.com"
             />
             {errors.website && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+              <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                 <FiAlertCircle size={12} />
                 {errors.website}
               </p>
@@ -240,7 +240,7 @@ const EditProfile = () => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 flex justify-center items-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="btn-accent flex-1 flex justify-center items-center gap-2 py-2.5 text-sm font-medium"
             >
               <FiSave size={16} />
               {loading ? 'Saving...' : 'Save Changes'}
@@ -248,7 +248,7 @@ const EditProfile = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className="px-6 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors"
+              className="btn-ghost px-6 py-2.5 text-sm font-medium"
             >
               Cancel
             </button>
