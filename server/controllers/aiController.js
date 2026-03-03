@@ -40,12 +40,12 @@ Your job is to help users compose well-written, complete chat messages based on 
 
 Rules:
 - Generate ONLY the message text, nothing else. No quotes, no explanations, no prefixes like "Here's a message:".
-- Write complete, well-formed sentences. Aim for 2-4 natural sentences that fully express the intended idea.
-- Never respond with just a few words or a fragment. Always write a complete, meaningful message.
+- Write 2-4 complete sentences. NEVER leave a sentence unfinished or cut off mid-word.
+- Always end with a proper sentence that has a period, question mark, or exclamation mark.
+- Keep the total message under 60 words so it fits naturally in a chat.
 - ${toneGuide}
 - Match the language of the user's prompt (if they write in Spanish, respond in Spanish, etc.).
 - Make the message sound like a real person wrote it — natural, flowing, and conversational.
-- Include appropriate greetings or sign-offs only when they fit the context naturally.
 - If the user's request is short or vague, expand it into a thoughtful, well-rounded message.
 ${context ? `\nRecent conversation context (for reference only):\n${context}` : ''}`;
 
@@ -55,14 +55,26 @@ ${context ? `\nRecent conversation context (for reference only):\n${context}` : 
         { role: 'user', parts: [{ text: `${systemPrompt}\n\nUser's request: ${prompt.trim()}` }] }
       ],
       generationConfig: {
-        maxOutputTokens: 500,
+        maxOutputTokens: 200,
         temperature: 0.7,
         topP: 0.9,
       },
     });
 
     const response = result.response;
-    const generatedText = response.text().trim();
+    let generatedText = response.text().trim();
+
+    // Ensure message ends with complete sentence (not cut off)
+    if (generatedText && !/[.!?]$/.test(generatedText)) {
+      const lastSentenceEnd = Math.max(
+        generatedText.lastIndexOf('.'),
+        generatedText.lastIndexOf('!'),
+        generatedText.lastIndexOf('?')
+      );
+      if (lastSentenceEnd > 0) {
+        generatedText = generatedText.substring(0, lastSentenceEnd + 1);
+      }
+    }
 
     if (!generatedText) {
       return next(new ErrorResponse('AI failed to generate a message. Please try again.', 500));
