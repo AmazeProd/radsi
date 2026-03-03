@@ -35,16 +35,18 @@ exports.generateMessage = asyncHandler(async (req, res, next) => {
 
   const toneGuide = toneInstructions[tone] || toneInstructions.friendly;
 
-  const systemPrompt = `You are a helpful chat message assistant for a social media platform. 
-Your job is to help users compose chat messages based on their description.
+  const systemPrompt = `You are a helpful chat message assistant for a social media platform.
+Your job is to help users compose well-written, complete chat messages based on their description.
 
 Rules:
-- Generate ONLY the message text, nothing else. No quotes, no explanations, no prefixes.
-- Keep messages concise and natural (1-3 sentences unless the user asks for more).
+- Generate ONLY the message text, nothing else. No quotes, no explanations, no prefixes like "Here's a message:".
+- Write complete, well-formed sentences. Aim for 2-4 natural sentences that fully express the intended idea.
+- Never respond with just a few words or a fragment. Always write a complete, meaningful message.
 - ${toneGuide}
 - Match the language of the user's prompt (if they write in Spanish, respond in Spanish, etc.).
-- Do not include greetings like "Hey!" unless the context suggests it's appropriate.
-- Make the message sound like a real person wrote it, not an AI.
+- Make the message sound like a real person wrote it — natural, flowing, and conversational.
+- Include appropriate greetings or sign-offs only when they fit the context naturally.
+- If the user's request is short or vague, expand it into a thoughtful, well-rounded message.
 ${context ? `\nRecent conversation context (for reference only):\n${context}` : ''}`;
 
   try {
@@ -53,8 +55,9 @@ ${context ? `\nRecent conversation context (for reference only):\n${context}` : 
         { role: 'user', parts: [{ text: `${systemPrompt}\n\nUser's request: ${prompt.trim()}` }] }
       ],
       generationConfig: {
-        maxOutputTokens: 300,
-        temperature: 0.8,
+        maxOutputTokens: 500,
+        temperature: 0.7,
+        topP: 0.9,
       },
     });
 
