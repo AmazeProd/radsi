@@ -5,9 +5,9 @@ const ErrorResponse = require('../utils/errorResponse');
 // Ordered list of models to try — if one hits rate limit, move to the next
 const MODELS = [
   'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
-  'gemini-1.5-flash',
 ];
 
 // Initialize Gemini
@@ -19,10 +19,10 @@ const getGenAI = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
-// Check if error is a rate limit / quota error
-const isRateLimitError = (error) => {
+// Check if error is a rate limit / quota error or model not found
+const isRetryableError = (error) => {
   const msg = error.message || '';
-  return msg.includes('429') || msg.includes('quota') || msg.includes('Too Many Requests') || msg.includes('RESOURCE_EXHAUSTED');
+  return msg.includes('429') || msg.includes('quota') || msg.includes('Too Many Requests') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('404') || msg.includes('not found');
 };
 
 // @desc    Generate AI message suggestion
@@ -113,8 +113,8 @@ ${context ? `\nRecent conversation context (for reference only):\n${context}` : 
       lastError = error;
       console.warn(`Model ${modelName} failed: ${error.message}`);
 
-      if (isRateLimitError(error)) {
-        console.log(`Rate limit hit on ${modelName}, trying next model...`);
+      if (isRetryableError(error)) {
+        console.log(`Retryable error on ${modelName}, trying next model...`);
         continue; // Try next model
       }
 
@@ -131,6 +131,6 @@ ${context ? `\nRecent conversation context (for reference only):\n${context}` : 
   }
 
   // All models exhausted
-  console.error('All AI models rate limited:', lastError?.message);
+  console.error('All AI models failed:', lastError?.message);
   return next(new ErrorResponse('AI service is temporarily busy. Please try again in a minute.', 429));
 });
