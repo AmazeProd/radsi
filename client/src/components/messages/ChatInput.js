@@ -7,7 +7,16 @@ import {
   FiX, 
   FiPlus,
   FiCheck,
-  FiRefreshCw
+  FiRefreshCw,
+  FiZap,
+  FiSmile as FiSmileIcon,
+  FiBriefcase,
+  FiHeart,
+  FiAlertCircle,
+  FiTrendingUp,
+  FiArrowRight,
+  FiMessageSquare,
+  FiCopy
 } from 'react-icons/fi';
 import { generateAIMessage } from '../../services/aiService';
 
@@ -59,12 +68,12 @@ const ChatInput = memo(({
   }, [showAIPanel]);
 
   const tones = [
-    { value: 'friendly', emoji: '😊', label: 'Friendly', color: 'from-amber-400 to-orange-400' },
-    { value: 'professional', emoji: '💼', label: 'Professional', color: 'from-blue-400 to-indigo-500' },
-    { value: 'funny', emoji: '😄', label: 'Funny', color: 'from-yellow-400 to-amber-400' },
-    { value: 'romantic', emoji: '💕', label: 'Romantic', color: 'from-pink-400 to-rose-500' },
-    { value: 'apologetic', emoji: '🙏', label: 'Sorry', color: 'from-teal-400 to-cyan-500' },
-    { value: 'encouraging', emoji: '💪', label: 'Motivate', color: 'from-green-400 to-emerald-500' },
+    { value: 'friendly', icon: FiSmileIcon, label: 'Friendly' },
+    { value: 'professional', icon: FiBriefcase, label: 'Professional' },
+    { value: 'funny', icon: FiZap, label: 'Witty' },
+    { value: 'romantic', icon: FiHeart, label: 'Romantic' },
+    { value: 'apologetic', icon: FiAlertCircle, label: 'Apologetic' },
+    { value: 'encouraging', icon: FiTrendingUp, label: 'Motivating' },
   ];
 
   const handleGenerateAI = async () => {
@@ -230,43 +239,46 @@ const ChatInput = memo(({
             exit={{ opacity: 0, height: 0 }}
             className="px-4 pt-3 overflow-hidden"
           >
-            <div className="p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/40 dark:via-purple-950/30 dark:to-pink-950/20 rounded-2xl border border-indigo-100/80 dark:border-indigo-800/40 shadow-sm">
+            <div className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
               {/* Header */}
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/25">
-                    <span className="text-sm">🤖</span>
+                  <div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white flex items-center justify-center">
+                    <FiZap size={15} className="text-white dark:text-gray-900" />
                   </div>
                   <div>
-                    <span className="text-[13px] font-bold text-gray-800 dark:text-gray-100 block leading-tight">AI Assistant</span>
-                    <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-medium">Powered by Gemini ✨</span>
+                    <span className="text-[13px] font-semibold text-gray-900 dark:text-gray-100 block leading-tight">AI Compose</span>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">Gemini</span>
                   </div>
                 </div>
                 <button
                   onClick={handleCloseAI}
-                  className="w-7 h-7 flex items-center justify-center rounded-xl hover:bg-white/60 dark:hover:bg-gray-800/60 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-all"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   <FiX size={15} />
                 </button>
               </div>
 
               {/* Tone Selector */}
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                {tones.map((t) => (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => setAiTone(t.value)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all duration-200 ${
-                      aiTone === t.value
-                        ? `bg-gradient-to-r ${t.color} text-white shadow-md scale-[1.02]`
-                        : 'bg-white/70 dark:bg-gray-800/70 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm border border-gray-100 dark:border-gray-700/50'
-                    }`}
-                  >
-                    <span className="text-base">{t.emoji}</span>
-                    <span>{t.label}</span>
-                  </button>
-                ))}
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {tones.map((t) => {
+                  const Icon = t.icon;
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setAiTone(t.value)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                        aiTone === t.value
+                          ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                          : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      <span>{t.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Prompt Input */}
@@ -277,23 +289,23 @@ const ChatInput = memo(({
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerateAI(); } }}
-                  placeholder="✍️ Describe what you want to say..."
-                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-gray-900 border border-indigo-200/80 dark:border-indigo-800/40 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all shadow-sm"
+                  placeholder="Describe what you want to say..."
+                  className="flex-1 px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900/10 dark:focus:ring-white/10 focus:border-gray-300 dark:focus:border-gray-600 transition-all"
                 />
                 <button
                   type="button"
                   onClick={handleGenerateAI}
                   disabled={aiLoading || !aiPrompt.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-[12px] font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30"
+                  className="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-[12px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {aiLoading ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Generating...</span>
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 dark:border-gray-900/30 border-t-white dark:border-t-gray-900 rounded-full animate-spin" />
+                      <span>Generating</span>
                     </>
                   ) : (
                     <>
-                      <span>🚀</span>
+                      <FiArrowRight size={14} />
                       <span>Generate</span>
                     </>
                   )}
@@ -310,37 +322,37 @@ const ChatInput = memo(({
               {/* AI Suggestion */}
               {aiSuggestion && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  transition={{ duration: 0.2 }}
                   className="mt-2"
                 >
-                  <div className="p-3.5 bg-white dark:bg-gray-900 rounded-xl border border-indigo-100 dark:border-indigo-800/40 shadow-sm">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <span className="text-xs">💬</span>
-                      <span className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">Suggested Message</span>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <FiMessageSquare size={11} className="text-gray-400" />
+                      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Suggestion</span>
                     </div>
                     <p className="text-[13px] text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
                       {aiSuggestion}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 mt-2.5">
+                  <div className="flex items-center gap-2 mt-2">
                     <button
                       type="button"
                       onClick={handleAcceptAI}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-[12px] font-bold transition-all shadow-md shadow-emerald-500/25 hover:shadow-lg active:scale-95"
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-[12px] font-semibold transition-all active:scale-[0.97]"
                     >
-                      <span>✅</span>
+                      <FiCheck size={13} />
                       Use this
                     </button>
                     <button
                       type="button"
                       onClick={handleGenerateAI}
                       disabled={aiLoading}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-[12px] font-semibold transition-all border border-gray-200 dark:border-gray-700 hover:shadow-sm active:scale-95"
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-[12px] font-medium transition-all active:scale-[0.97]"
                     >
-                      <FiRefreshCw size={13} className={aiLoading ? 'animate-spin' : ''} />
-                      🔄 Try Again
+                      <FiRefreshCw size={12} className={aiLoading ? 'animate-spin' : ''} />
+                      Retry
                     </button>
                   </div>
                 </motion.div>
@@ -398,7 +410,7 @@ const ChatInput = memo(({
               }`}
               title="AI assist"
             >
-              <span className="text-[16px] leading-none">✨</span>
+              <FiZap size={17} />
             </button>
           </div>
 
