@@ -464,6 +464,10 @@ const ModernMessages = () => {
                 setImagePreview(null);
               }}
               disabled={!selectedUser}
+              recentMessages={messages.slice(-5).map(m => ({
+                content: m.content,
+                isSent: (m.sender?._id || m.sender) === user._id || (m.sender?._id || m.sender) === user.id,
+              }))}
             />
           )}
         </div>

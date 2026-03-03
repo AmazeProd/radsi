@@ -77,6 +77,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/comments', require('./routes/comments'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/ai', require('./routes/ai'));
 app.use('/api/admin', require('./routes/admin'));
 
 // Health check
