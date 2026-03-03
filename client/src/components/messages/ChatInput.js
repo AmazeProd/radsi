@@ -239,23 +239,20 @@ const ChatInput = memo(({
             exit={{ opacity: 0, height: 0 }}
             className="px-4 pt-3 overflow-hidden"
           >
-            <div className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="p-3.5 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-gray-900 dark:bg-white flex items-center justify-center">
-                    <FiZap size={15} className="text-white dark:text-gray-900" />
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
+                    <FiZap size={13} className="text-white" />
                   </div>
-                  <div>
-                    <span className="text-[13px] font-semibold text-gray-900 dark:text-gray-100 block leading-tight">AI Compose</span>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">Gemini</span>
-                  </div>
+                  <span className="text-[13px] font-semibold text-gray-900 dark:text-white">AI Compose</span>
                 </div>
                 <button
                   onClick={handleCloseAI}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
-                  <FiX size={15} />
+                  <FiX size={14} />
                 </button>
               </div>
 
@@ -268,13 +265,13 @@ const ChatInput = memo(({
                       key={t.value}
                       type="button"
                       onClick={() => setAiTone(t.value)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors ${
                         aiTone === t.value
-                          ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                          : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-100 dark:border-gray-700'
                       }`}
                     >
-                      <Icon size={12} />
+                      <Icon size={11} />
                       <span>{t.label}</span>
                     </button>
                   );
@@ -282,7 +279,7 @@ const ChatInput = memo(({
               </div>
 
               {/* Prompt Input */}
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2">
                 <input
                   ref={aiPromptRef}
                   type="text"
@@ -290,22 +287,22 @@ const ChatInput = memo(({
                   onChange={(e) => setAiPrompt(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerateAI(); } }}
                   placeholder="Describe what you want to say..."
-                  className="flex-1 px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900/10 dark:focus:ring-white/10 focus:border-gray-300 dark:focus:border-gray-600 transition-all"
+                  className="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 dark:focus:border-indigo-700 transition-all"
                 />
                 <button
                   type="button"
                   onClick={handleGenerateAI}
                   disabled={aiLoading || !aiPrompt.trim()}
-                  className="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-[12px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
                   {aiLoading ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 dark:border-gray-900/30 border-t-white dark:border-t-gray-900 rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Generating</span>
                     </>
                   ) : (
                     <>
-                      <FiArrowRight size={14} />
+                      <FiArrowRight size={13} />
                       <span>Generate</span>
                     </>
                   )}
@@ -314,7 +311,7 @@ const ChatInput = memo(({
 
               {/* Error */}
               {aiError && (
-                <div className="text-[12px] text-red-600 dark:text-red-400 mb-2 px-1">
+                <div className="text-[12px] text-red-600 dark:text-red-400 mt-2 px-0.5">
                   {aiError}
                 </div>
               )}
@@ -324,14 +321,10 @@ const ChatInput = memo(({
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="mt-2"
+                  transition={{ duration: 0.15 }}
+                  className="mt-2.5"
                 >
-                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <FiMessageSquare size={11} className="text-gray-400" />
-                      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Suggestion</span>
-                    </div>
+                  <div className="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                     <p className="text-[13px] text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
                       {aiSuggestion}
                     </p>
@@ -340,7 +333,7 @@ const ChatInput = memo(({
                     <button
                       type="button"
                       onClick={handleAcceptAI}
-                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-[12px] font-semibold transition-all active:scale-[0.97]"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-semibold transition-colors active:scale-[0.97]"
                     >
                       <FiCheck size={13} />
                       Use this
@@ -349,7 +342,7 @@ const ChatInput = memo(({
                       type="button"
                       onClick={handleGenerateAI}
                       disabled={aiLoading}
-                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-[12px] font-medium transition-all active:scale-[0.97]"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 text-[12px] font-medium transition-colors active:scale-[0.97]"
                     >
                       <FiRefreshCw size={12} className={aiLoading ? 'animate-spin' : ''} />
                       Retry
@@ -405,7 +398,7 @@ const ChatInput = memo(({
               disabled={disabled}
               className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all disabled:opacity-40 ${
                 showAIPanel
-                  ? 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30'
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30'
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900'
               }`}
               title="AI assist"
