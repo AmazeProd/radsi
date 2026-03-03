@@ -9,7 +9,7 @@ const getModel = () => {
     throw new ErrorResponse('AI service is not configured. Please set GEMINI_API_KEY.', 503);
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  return genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 };
 
 // @desc    Generate AI message suggestion
@@ -79,6 +79,9 @@ ${context ? `\nRecent conversation context (for reference only):\n${context}` : 
     }
     if (error.message?.includes('SAFETY')) {
       return next(new ErrorResponse('The request was blocked for safety reasons. Please rephrase.', 400));
+    }
+    if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('Too Many Requests')) {
+      return next(new ErrorResponse('AI rate limit reached. Please wait a minute and try again.', 429));
     }
 
     return next(new ErrorResponse('Failed to generate message. Please try again.', 500));
