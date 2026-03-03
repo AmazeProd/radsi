@@ -59,12 +59,12 @@ const ChatInput = memo(({
   }, [showAIPanel]);
 
   const tones = [
-    { value: 'friendly', label: '😊 Friendly' },
-    { value: 'professional', label: '💼 Professional' },
-    { value: 'funny', label: '😄 Funny' },
-    { value: 'romantic', label: '💕 Romantic' },
-    { value: 'apologetic', label: '🙏 Sorry' },
-    { value: 'encouraging', label: '💪 Encouraging' },
+    { value: 'friendly', emoji: '😊', label: 'Friendly', color: 'from-amber-400 to-orange-400' },
+    { value: 'professional', emoji: '💼', label: 'Professional', color: 'from-blue-400 to-indigo-500' },
+    { value: 'funny', emoji: '😄', label: 'Funny', color: 'from-yellow-400 to-amber-400' },
+    { value: 'romantic', emoji: '💕', label: 'Romantic', color: 'from-pink-400 to-rose-500' },
+    { value: 'apologetic', emoji: '🙏', label: 'Sorry', color: 'from-teal-400 to-cyan-500' },
+    { value: 'encouraging', emoji: '💪', label: 'Motivate', color: 'from-green-400 to-emerald-500' },
   ];
 
   const handleGenerateAI = async () => {
@@ -230,35 +230,41 @@ const ChatInput = memo(({
             exit={{ opacity: 0, height: 0 }}
             className="px-4 pt-3 overflow-hidden"
           >
-            <div className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/20 rounded-xl border border-indigo-100 dark:border-indigo-900/50">
+            <div className="p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/40 dark:via-purple-950/30 dark:to-pink-950/20 rounded-2xl border border-indigo-100/80 dark:border-indigo-800/40 shadow-sm">
               {/* Header */}
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">✨</span>
-                  <span className="text-[13px] font-semibold text-indigo-700 dark:text-indigo-300">AI Message Assistant</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/25">
+                    <span className="text-sm">🤖</span>
+                  </div>
+                  <div>
+                    <span className="text-[13px] font-bold text-gray-800 dark:text-gray-100 block leading-tight">AI Assistant</span>
+                    <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-medium">Powered by Gemini ✨</span>
+                  </div>
                 </div>
                 <button
                   onClick={handleCloseAI}
-                  className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-400 dark:text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-xl hover:bg-white/60 dark:hover:bg-gray-800/60 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-all"
                 >
-                  <FiX size={14} />
+                  <FiX size={15} />
                 </button>
               </div>
 
               {/* Tone Selector */}
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
+              <div className="grid grid-cols-3 gap-2 mb-3">
                 {tones.map((t) => (
                   <button
                     key={t.value}
                     type="button"
                     onClick={() => setAiTone(t.value)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-semibold transition-all duration-200 ${
                       aiTone === t.value
-                        ? 'bg-indigo-600 text-white shadow-sm'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-indigo-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                        ? `bg-gradient-to-r ${t.color} text-white shadow-md scale-[1.02]`
+                        : 'bg-white/70 dark:bg-gray-800/70 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm border border-gray-100 dark:border-gray-700/50'
                     }`}
                   >
-                    {t.label}
+                    <span className="text-base">{t.emoji}</span>
+                    <span>{t.label}</span>
                   </button>
                 ))}
               </div>
@@ -271,23 +277,23 @@ const ChatInput = memo(({
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGenerateAI(); } }}
-                  placeholder="Describe what you want to say..."
-                  className="flex-1 px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-indigo-200 dark:border-indigo-800/50 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all"
+                  placeholder="✍️ Describe what you want to say..."
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-gray-900 border border-indigo-200/80 dark:border-indigo-800/40 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={handleGenerateAI}
                   disabled={aiLoading || !aiPrompt.trim()}
-                  className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-[12px] font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30"
                 >
                   {aiLoading ? (
                     <>
                       <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Generating</span>
+                      <span>Generating...</span>
                     </>
                   ) : (
                     <>
-                      <span>✨</span>
+                      <span>🚀</span>
                       <span>Generate</span>
                     </>
                   )}
@@ -304,32 +310,37 @@ const ChatInput = memo(({
               {/* AI Suggestion */}
               {aiSuggestion && (
                 <motion.div
-                  initial={{ opacity: 0, y: 5 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-1"
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className="mt-2"
                 >
-                  <div className="p-3 bg-white dark:bg-gray-900 rounded-lg border border-indigo-200 dark:border-indigo-800/50">
+                  <div className="p-3.5 bg-white dark:bg-gray-900 rounded-xl border border-indigo-100 dark:border-indigo-800/40 shadow-sm">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="text-xs">💬</span>
+                      <span className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">Suggested Message</span>
+                    </div>
                     <p className="text-[13px] text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
                       {aiSuggestion}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-2.5">
                     <button
                       type="button"
                       onClick={handleAcceptAI}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-semibold transition-all shadow-sm"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-[12px] font-bold transition-all shadow-md shadow-emerald-500/25 hover:shadow-lg active:scale-95"
                     >
-                      <FiCheck size={13} />
+                      <span>✅</span>
                       Use this
                     </button>
                     <button
                       type="button"
                       onClick={handleGenerateAI}
                       disabled={aiLoading}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-[12px] font-medium transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-[12px] font-semibold transition-all border border-gray-200 dark:border-gray-700 hover:shadow-sm active:scale-95"
                     >
-                      <FiRefreshCw size={12} className={aiLoading ? 'animate-spin' : ''} />
-                      Regenerate
+                      <FiRefreshCw size={13} className={aiLoading ? 'animate-spin' : ''} />
+                      🔄 Try Again
                     </button>
                   </div>
                 </motion.div>

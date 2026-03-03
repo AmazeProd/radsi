@@ -43,6 +43,7 @@ Rules:
 - Write 2-4 complete sentences. NEVER leave a sentence unfinished or cut off mid-word.
 - Always end with a proper sentence that has a period, question mark, or exclamation mark.
 - Keep the total message under 60 words so it fits naturally in a chat.
+- Use 1-3 relevant, professional emojis naturally within the message (e.g., 😊 👋 🎉 💡 🙏 ✨ 👍 💪 🤝 ❤️). Don't overdo it — place them where they feel natural.
 - ${toneGuide}
 - Match the language of the user's prompt (if they write in Spanish, respond in Spanish, etc.).
 - Make the message sound like a real person wrote it — natural, flowing, and conversational.
