@@ -10,6 +10,140 @@ const MODELS = [
   'gemini-2.0-flash-lite',
 ];
 
+const TONE_FALLBACKS = {
+  friendly: {
+    prefix: 'Hey!',
+    suffix: 'Let me know what you think 😊',
+  },
+  professional: {
+    prefix: 'Hello,',
+    suffix: 'Please let me know if this works for you.',
+  },
+  funny: {
+    prefix: '',
+    suffix: 'Had to add a little extra sparkle to it 😄',
+  },
+  romantic: {
+    prefix: 'Hey you ❤️',
+    suffix: 'I just wanted to say it in a heartfelt way.',
+  },
+  apologetic: {
+    prefix: 'I\'m really sorry.',
+    suffix: 'I appreciate your understanding 🙏',
+  },
+  encouraging: {
+    prefix: '',
+    suffix: 'I\'m rooting for you 💪',
+  },
+};
+
+const normalizeWhitespace = (value = '') => value.replace(/\s+/g, ' ').trim();
+
+const rewritePromptForFallback = (value = '') => {
+  const cleanedValue = normalizeWhitespace(value).replace(/^['"]+|['"]+$/g, '');
+
+  const rewriteRules = [
+    {
+      pattern: /^ask if\s+(.+)/i,
+      rewrite: (_, rest) => `I wanted to ask if ${rest.trim()}`,
+    },
+    {
+      pattern: /^ask whether\s+(.+)/i,
+      rewrite: (_, rest) => `I wanted to ask whether ${rest.trim()}`,
+    },
+    {
+      pattern: /^apologize for\s+(.+)/i,
+      rewrite: (_, rest) => `I'm sorry for ${rest.trim()}`,
+    },
+    {
+      pattern: /^thank (?:them|him|her)?\s*for\s+(.+)/i,
+      rewrite: (_, rest) => `Thank you for ${rest.trim()}`,
+    },
+    {
+      pattern: /^congratulate (?:them|him|her)?\s*on\s+(.+)/i,
+      rewrite: (_, rest) => `Congratulations on ${rest.trim()}`,
+    },
+    {
+      pattern: /^(write|send|say|compose|draft|tell (?:them|him|her))\s+(.+)/i,
+      rewrite: (_, __, rest) => rest.trim(),
+    },
+  ];
+
+  for (const rule of rewriteRules) {
+    const match = cleanedValue.match(rule.pattern);
+    if (match) {
+      return rule.rewrite(...match);
+    }
+  }
+
+  return cleanedValue;
+};
+
+const capitalize = (value = '') => {
+  if (!value) {
+    return '';
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
+const decapitalize = (value = '') => {
+  if (!value) {
+    return '';
+  }
+
+  return value.charAt(0).toLowerCase() + value.slice(1);
+};
+
+const ensureSentenceEnding = (value = '') => {
+  if (!value) {
+    return '';
+  }
+
+  return /[.!?]$/.test(value) ? value : `${value}.`;
+};
+
+const truncateWords = (value, maxWords) => {
+  const words = normalizeWhitespace(value).split(' ').filter(Boolean);
+
+  if (words.length <= maxWords) {
+    return normalizeWhitespace(value);
+  }
+
+  return `${words.slice(0, maxWords).join(' ')}...`;
+};
+
+const buildFallbackMessage = ({ prompt, tone }) => {
+  const fallbackTone = TONE_FALLBACKS[tone] || TONE_FALLBACKS.friendly;
+  const cleanedPrompt = rewritePromptForFallback(prompt);
+
+  let coreMessage = cleanedPrompt || 'I just wanted to reach out';
+  coreMessage = ensureSentenceEnding(capitalize(coreMessage));
+
+  if (fallbackTone.prefix && fallbackTone.prefix.endsWith(',')) {
+    coreMessage = decapitalize(coreMessage);
+  }
+
+  const parts = [fallbackTone.prefix, coreMessage, fallbackTone.suffix].filter(Boolean);
+  const combined = ensureSentenceEnding(truncateWords(parts.join(' '), 45));
+
+  return combined.replace(/\s+([.!?])/g, '$1');
+};
+
+const sendFallbackResponse = (res, prompt, tone, reason) => {
+  const message = buildFallbackMessage({ prompt, tone });
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      message,
+      model: 'local-fallback',
+      fallback: true,
+      reason,
+    },
+  });
+};
+
 // Initialize Gemini
 const getGenAI = () => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -35,7 +169,13 @@ exports.generateMessage = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Please provide a prompt describing what you want to say', 400));
   }
 
-  const genAI = getGenAI();
+  let genAI;
+  try {
+    genAI = getGenAI();
+  } catch (error) {
+    console.warn(`Gemini unavailable, using local fallback: ${error.message}`);
+    return sendFallbackResponse(res, prompt, tone, 'service_unconfigured');
+  }
 
   const toneInstructions = {
     friendly: 'Use a warm, friendly, and casual tone.',
@@ -132,5 +272,5 @@ ${context ? `\nRecent conversation context (for reference only):\n${context}` : 
 
   // All models exhausted
   console.error('All AI models failed:', lastError?.message);
-  return next(new ErrorResponse('AI service is temporarily busy. Please try again in a minute.', 429));
+  return sendFallbackResponse(res, prompt, tone, 'provider_unavailable');
 });
